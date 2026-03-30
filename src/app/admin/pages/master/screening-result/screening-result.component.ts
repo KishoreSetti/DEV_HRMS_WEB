@@ -216,54 +216,66 @@ searchText = '';
   }
 
 
-  loadCompanies() {
+loadCompanies() {
 
-    this.adminService.getCompanies(null, this.userId).subscribe({
+  this.adminService.getCompanies(null, this.userId).subscribe({
 
-      next: (res: Company[]) => {
+    next: (res: any) => {
 
-        this.companies = res || [];
+      console.log('All Companies 👉', res);
 
-        this.companyMap = {};
+      const data = res?.data ?? res ?? [];
 
-        this.companies.forEach(c => {
+      // 🔥 Only active companies
+      this.companies = data.filter((c: any) => c.isActive === true);
 
-          this.companyMap[c.companyId] = c.companyName;
+      // ✅ Build company map
+      this.companyMap = {};
+      this.companies.forEach((c: any) => {
+        this.companyMap[c.companyId] = c.companyName;
+      });
 
-        });
+      console.log('Active Companies 👉', this.companies);
 
-        this.loadRegions();
+      // ✅ Load regions after companies
+      this.loadRegions();
+    }
 
-      }
+  });
 
-    });
-
-  }
+}
 
 
-  loadRegions() {
+loadRegions() {
 
-    this.adminService.getRegions(null, this.userId).subscribe({
+  this.adminService.getRegions(null, this.userId).subscribe({
 
-      next: (res: Region[]) => {
+    next: (res: any) => {
 
-        const allRegions = res || [];
+      console.log('All Regions 👉', res);
 
-        this.regionMap = {};
+      const data = res?.data ?? res ?? [];
 
-        allRegions.forEach(r => {
+      // 🔥 Only active regions
+      const activeRegions = data.filter((r: any) => r.isActive === true);
 
-          this.regionMap[r.regionID] = r.regionName;
+      // ✅ Build region map from active data
+      this.regionMap = {};
+      activeRegions.forEach((r: any) => {
+        this.regionMap[r.regionID] = r.regionName;
+      });
 
-        });
+      // ✅ Filter regions by selected company
+      this.regions = activeRegions.filter((r: any) =>
+        r.companyID == this.companyId
+      );
 
-        this.regions = allRegions.filter(r => r.companyID == this.companyId);
+      console.log('Filtered Regions 👉', this.regions);
+    }
 
-      }
+  });
 
-    });
-
-  }
+}
 
 
   onCompanyChange() {

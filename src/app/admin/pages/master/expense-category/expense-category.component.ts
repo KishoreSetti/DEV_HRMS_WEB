@@ -67,11 +67,14 @@ onRegionChange(): void {
       expenseCategoryID: 0,
       expenseCategoryName: '',
       isActive: true,
-      CompanyID: this.companyId,
-      RegionID: this.regionId,
+      companyId: this.companyId,
+      regionId: this.regionId,
       SortOrder: 0,
       Description: '',
       UserId: this.userId
+       // ✅ MUST ADD THESE
+        ,companyName: '',
+        regionName: ''
     };
   }
 
@@ -92,10 +95,11 @@ onRegionChange(): void {
   }
 
   onSubmit(): void {
+    debugger;
     this.spinner.show();
 
-    this.expense.CompanyID = this.companyId;
-    this.expense.RegionID = this.regionId;
+    this.expense.companyId = this.companyId;
+    this.expense.regionId = this.regionId;
     this.expense.UserId = this.userId;
 
     const request = this.isEditMode
@@ -119,11 +123,36 @@ onRegionChange(): void {
       }
     });
   }
-
   editExpenseCategory(item: ExpenseCategory): void {
-    this.expense = { ...item };
-    this.isEditMode = true;
-  }
+  debugger;
+
+  // ✅ set form object
+  this.expense = { ...item };
+
+  // ✅ bind dropdown values (IMPORTANT)
+  this.companyId = item.companyId;
+
+  // ✅ load regions first
+  this.onCompanyChange();
+
+  // ✅ then set region
+  this.regionId = item.regionId;
+
+  this.isEditMode = true;
+
+  console.log(item);
+}
+
+  // editExpenseCategory(item: ExpenseCategory): void {
+  //   debugger;
+  // //    // ✅ Bind dropdown values
+  // // this.companyId = this.item.companyId;
+  // // this.regionId = this.expense.RegionID;
+
+  //   this.expense = { ...item };
+  //   this.isEditMode = true;
+  //   console.log(item);
+  // }
 
   deleteExpenseCategory(item: ExpenseCategory): void {
   Swal.fire({
@@ -150,6 +179,13 @@ onRegionChange(): void {
 }
   resetForm(): void {
     this.expense = this.getEmptyExpenseCategory();
+    
+  // ✅ reset dropdowns
+  this.companyId = 0;
+  this.regionId = 0;
+
+  // ✅ clear regions list
+  this.filteredRegions = [];
     this.isEditMode = false;
   }
 

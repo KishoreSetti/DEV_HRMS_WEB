@@ -60,6 +60,7 @@
               <select class="form-select" [(ngModel)]="designation.companyId" name="companyId" required>
                 <option value="">Select Company</option>
                 <option *ngFor="let company of companies" [value]="company.companyId">
+                                 <!-- <option *ngFor="let company of companies" [ngValue]="company.companyID"> -->
                   {{ company.companyName }}
                 </option>
               </select>
@@ -70,9 +71,12 @@
               <label class="form-label fw-semibold">Region</label>
               <select class="form-select" [(ngModel)]="designation.regionId" name="regionId" required>
                 <option value="">Select Region</option>
-                <option *ngFor="let region of regions" [value]="region.regionID">
+                <!-- <option *ngFor="let region of regions" [value]="region.regionID">
                   {{ region.regionName }}
-                </option>
+                </option> -->
+                <option *ngFor="let region of regions" [value]="region.regionID">
+  {{ region.regionName }}
+</option>
               </select>
             </div>
 
@@ -86,6 +90,19 @@
                 </label>
               </div>
             </div>
+<div class="col-md-6">
+  <label class="form-label fw-semibold">Grade</label>
+  <select class="form-select" [(ngModel)]="designation.gradeId" name="gradeId" required>
+    <!-- <option value="">Select Grade</option>
+    <option *ngFor="let g of grades" [value]="g.gradeID">
+      {{ g.gradeName }}
+    </option> -->
+    <option [ngValue]="null">Select Grade</option>
+<option *ngFor="let g of grades" [ngValue]="g.gradeID">
+  {{ g.gradeName }}
+</option>
+  </select>
+</div>
 
             <!-- Submit -->
             <div class="col-md-6 d-flex align-items-end">
@@ -160,6 +177,7 @@
                   Status
                   <i class="fa" [ngClass]="getSortIcon('isActive')"></i>
                 </th>
+                <th>Grade</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
@@ -170,13 +188,16 @@
                 <td>{{ d.designationName }}</td>
                 <td>{{ d.departmentName }}</td>
 
-                <td>{{ getCompanyName(d.companyId) }}</td>
-                <td>{{ getRegionName(d.regionId) }}</td>
+                <!-- <td>{{ getCompanyName(d.companyId) }}</td>
+                <td>{{ getRegionName(d.regionId) }}</td> -->
+                <td>{{ d.companyName }}</td>
+<td>{{ d.regionName }}</td>
                 <td class="text-center">
                   <span class="badge" [ngClass]="d.isActive ? 'bg-success' : 'bg-secondary'">
                     {{ d.isActive ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
+                <td>{{ d.gradeName }}</td>
                 <td class="text-center">
                   <button class="btn btn-sm btn-outline-primary me-2" (click)="editDesignation(d)">
                     <i class="fa-solid fa-pen-to-square"></i>

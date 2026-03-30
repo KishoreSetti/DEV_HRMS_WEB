@@ -12,7 +12,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrl: './leave-type.component.css'
 })
 export class LeaveTypeComponent {
-   companies: Company[] = [];
+    companies: Company[] = [];
   regions: Region[] = [];
 companyLoaded = false;
 userId = Number(sessionStorage.getItem("UserId"));

@@ -1,4 +1,9 @@
 <div class="form-container">
+  <div *ngIf="(!editMode && !canCreate) || (editMode && !canEdit)" style="color:red;">
+  {{ editMode 
+      ? "You don't have permission to update details"
+      : "You don't have permission to add details" }}
+</div>
   <form [formGroup]="jobHistoryForm" (ngSubmit)="onSubmit()" style="display: flex; flex-wrap: wrap; gap: 20px;">
 
     <!-- Employer -->
@@ -81,6 +86,13 @@
     <!-- Save Button -->
     <div class="form-group" style="flex: 1 1 100%; text-align: right;">
       <button type="submit">{{ editMode ? 'Update Job History' : 'Add Job History' }}</button>
+       <button 
+        type="submit"
+        *ngIf="(editMode && canEdit) || (!editMode && canCreate)">
+        
+        {{ editMode ? 'Update Job History' : 'Add Job History' }}
+        
+      </button>
     </div>
   </form>
 
@@ -130,8 +142,8 @@
              </td>
 
             <td>
-              <i class="fa-solid fa-pen" style="cursor:pointer" (click)="edit(item)"></i>
-              <i class="fa-solid fa-trash" style="cursor:pointer; margin-left: 8px;" (click)="delete(item.id)"></i>
+              <i class="fa-solid fa-pen" style="cursor:pointer" *ngIf="canEdit" (click)="edit(item)"></i>
+              <i class="fa-solid fa-trash" style="cursor:pointer; margin-left: 8px;" *ngIf="canDelete" (click)="delete(item.id)"></i>
             </td>
           </tr>
 

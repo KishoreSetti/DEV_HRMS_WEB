@@ -1,5 +1,9 @@
 <div class="form-container">
-
+  <div *ngIf="(!editMode && !canCreate) || (editMode && !canEdit)" style="color:red;">
+  {{ editMode 
+      ? "You don't have permission to update certification details"
+      : "You don't have permission to add certification details" }}
+</div>
   <form [formGroup]="certificationForm" (ngSubmit)="onSubmit()"
         style="display:flex; flex-wrap:wrap; gap:20px;">
 
@@ -57,9 +61,17 @@
 
     <!-- Submit -->
     <div class="form-group" style="flex:1 1 100%; text-align:right;">
-      <button type="submit">
+     
+        <button 
+        type="submit"
+        *ngIf="(editMode && canEdit) || (!editMode && canCreate)">
+        
         {{ editMode ? 'Update Certification' : 'Add Certification' }}
+        
       </button>
+      <!-- <button type="submit" *ngIf="canCreate">
+        {{ editMode ? 'Update Certification' : 'Add Certification' }}
+      </button> -->
     </div>
 
   </form>

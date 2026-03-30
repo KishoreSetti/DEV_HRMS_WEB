@@ -1,0 +1,97 @@
+<div class="container">
+
+    <!-- FORM CARD -->
+    <div class="card form-card">
+        <h3>Grade Master</h3>
+
+        <form [formGroup]="gradeForm">
+
+            <div class="row">
+                <!-- Company -->
+                <div class="col">
+                    <label>Company</label>
+
+                    <input type="text" [value]="companyName" disabled class="readonly-input" />
+
+                </div>
+
+                <!-- Region -->
+                <div class="col">
+                    <label>Region</label>
+                    <!-- Region -->
+                    <select formControlName="regionId">
+                        <option [ngValue]=''>---Select Region---</option>
+                        <option *ngFor="let r of regions" [ngValue]="r.regionID">
+                            {{r.regionName}}
+                        </option>
+                    </select>
+                    <div class="error" *ngIf="gradeForm.get('regionId')?.touched && gradeForm.get('regionId')?.invalid">
+                        Region is required
+                    </div>
+                </div>
+
+                <!-- Grade -->
+                <div class="col">
+                    <label>Grade</label>
+                    <!-- Grade -->
+                    <input type="text" formControlName="gradeName" placeholder="Enter Grade" />
+                    <div class="error"
+                        *ngIf="gradeForm.get('gradeName')?.touched && gradeForm.get('gradeName')?.invalid">
+                        Grade is required
+                    </div>
+                </div>
+
+                <!-- Active -->
+                <div class="col checkbox">
+                    <label>
+                        <input type="checkbox" formControlName="isActive" />
+                        Active
+                    </label>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group">
+                <button type="button" class="btn save" (click)="save()">Save</button>
+                <button type="button" class="btn cancel" (click)="resetForm()">Cancel</button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="card table-card">
+        <h3>Grade List</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Region</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let g of grades">
+                    <td>{{g.companyName}}</td>
+                    <td>{{g.regionName}}</td>
+                    <td>{{g.gradeName}}</td>
+                    <td>
+                        <span [class.active]="g.isActive" [class.inactive]="!g.isActive">
+                            {{g.isActive ? 'Active' : 'Inactive'}}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="icon edit" (click)="edit(g)">✏️</button>
+                        <button class="icon delete" (click)="delete(g)">🗑️</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>

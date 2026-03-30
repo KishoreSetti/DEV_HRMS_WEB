@@ -1,4 +1,9 @@
 <div class="form-container">
+ <!-- <div *ngIf="(!isEdit && !canCreate) || (isEdit && !canEdit)" style="color:red;">
+  {{ isEdit 
+      ? "You don't have permission to update details"
+      : "You don't have permission to add details" }}
+</div> -->
 
   <!-- Form Section -->
   <form [formGroup]="referenceForm" (ngSubmit)="onSubmit()">
@@ -35,7 +40,7 @@
       <div class="form-group"></div>
     </div>
 
-    <button type="submit" class="submit-btn">
+  <button type="submit" class="submit-btn"  >
       {{ isEdit ? 'Update Reference' : 'Add Reference' }}
     </button>
 
@@ -64,8 +69,8 @@
         <td>{{ ref.email }}</td>
         <td>{{ ref.mobileNumber }}</td>
         <td class="actions">
-          <i class="fa-solid fa-edit" title="Edit" (click)="editReference(ref)"></i>
-          <i class="fa-solid fa-trash" title="Delete" (click)="deleteReference(ref.referenceId!)"></i>
+            <i class="fa-solid fa-edit" title="Edit" *ngIf="canEdit"  (click)="editReference(ref)"></i>
+          <i class="fa-solid fa-trash" title="Delete"  *ngIf="canDelete" (click)="deleteReference(ref.referenceId!)"></i>
         </td>
       </tr>
     </tbody>

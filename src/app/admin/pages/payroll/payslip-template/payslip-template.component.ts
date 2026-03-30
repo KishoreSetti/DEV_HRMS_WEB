@@ -608,7 +608,6 @@ userId!: number;
         }
       });
   }
-
 downloadPDF(p: any) {
  
   const doc = new jsPDF();
@@ -667,7 +666,7 @@ downloadPDF(p: any) {
  
   let tableY = y + 35;
  
-  // doc.setFillColor(240);
+  doc.setFillColor("240");
   doc.rect(20, tableY, pageWidth - 40, 10, 'F');
  
   doc.setFont('helvetica', 'bold');
@@ -740,7 +739,6 @@ downloadPDF(p: any) {
  
   doc.save(`Payslip_${emp?.employeeCode}_${monthName}.pdf`);
 }
-
   get paginatedPayroll() {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.payrollList.slice(start, start + this.pageSize);

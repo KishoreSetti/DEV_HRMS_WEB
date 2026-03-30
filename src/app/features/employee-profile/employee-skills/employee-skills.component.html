@@ -17,9 +17,9 @@
   
     <!-- Tab Header -->
     <div class="tab-header">
-      <label class="tab-label" for="tab1">Job History</label>
-      <label class="tab-label" for="tab2">Education</label>
-      <label class="tab-label" for="tab3">Certification</label>  
+      <label class="tab-label" *ngIf="canJobHistory"  for="tab1">Job History</label>
+      <label class="tab-label" *ngIf="canEducation" for="tab2">Education</label>
+      <label class="tab-label" *ngIf="canCertification" for="tab3">Certification</label>  
     </div>
 <!-- Job History Tab -->
 <div id="content1" class="tab-content">

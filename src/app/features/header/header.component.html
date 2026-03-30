@@ -1,94 +1,93 @@
- <div class="topbar">
+<div class="topbar">
   <!-- Left side: Logo -->
   <div class="top-left">
     <div class="logo">
       <img src="/assets/images/cor-logo.png" width="150px" height="50px" alt="Logo">
     </div>
-  <div class="clock-status">
-  <span>Status: {{ clockStatus }}</span> |
-  <span>Clock In: {{ clockInDisplay }}</span> |
-  <span>Total Hours: {{ totalHoursDisplay }}</span>
-</div>
-</div>
-<button class="btn btn-primary" (click)="toggleClock()">
-  {{ isClockedIn ? 'Clock Out' : 'Clock In' }}
-</button>
-<div class="right-section">
+    <div class="clock-status">
+      <span>Status: {{ clockStatus }}</span> |
+      <span>Clock In: {{ clockInDisplay }}</span> |
+      <span>Total Hours: {{ totalHoursDisplay }}</span>
+    </div>
+  </div>
+  <button class="btn btn-primary" (click)="toggleClock()">
+    {{ isClockedIn ? 'Clock Out' : 'Clock In' }}
+  </button>
+  <div class="right-section">
     <!-- Quick Links -->
     <button class="icon-btn" title="Quick Links"><i class="fas fa-link"></i></button>
 
     <!-- Notifications -->
-   <div class="top-right-icons">
-  <!-- Notifications -->
-  <div class="icon-dropdown">
-    <i class="fas fa-bell"></i>
-    <span class="count">3</span>
-    <div class="dropdown-content">
-      <p><strong>Notifications</strong></p>
-      <a href="#">New leave request</a>
-      <a href="#">Policy update</a>
-      <a href="#">Timesheet pending</a>
-      <a href="#">Another notification</a>
-    </div>
-  </div>
+    <div class="top-right-icons">
+      <!-- Notifications -->
+      <div class="icon-dropdown">
+        <i class="fas fa-bell"></i>
+        <span class="count">3</span>
+        <div class="dropdown-content">
+          <p><strong>Notifications</strong></p>
+          <a href="#">New leave request</a>
+          <a href="#">Policy update</a>
+          <a href="#">Timesheet pending</a>
+          <a href="#">Another notification</a>
+        </div>
+      </div>
 
-  <!-- Messages -->
-  <div class="icon-dropdown">
-    <i class="fas fa-envelope"></i>
-    <span class="count">2</span>
-    <div class="dropdown-content">
-      <p><strong>Messages</strong></p>
-      <a href="#">Message from HR</a>
-      <a href="#">Project update</a>
+      <!-- Messages -->
+      <div class="icon-dropdown">
+        <i class="fas fa-envelope"></i>
+        <span class="count">2</span>
+        <div class="dropdown-content">
+          <p><strong>Messages</strong></p>
+          <a href="#">Message from HR</a>
+          <a href="#">Project update</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
 
     <!-- Language / Country -->
     <div class="profile-menu">
-     
-     <div class="profile-menu" (click)="toggleLocationMenu($event)">
-  
-  <i class="fas fa-globe"></i>
-  <i class="fas fa-chevron-down small-chevron"></i>
 
-  <div class="profile-dropdown" [class.show]="isLocationOpen">
-    <div class="location-container">
+      <div class="profile-menu" (click)="toggleLocationMenu($event)">
 
-      <!-- LEFT: COUNTRY LIST -->
-      <div class="country-list">
-        <a *ngFor="let country of (locations | keyvalue)"
-           (click)="selectCountry(country.key)">
-          {{ country.key }}
-        </a>
+        <i class="fas fa-globe"></i>
+        <i class="fas fa-chevron-down small-chevron"></i>
+
+        <div class="profile-dropdown" [class.show]="isLocationOpen">
+          <div class="location-container">
+
+            <!-- LEFT: COUNTRY LIST -->
+            <div class="country-list">
+              <a *ngFor="let country of (locations | keyvalue)" (click)="selectCountry(country.key)">
+                {{ country.key }}
+              </a>
+            </div>
+
+            <!-- RIGHT: REGION LIST -->
+            <div class="region-list">
+              <a *ngFor="let region of regionList" (click)="selectRegion(region)">
+                {{ region }}
+              </a>
+            </div>
+
+          </div>
+        </div>
       </div>
-
-      <!-- RIGHT: REGION LIST -->
-      <div class="region-list">
-        <a *ngFor="let region of regionList"
-           (click)="selectRegion(region)">
-          {{ region }}
-        </a>
-      </div>
-
-    </div>
-  </div>
-</div>
     </div>
 
- <div class="profile-menu">
-  <span class="profile-name">Welcome, <b>{{userName}}({{roleName}})</b></span>
-  <i class="fas fa-user-circle profile-icon"></i>
-  <i class="fas fa-chevron-down dropdown-arrow"></i>
+    <div class="profile-menu">
+      <span class="profile-name">Welcome, <b>{{userName}}({{roleName}})</b></span>
+      <img [src]="profilePicture" alt="Profile Picture" width="100" height="100" class="profile-pic"
+        (error)="profilePicture='assets/images/default-profile.png'" />
+      <i class="fas fa-chevron-down dropdown-arrow"></i>
 
-  <div class="profile-dropdown" [class.show]="isProfileOpen">
-    <a routerLink="/profile" (click)="closeProfileMenu()">My Profile</a>
-    <a *ngIf="superadmin" routerLink="/admin/dashboard" (click)="closeProfileMenu()">Admin Settings</a>
-    <a routerLink="/change-password" (click)="closeProfileMenu()">Change Password</a>
-    <a routerLink="">Log Out</a>
-  </div>
-</div>
+      <div class="profile-dropdown" [class.show]="isProfileOpen">
+        <a routerLink="/profile" (click)="closeProfileMenu()">My Profile</a>
+        <a *ngIf="superadmin" routerLink="/admin/dashboard" (click)="closeProfileMenu()">Admin Settings</a>
+        <a routerLink="/change-password" (click)="closeProfileMenu()">Change Password</a>
+        <a routerLink="">Log Out</a>
+      </div>
+    </div>
 
 
   </div>

@@ -48,8 +48,8 @@ employees: any[] = [];
     next: (res) => {
      this.letters = res.map((x: any) => ({
       id: x.id,
-      documentType: this.getDocumentTypeName(x.documentTypeId),       // FIX
-      title: x.documentName,
+        documentType: String(x.documentTypeId),
+                title: x.documentName,
       empCode: x.employeeCode,
       empName: x.employeeName,
       issuedDate: x.issuedDate,
@@ -68,17 +68,21 @@ employees: any[] = [];
     this.adminService.ViewDocument(environment.LettersPath+path, download);
   }
 
-getDocumentTypeName(id: number): string {
-  const doc = this.documentTypes.find(d => d.id === id);
+getDocumentTypeName(id: string | number): string {
+  const numericId = Number(id);
+  const doc = this.documentTypes.find(d => d.id === numericId);
   return doc ? doc.typeName : '';
 }
 
   
   loadDocumentTypes() {
-    this.adminService.getActiveDocumentTypes().subscribe({
-      next: (res: any) => {
-        this.documentTypes = res;    
-        this.loadEmployeeLetters();
+    this.adminService.getAttachmentTypesByCategory('Letters')
+    .subscribe({
+      next: (res: any[]) => {
+        this.documentTypes = res.map(x => ({
+          id: x.attachmentTypeId,
+          typeName: x.attachmentTypeName
+        }));
       },
       error: (err) => {
         console.error('Failed to load document types', err);
@@ -290,7 +294,7 @@ onEmployeeChange(code: any) {
 
   if (emp) {
     this.form.empCode = emp.employeeCode;
-    this.form.empName = emp.fullName;
+    this.form.empName = emp.employeeName;
   }
 
 }

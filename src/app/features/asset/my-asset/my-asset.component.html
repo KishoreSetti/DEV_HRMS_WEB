@@ -3,35 +3,24 @@
 ======================= -->
 <form class="row mb-3">
 
-  <!-- Asset Name -->
-  <div class="col-md-3">
-    <label class="form-label">Asset Name</label>
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Enter asset name"
-      [(ngModel)]="filter.assetName"
-      name="assetName">
-  </div>
+ <!-- Asset Type -->
+<div class="col-md-3">
+  <label>Asset Type</label>
+  <select class="form-select"
+          [(ngModel)]="filter.assetType"
+          name="assetType">
+    <option value="">All</option>
+    <option *ngFor="let type of assetTypes" [value]="type.assetTypeId">
+      {{ type.assetTypeName }}
+    </option>
+  </select>
+</div>
 
-  <!-- Location -->
-  <div class="col-md-3">
-    <label class="form-label">Location</label>
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Enter location"
-      [(ngModel)]="filter.location"
-      name="location">
-  </div>
 
   <!-- Status -->
   <div class="col-md-2">
     <label class="form-label">Status</label>
-    <select
-      class="form-select"
-      [(ngModel)]="filter.assetStatusId"
-      name="assetStatusId">
+    <select class="form-select" [(ngModel)]="filter.assetStatusId" name="assetStatusId">
       <option value="">All</option>
       <option *ngFor="let s of statuses" [value]="s.assetStatusId">
         {{ s.assetStatusName }}
@@ -39,34 +28,15 @@
     </select>
   </div>
 
-  <!-- Currency -->
-  <div class="col-md-2">
-    <label class="form-label">Currency</label>
-    <select
-      class="form-select"
-      [(ngModel)]="filter.currencyCode"
-      name="currencyCode">
-      <option value="">All</option>
-      <option>INR</option>
-      <option>USD</option>
-      <option>MYR</option>
-      <option>EUR</option>
-    </select>
-  </div>
+  
 
   <!-- Buttons -->
   <div class="col-md-2 d-flex align-items-end gap-2">
-    <button
-      type="button"
-      class="btn btn-primary w-100"
-      (click)="applyFilters()">
+    <button type="button" class="btn btn-primary w-100" (click)="applyFilters()">
       Filter
     </button>
 
-    <button
-      type="button"
-      class="btn btn-outline-secondary w-100"
-      (click)="clearFilters()">
+    <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">
       Clear
     </button>
   </div>
@@ -80,39 +50,36 @@
   <div class="table-card">
     <h3>My Assets</h3>
 
-    <table class="table table-bordered table-hover">
-      <thead class="table-light">
+    <table class="table table-bordered">
+      <thead>
         <tr>
-          <th>Asset Name</th>
-          <th>Asset Code</th>
-          <th>Employee</th>
-          <th>Location</th>
-          <th>Cost</th>
+          <th>Request ID</th>
+          <th>Asset Type</th>
+          <th>Category</th>
+          <th>Required Date</th>
+          <th>Priority</th>
+          <th>Reason</th>
+
           <th>Status</th>
         </tr>
       </thead>
 
       <tbody>
+        <tr *ngFor="let r of filteredRequests">
+          <td>{{ r.requestID }}</td>
+          <td>{{ getAssetTypeName(r.assetType) }}</td>
+          <td>{{ getAssetCategoryName(r.assetCategory) }}</td>
+          <td>{{ r.requiredDate | date:'dd-MM-yyyy' }}</td>
+          <td>{{ getPriorityName(r.priority) }}</td>
+          <td>{{ r.reason }}</td>
 
-        <!-- DATA ROWS -->
-        <tr *ngFor="let asset of filteredAssets">
-          <td>{{ asset.assetName }}</td>
-          <td>{{ asset.assetCode }}</td>
-          <td>{{ asset.employeeName || '-' }}</td>
-          <td>{{ asset.assetLocation || '-' }}</td>
-          <td>{{ asset.currencyCode }} {{ asset.assetCost }}</td>
           <td>
-            {{ getStatusName(asset.assetStatusID) }}
+            <span class="badge bg-warning" *ngIf="r.status=='Pending'">Pending</span>
+            <span class="badge bg-success" *ngIf="r.status=='Approved'">Approved</span>
+            <span class="badge bg-danger" *ngIf="r.status=='Rejected'">Rejected</span>
+            <span class="badge bg-primary" *ngIf="r.status=='Assigned'">Assigned</span>
           </td>
         </tr>
-
-        <!-- EMPTY STATE -->
-        <tr *ngIf="filteredAssets.length === 0">
-          <td colspan="6" class="text-center text-muted">
-            No assets found
-          </td>
-        </tr>
-
       </tbody>
     </table>
   </div>

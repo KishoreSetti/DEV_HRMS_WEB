@@ -95,17 +95,33 @@ export class EmployeeFormsComponent {
 }
 
 
+//  loadDocumentTypes() {
+//    this.adminService.getActiveDocumentTypes().subscribe({
+//      next: (res: any) => {
+//        this.documentTypes = res; 
+//        this.loadEmployeeForms();    
+//      },
+//      error: (err) => {
+//        console.error('Failed to load document types', err);
+//      }
+//    });
+//  }
+
+
  loadDocumentTypes() {
-   this.adminService.getActiveDocumentTypes().subscribe({
-     next: (res: any) => {
-       this.documentTypes = res; 
-       this.loadEmployeeForms();    
-     },
-     error: (err) => {
-       console.error('Failed to load document types', err);
-     }
-   });
- }
+  this.adminService.getAttachmentTypesByCategory('Forms')
+    .subscribe({
+      next: (res: any[]) => {
+        this.documentTypes = res.map(x => ({
+          id: x.attachmentTypeId,
+          typeName: x.attachmentTypeName
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load document types', err);
+      }
+    });
+}
 
   // ---------------- FILE UPLOAD ----------------
   onFileSelect(event: any) {

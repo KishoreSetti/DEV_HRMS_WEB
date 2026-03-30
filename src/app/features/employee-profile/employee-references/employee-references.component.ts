@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EmployeeResignationService,Reference } from '../employee-services/employee-resignation.service';
 import Swal from 'sweetalert2';
+import { AdminService } from '../../../admin/servies/admin.service';
 @Component({
   selector: 'app-employee-references',
   standalone: false,
@@ -13,10 +14,12 @@ export class EmployeeReferencesComponent {
   referenceList: Reference[] = [];
   isEdit = false;
   editId!: number;
-
+canCreate: boolean = false;
+canEdit: boolean = false;
+ canDelete: boolean = false;
   constructor(
     private fb: FormBuilder,
-    private referenceService: EmployeeResignationService
+    private referenceService: EmployeeResignationService,private adminService: AdminService
   ) { }
 
   ngOnInit(): void {
@@ -90,6 +93,10 @@ export class EmployeeReferencesComponent {
 
   // 🗑️ Delete
   deleteReference(id: number) {
+     if (!this.canDelete) {
+    Swal.fire("You don't have permission to delete this reference", "", "warning");
+    return;
+  }
     if (confirm('Are you sure you want to delete this reference?')) {
       this.referenceService.deleteReference(id)
         .subscribe(() => {
@@ -103,4 +110,37 @@ export class EmployeeReferencesComponent {
     this.referenceForm.reset();
     this.isEdit = false;
   }
+    loadPermission() {
+  debugger;
+
+  const userId = Number(sessionStorage.getItem("UserId"));
+
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+ const familyMenu = menus.find((m: any) => m.menuName === "References");
+
+  const menuId = familyMenu ? familyMenu.menuId : 0;
+    if (familyMenu) {
+    this.canCreate = familyMenu.canAdd;
+     this.canEdit = familyMenu.canEdit;
+     this.canDelete = familyMenu.canDelete;
+  //   this.canEdit = familyMenu.canEdit;
+  //   this.canDelete = familyMenu.canDelete;
+  //   this.canView = familyMenu.canView;
+   }
+
+  console.log("UserId:", userId);
+  console.log("MenuId:", menuId);
+
+  this.adminService.getPermission(userId, menuId, 'create').subscribe({
+    next: (res: boolean) => {
+      console.log("Create Permission:", res);
+      this.canCreate = res;
+    },
+    error: (err) => {
+      console.error("Permission API error:", err);
+      this.canCreate = false;
+    }
+  });
+}
 }

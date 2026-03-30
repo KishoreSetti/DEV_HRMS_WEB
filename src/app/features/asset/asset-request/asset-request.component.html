@@ -1,0 +1,161 @@
+<form [formGroup]="assetRequestForm" (ngSubmit)="submit()">
+
+    <!-- ================= SECTION 1 ================= -->
+
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label>Employee Name</label>
+            <input type="text" class="form-control" formControlName="employeeName" readonly>
+        </div>
+
+        <div class="col-md-4">
+            <label>Employee ID</label>
+            <input type="text" class="form-control" formControlName="employeeId" readonly>
+        </div>
+
+        <div class="col-md-4">
+            <label>Department</label>
+            <input type="text" class="form-control" formControlName="department" readonly>
+        </div>
+    </div>
+
+    <!-- ================= SECTION 2 ================= -->
+
+
+    <div class="row mb-3">
+
+        <!-- Asset Type -->
+        <div class="col-md-4">
+            <label>Asset Type <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="assetType">
+                <option value="">Select Asset Type</option>
+                <option *ngFor="let type of assetTypes" [ngValue]="type.assetTypeId">
+                    {{ type.assetTypeName }}
+                </option>
+
+            </select>
+
+            <small class="text-danger" *ngIf="f['assetType'].touched && f['assetType'].errors">
+                Asset Type is required
+            </small>
+        </div>
+
+        <!-- Asset Category -->
+        <div class="col-md-4">
+            <label>Asset Category</label>
+            <select class="form-select" formControlName="assetCategory">
+                <option value="">Select Category</option>
+                <option *ngFor="let cat of assetCategories" [ngValue]="cat.assetCategoryId">
+                    {{ cat.assetCategoryName }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Required Date -->
+        <div class="col-md-4">
+            <label>Required Date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" formControlName="requiredDate">
+
+            <small class="text-danger" *ngIf="f['requiredDate'].touched && f['requiredDate'].errors">
+                Required Date is required
+            </small>
+        </div>
+
+    </div>
+
+    <div class="row mb-3">
+
+        <!-- Priority -->
+        <div class="col-md-4">
+            <label>Priority</label>
+            <select class="form-select" formControlName="priority">
+                <option value="">Select Priority</option>
+                <option *ngFor="let p of priorities" [ngValue]="p.priorityId">
+                    {{ p.priorityName }}
+                </option>
+            </select>
+        </div>
+
+        <!-- Reason -->
+        <div class="col-md-8">
+            <label>Reason <span class="text-danger">*</span></label>
+            <textarea class="form-control" formControlName="reason" rows="2"></textarea>
+
+            <small class="text-danger" *ngIf="f['reason'].touched && f['reason'].errors">
+                Reason is required
+            </small>
+        </div>
+
+    </div>
+
+    <!-- ================= SECTION 3 ================= -->
+
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label>Upload File</label>
+            <input type="file" class="form-control" (change)="onFileChange($event)">
+        </div>
+    </div>
+
+    <!-- ================= BUTTONS ================= -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">
+                Submit Request
+            </button>
+        </div>
+
+        <div class="col-md-3">
+            <button type="button" class="btn btn-secondary w-100" (click)="cancel()">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+</form>
+<div class="table-responsive mt-4">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Asset Type</th>
+                <th>Category</th>
+                <th>Required Date</th>
+                <th>Priority</th>
+                <th>Reason</th>
+                <th>File</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let r of requests">
+                <td>{{ r.requestID }}</td>
+                <td>{{ getAssetTypeName(r.assetType) }}</td>
+                <td>{{ getAssetCategoryName(r.assetCategory) }}</td>
+                <td>{{ r.requiredDate | date:'dd-MM-yyyy' }}</td>
+                <td>{{ getPriorityName(r.priority) }}</td>
+                <td>{{ r.reason }}</td>
+                <td>
+                    <a *ngIf="r.file; else noFile" style="cursor:pointer; color: #0d6efd; font-weight: 500;"
+                        (click)="viewDocument(r.file)">
+                        View
+                    </a>
+
+                    <!-- If no file -->
+                    <ng-template #noFile>
+                        <span class="text-muted">No File</span>
+                    </ng-template>
+                </td>
+                <td>
+                    <span class="badge bg-warning" *ngIf="r.status=='Pending'">Pending</span>
+                    <span class="badge bg-success" *ngIf="r.status=='Approved'">Approved</span>
+                    <span class="badge bg-danger" *ngIf="r.status=='Rejected'">Rejected</span>
+                    <span class="badge bg-primary" *ngIf="r.status=='Assigned'">Assigned</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

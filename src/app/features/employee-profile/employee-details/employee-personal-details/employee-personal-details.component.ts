@@ -15,6 +15,7 @@ import { AdminService } from '../../../../admin/servies/admin.service';
 export class EmployeePersonalDetailsComponent {
 personalForm!: FormGroup;
   selectedFile: File | null = null;
+  employmentTypes: any;
 userId = Number(sessionStorage.getItem('UserId') ?? 0);
  companyId=Number(sessionStorage.getItem("CompanyId"));
   regionId=Number(sessionStorage.getItem("RegionId"));
@@ -41,21 +42,39 @@ maritalStatusList: any[] = [];
     this.loadgender();
      if (this.userId > 0) {
       this.loadByUserId();
+      this.loadEmploymentTypes();
     }
      
   }
-  genderList: any[] = [];
-   loadgender() {
-    this.service.Getempgender(this.userId,this.companyId,this.regionId).subscribe(res => {
-      this.genderList = res;
-    });
-  }
+genderList: any[] = [];
+genderMap: { [key: number]: string } = {};
+
+loadgender() {
+  this.service.Getempgender(this.userId, this.companyId, this.regionId).subscribe({
+    next: (res: any[]) => {
+
+      console.log('All Genders 👉', res);
+
+      // ✅ Filter Active = true
+      this.genderList = (res || []).filter((g: any) => g.isActive === true);
+
+      // ✅ Build Map (optional but useful)
+      this.genderMap = {};
+      this.genderList.forEach((g: any) => {
+        this.genderMap[g.genderId] = g.genderName;
+      });
+
+      console.log('Active Genders 👉', this.genderList);
+      console.log('Gender Map 👉', this.genderMap);
+    },
+    error: () => console.error('Failed to load genders')
+  });
+}
    // load existing record (if any) and patch the form
   private loadByUserId() {
     this.service.GetByUserIdempProfile(this.userId).subscribe({
       next: (res: any) => {
         if (res) {
-          debugger;
           // backend field name might be personalId or PersonalId — adjust if necessary
           this.existingRecordId = res.id ?? res.id ?? res.personalDetailsId ?? null;
            this.editId=res.id;
@@ -99,6 +118,7 @@ maritalStatusList: any[] = [];
       linkedInProfile: [''],
       previousExperience: [''],
       ProfilePicturePath: [''],
+      ProfilePictureName : [''],
       brandGrade: [''],
       esicNumber: [''],
       pfNumber: [''],
@@ -116,7 +136,6 @@ maritalStatusList: any[] = [];
 
   // CREATE OR UPDATE
   onSubmit() {
-    debugger;
     // if (this.personalForm.invalid) {
     //   Swal.fire("Please fill required fields", '', 'warning');
     //   return;
@@ -131,7 +150,6 @@ maritalStatusList: any[] = [];
     }
  
 
-debugger;
     if (this.editId == null) {
       // CALL CREATE
       this.service.createempProfile(formData).subscribe(res => {
@@ -174,16 +192,32 @@ debugger;
       });
     }
   }
-  loadBloodGroups() {
-  this.adminService.GetAlluserIdAsync(Number(sessionStorage.getItem("userCompanyId"))).subscribe({
-    next: (res: any) => {
-      if (res) {
-        this.bloodGroupList = res;
-        console.timeLog(res);
+bloodGroupMap: { [key: number]: string } = {};
+
+loadBloodGroups() {
+  this.adminService
+    .GetAlluserIdAsync(Number(sessionStorage.getItem("userCompanyId")))
+    .subscribe({
+      next: (res: any[]) => {
+
+        console.log('All Blood Groups 👉', res);
+
+        // ✅ Filter Active = true
+        this.bloodGroupList = (res || []).filter((b: any) => b.isActive === true);
+
+        // ✅ Build Map
+        this.bloodGroupMap = {};
+        this.bloodGroupList.forEach((b: any) => {
+          this.bloodGroupMap[b.bloodGroupId] = b.bloodGroupName;
+        });
+
+        console.log('Active Blood Groups 👉', this.bloodGroupList);
+        console.log('Blood Group Map 👉', this.bloodGroupMap);
+      },
+      error: (err) => {
+        console.error(err);
       }
-    },
-    error: (err) => console.error(err)
-  });
+    });
 }
 loadMaritalStatuses() {
   this.adminService.getMaritalStatusesbycmp(this.companyId,this.regionId).subscribe({
@@ -197,5 +231,18 @@ loadMaritalStatuses() {
     },
     error: (err) => console.error(err)
   });
+}
+loadEmploymentTypes() {
+  debugger;
+  this.adminService
+    .getEmploymentTypesByFilter(this.companyId, this.regionId)
+    .subscribe({
+      next: (res: any) => {
+        this.employmentTypes = res.data || [];
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to load Employment Types', 'error');
+      }
+    });
 }
 }

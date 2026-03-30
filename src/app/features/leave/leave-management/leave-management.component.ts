@@ -16,6 +16,9 @@ export class LeaveManagementComponent {
   currentYear: number = this.currentDate.getFullYear();
   dates: { dateStr: string, day: string }[] = [];
   weeks: (number | null)[][] = [];
+  canApplyLeave :Boolean= false;
+canViewApproval :Boolean= false;
+canViewCalendar :Boolean= false;
 
   employees: string[] = ['John Doe', 'Jane Smith', 'Alice Brown'];
   selectedEmployee: string = 'John Doe';
@@ -35,9 +38,70 @@ export class LeaveManagementComponent {
   };
 
   ngOnInit(): void {
+    this.loadLeavePermissions();
     this.generateMonthDates(this.currentYear, this.currentMonth);
   }
 
+  loadLeavePermissions() {
+    debugger;
+
+      const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  // 👉 Step 1: Get parent menu dynamically
+  const parentMenu = menus.find((m: any) =>
+    m.menuName?.trim().toLowerCase() === "leaves"
+  );
+
+  const parentId = parentMenu?.menuId;
+
+  // 👉 Step 2: Get child menus using parentId
+  const leaveMenus = menus.filter((m: any) => m.parentId === parentId);
+
+  // 👉 Step 3: Permission checker
+  const getPermission = (menuName: string) => {
+    return leaveMenus.find((m: any) =>
+      m.menuName?.trim().toLowerCase() === menuName.toLowerCase()
+    )?.canView ?? false;
+  };
+  //const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  // // Get only child menus of Leaves (parentId = 35)
+  // const leaveMenus = menus.filter((m: any) => m.parentId === 35);
+
+  // const getPermission = (menuName: string) => {
+  //   return leaveMenus.find((m: any) =>
+  //     m.menuName?.trim().toLowerCase() === menuName.toLowerCase()
+  //   )?.canView ?? false;
+  // };
+
+  this.canApplyLeave = getPermission("Leave Apply");
+  this.canViewApproval = getPermission("Leave Approve");
+  this.canViewCalendar = getPermission("Leave Calendar");
+}
+
+//   loadLeavePermissions() {
+//   const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+//    const leaveApply = menus.find(
+//     (m:any) => m.menuName?.trim().toLowerCase() === "leave apply"
+//   );
+//    const Approvals = menus.find(
+//     (m:any) => m.menuName?.trim().toLowerCase() === "leave approvals"
+//   );
+//    const Calender = menus.find(
+//     (m:any) => m.menuName?.trim().toLowerCase() === "leave calender"
+//   );
+
+//   // const getPermission = (menuName: string) => {
+//   //   return menus.find((m: any) =>
+//   //     m.menuName?.trim().toLowerCase() === menuName.toLowerCase()
+//   //   )?.canView ?? false;
+//   // };
+
+//   this.canApplyLeave = leaveApply?.canView ?? false;
+//   this.canViewApprovals = Approvals?.canView ?? false;
+//   this.canViewCalendar = Calender?.canView ?? false;
+// }
   // =================== Month View ===================
   generateMonthDates(year: number, month: number) {
     this.weeks = [];

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService,Company,Region,CompanyNewsCategory } from '../servies/admin.service';
+import { AdminService, Company, Region, CompanyNewsCategory } from '../servies/admin.service';
 import Swal from 'sweetalert2';
 @Component({
   selector: 'app-company-news-category',
@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
   styleUrl: './company-news-category.component.css'
 })
 export class CompanyNewsCategoryComponent {
-categories: CompanyNewsCategory[] = [];
+  categories: CompanyNewsCategory[] = [];
   companies: Company[] = [];
   regions: Region[] = [];
   category: CompanyNewsCategory = this.getEmptyCategory();
@@ -17,11 +17,11 @@ categories: CompanyNewsCategory[] = [];
   statusFilter: boolean | '' = '';
   pageSize = 5;
   currentPage = 1;
-  UserId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0;  
+  UserId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0;
   Math = Math;
   filteredRegions: Region[] = [];
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService) { }
   ngOnInit(): void {
     this.loadCategories();
     this.loadCompanies();
@@ -49,81 +49,87 @@ categories: CompanyNewsCategory[] = [];
     });
   }
   onCompanyChange(): void {
-  if (this.category.companyId) {
-    this.filteredRegions = this.regions.filter(
-      r => r.companyID === this.category.companyId
-    );
-  } else {
-    this.filteredRegions = [];
+    if (this.category.companyId) {
+      this.filteredRegions = this.regions.filter(
+        r => r.companyID === this.category.companyId
+      );
+    } else {
+      this.filteredRegions = [];
+    }
+
+    this.category.regionId = 0;
   }
 
-  this.category.regionId = 0;
-}
+  loadCompanies(): void {
+    this.adminService.getCompanies(null, this.UserId).subscribe({
+      next: (res: any) => {
+        console.log('All Companies 👉', res);
 
-loadCompanies(): void {
-  this.adminService.getCompanies(null, this.UserId).subscribe({
-    next: (res: any) => {
-      console.log('All Companies 👉', res);
+        const data = res?.data ?? res ?? [];
 
-      const data = res?.data ?? res ?? [];
+        // 🔥 Only active companies
+        this.companies = data.filter((c: any) => c.isActive === true);
 
-      // 🔥 Only active companies
-      this.companies = data.filter((c: any) => c.isActive === true);
+        console.log('Active Companies 👉', this.companies);
+      },
+      error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
+    });
+  }
 
-      console.log('Active Companies 👉', this.companies);
-    },
-    error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
-  });
-}
+  loadRegions(): void {
+    this.adminService.getRegions(null, this.UserId).subscribe({
+      next: (res: any) => {
+        console.log('All Regions 👉', res);
 
-loadRegions(): void {
-  this.adminService.getRegions(null, this.UserId).subscribe({
-    next: (res: any) => {
-      console.log('All Regions 👉', res);
+        const data = res?.data ?? res ?? [];
 
-      const data = res?.data ?? res ?? [];
+        // 🔥 Only active regions
+        this.regions = data.filter((r: any) => r.isActive === true);
 
-      // 🔥 Only active regions
-      this.regions = data.filter((r: any) => r.isActive === true);
+        console.log('Active Regions 👉', this.regions);
+      },
+      error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
+    });
+  }
+  onSubmit(): void {
+    this.category.categoryName = this.category.categoryName.trim(); // ✅ trim
 
-      console.log('Active Regions 👉', this.regions);
-    },
-    error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
-  });
-}
-onSubmit(): void {
-  this.category.userId = this.UserId;
-    if (this.isEditMode) {
-      this.adminService.updateCompanyNewsCategory(this.category).subscribe({
-        next: () => {
-          Swal.fire('Updated!', 'Category updated successfully.', 'success');
-          this.loadCategories();
-          this.resetForm();
-        },
-        error: () => Swal.fire('Error', 'Update failed.', 'error')
-      });
-    } else {
-      this.adminService.createCompanyNewsCategory(this.category).subscribe({
-        next: () => {
-          Swal.fire('Added!', 'Category created successfully.', 'success');
-          this.loadCategories();
-          this.resetForm();
-        },
-        error: () => Swal.fire('Error', 'Create failed.', 'error')
-      });
-    }
+    this.category.userId = this.UserId;
+
+    const obs = this.isEditMode
+      ? this.adminService.updateCompanyNewsCategory(this.category)
+      : this.adminService.createCompanyNewsCategory(this.category);
+
+    obs.subscribe({
+      next: () => {
+        Swal.fire(
+          this.isEditMode ? 'Updated!' : 'Added!',
+          'Saved successfully',
+          'success'
+        );
+        this.loadCategories();
+        this.resetForm();
+      },
+      error: (err) => {
+        if (err.error?.message?.includes('Duplicate')) {
+          Swal.fire('Warning', 'Duplicate category already exists', 'warning');
+        } else {
+          Swal.fire('Error', 'Duplicate category already exists', 'error');
+        }
+      }
+    });
   }
 
   editCategory(c: CompanyNewsCategory) {
     this.category = { ...c };
     this.isEditMode = true;
     if (this.category.companyId) {
-    this.filteredRegions = this.regions.filter(
-      r => r.companyID === this.category.companyId
-    );
-  } else {
-    this.filteredRegions = [];
-  }
+      this.filteredRegions = this.regions.filter(
+        r => r.companyID === this.category.companyId
+      );
+    } else {
+      this.filteredRegions = [];
+    }
   }
 
   deleteCategory(c: CompanyNewsCategory) {
@@ -156,7 +162,7 @@ onSubmit(): void {
 
   filteredCategories(): CompanyNewsCategory[] {
     const search = this.searchText.toLowerCase();
-    return this.categories.filter(c => 
+    return this.categories.filter(c =>
       c.categoryName.toLowerCase().includes(search) &&
       (this.statusFilter === '' || c.isActive === this.statusFilter)
     );

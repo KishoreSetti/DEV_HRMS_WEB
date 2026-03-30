@@ -183,11 +183,16 @@
        'weekoff-day': isWeekoffDay(day),
        'disabled-day': isWeekoffDay(day),
        'leave-day': !isWeekoffDay(day) && isLeaveDay(day)
+ <div *ngFor="let day of days"
+     [ngClass]="{
+       'leave-day': !isWeekoff(day) && isLeaveDay(day),
+       'holiday-day': !isWeekoff(day) &&isHoliday(day),
+       'weekoff-day': isWeekoff(day)
      }">
 
-       {{day}}
+  {{day}}
 
-  </div>
+</div>
 
 </div>
   </div>

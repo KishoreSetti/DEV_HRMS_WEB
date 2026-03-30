@@ -381,20 +381,20 @@ regionMap: { [key: number]: string } = {};
   // ------------------------------------------------------------
   // 🔹 Load Genders
   // ------------------------------------------------------------
- loadGenders(): void {
 
+  loadGenders(): void {
   this.spinner.show();
 
-  this.adminservice.getGenders(this.companyId, this.regionId,this.userId).subscribe({
+  this.adminservice.getGenders(this.companyId, this.regionId, this.userId).subscribe({
     next: (res: any) => {
-      this.genders = res.data.map((g: Gender) => ({
-  ...g,
-  // companyName: this.companyMap[g.companyId] || 'N/A',
-  // regionName: this.regionMap[g.regionId] || 'N/A'
-}));
 
-      // sort by latest
-      this.genders.sort((a: any, b: any) => b.genderId - a.genderId);
+      this.genders = res.data.map((g: any) => ({
+        ...g,
+        companyId: Number(g.companyID),   // 🔥 FIX HERE
+        regionId: Number(g.regionId)
+      }));
+
+      this.genders.sort((a: any, b: any) => b.genderID - a.genderID);
 
       this.spinner.hide();
     },
@@ -404,6 +404,29 @@ regionMap: { [key: number]: string } = {};
     }
   });
 }
+//  loadGenders(): void {
+
+//   this.spinner.show();
+
+//   this.adminservice.getGenders(this.companyId, this.regionId,this.userId).subscribe({
+//     next: (res: any) => {
+//       this.genders = res.data.map((g: Gender) => ({
+//   ...g,
+//   // companyName: this.companyMap[g.companyId] || 'N/A',
+//   // regionName: this.regionMap[g.regionId] || 'N/A'
+// }));
+
+//       // sort by latest
+//       this.genders.sort((a: any, b: any) => b.genderId - a.genderId);
+
+//       this.spinner.hide();
+//     },
+//     error: () => {
+//       this.spinner.hide();
+//       Swal.fire('Error', 'Failed to load genders.', 'error');
+//     }
+//   });
+// }
 
   // ------------------------------------------------------------
   // 🔹 Submit (Add / Update)
@@ -453,15 +476,27 @@ regionMap: { [key: number]: string } = {};
   // ------------------------------------------------------------
   // 🔹 Edit Gender
   // ------------------------------------------------------------
+
   editGender(g: Gender): void {
-    console.log('Edit Clicked Row Data 👉', g); 
-      this.gender = {
+  console.log('Edit Clicked Row Data 👉', g);
+
+  this.gender = {
     ...g,
-    companyId: g.companyId,   // ✅ FIX HERE
-    regionId: g.regionId
+    companyId: Number(g.companyId),   // 🔥 FIX
+    regionId: Number(g.regionId)
   };
-    this.isEditMode = true;
-  }
+
+  this.isEditMode = true;
+}
+  // editGender(g: Gender): void {
+  //   console.log('Edit Clicked Row Data 👉', g); 
+  //     this.gender = {
+  //   ...g,
+  //   companyId: g.companyId,   // ✅ FIX HERE
+  //   regionId: g.regionId
+  // };
+  //   this.isEditMode = true;
+  // }
 
   // ------------------------------------------------------------
   // 🔹 Delete Gender

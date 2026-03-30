@@ -68,7 +68,7 @@
     </div>
 
     <!-- ================= FORM ================= -->
-    <div class="card shadow-sm mb-4" *ngIf="companyId && regionId">
+    <div class="card shadow-sm mb-4" >
       <div class="card-body">
         <form (ngSubmit)="onSubmit()" #categoryForm="ngForm" novalidate>
 
@@ -139,7 +139,7 @@
     </div>
 
     <!-- ================= TABLE ================= -->
-    <div class="card shadow-sm" *ngIf="companyId && regionId">
+    <div class="card shadow-sm" >
       <div class="card-body table-responsive">
 
         <table class="table table-bordered table-hover align-middle">
@@ -150,15 +150,19 @@
                 Category Name
                 <i class="fa" [ngClass]="getSortIcon('ExpenseCategoryName')"></i>
               </th>
+              <th>Company</th>
+              <th>Region</th>
               <th>Status</th>
               <th class="text-center">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr *ngFor="let item of expenseList; let i = index">
+            <tr *ngFor="let item of pagedExpenseCategory; let i = index">
               <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
               <td>{{ item.expenseCategoryName }}</td>
+              <td>{{ item.companyName}}</td>
+              <td>{{ item.regionName}}</td>
 
               <td>
                 <span class="badge"
