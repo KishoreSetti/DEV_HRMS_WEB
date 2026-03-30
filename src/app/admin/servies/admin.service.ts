@@ -946,9 +946,13 @@ export class AdminService {
     return this.update<MenuMaster>('UserManagement/UpdateMenu', id, model);
   }
 
-  deleteMenu(id: number): Observable<void> {
-    return this.delete('UserManagement/DeleteMenu', id);
-  }
+  // deleteMenu(id: number): Observable<void> {
+  //   return this.delete('UserManagement/DeleteMenu', id);
+  // }
+deleteMenu(id: number): Observable<void> {
+  debugger;
+  return this.http.post<void>(`UserManagement/DeleteMenu?id=${id}`, {});
+}
 
   // -------------------------------------------------------------
   // 🔹 Role MASTER OPERATIONS
@@ -1416,9 +1420,9 @@ return this.http.post(`${this.baseUrl}/MasterData/DeleteAttendanceStatus/${id}`,
 // ================= LEAVE STATUS ===================
 
 // Get All
-getLeaveStatus(companyId: number, regionId: number) {
+getLeaveStatus(userId:number) {
   return this.http.get<any>(
-    `${this.baseUrl}/MasterData/GetAllLeaveStatus?companyId=${companyId}&regionId=${regionId}`
+    `${this.baseUrl}/MasterData/GetAllLeaveStatus?userId=${userId}`
   );
 }
 
