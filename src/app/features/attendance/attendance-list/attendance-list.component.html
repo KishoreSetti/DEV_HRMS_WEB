@@ -55,11 +55,11 @@
                     <td>
                         {{ emp.clockIn ? emp.clockIn : '--:--' }}
                     </td>
-                    <td>
-                        <span class="text-danger fw-bold" *ngIf="getLateLoginText(emp)">
-                            {{ getLateLoginText(emp) }}
-                        </span>
-                    </td>
+<td>
+  <span class="text-danger fw-bold" *ngIf="emp.lateMinutes && emp.lateMinutes > 0">
+    Late by {{ emp.lateMinutes }} mins
+  </span>
+</td>
 
                     <td>
                         {{ emp.clockOut ? emp.clockOut : '--:--' }}
@@ -160,11 +160,11 @@
 
                     <td>{{ r.attendanceDate | date:'dd-MM-yyyy' }}</td>
                     <td>{{ r.clockIn }}</td>
-                    <td>
-                        <span class="text-danger fw-bold" *ngIf="r.lateMinutes && r.lateMinutes > 0">
-                            Late by {{ r.lateMinutes }} mins
-                        </span>
-                    </td>
+<td>
+  <span class="text-danger fw-bold" *ngIf="r.lateMinutes && r.lateMinutes > 0">
+    Late by {{ r.lateMinutes }} mins
+  </span>
+</td>
                     <td>{{ r.clockOut }}</td>
                     <td>{{ r.grossTime }}</td>
 

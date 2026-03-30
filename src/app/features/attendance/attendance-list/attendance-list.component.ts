@@ -297,24 +297,11 @@ loadShiftDetailsForEmployees() {
 }
 getLateLoginText(emp: any): string {
 
-  if (!emp.clockIn || !emp.shiftStartTime) return '';
-
-  const [shiftH, shiftM] = emp.shiftStartTime.split(':').map(Number);
-  const shiftStart = new Date();
-  shiftStart.setHours(shiftH, shiftM, 0, 0);
-
-  const graceTime = new Date(shiftStart.getTime() + 15 * 60000);
-
-  const [inH, inM] = emp.clockIn.split(':').map(Number);
-  const clockIn = new Date();
-  clockIn.setHours(inH, inM, 0, 0);
-
-  if (clockIn > graceTime) {
-    const diffMs = clockIn.getTime() - graceTime.getTime();
-    const mins = Math.floor(diffMs / (1000 * 60));
-    return `(Late by ${mins} mins)`;
+  if (emp.lateMinutes && emp.lateMinutes > 0) {
+    return `(Late by ${emp.lateMinutes} mins)`;
   }
 
   return '';
 }
+
 }

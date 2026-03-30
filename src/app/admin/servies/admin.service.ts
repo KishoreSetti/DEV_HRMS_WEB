@@ -580,7 +580,7 @@ export interface ShiftMasterDto {
   shiftName: string;
   shiftStartTime?: string; // e.g. "09:00:00" or ISO time string
   shiftEndTime?: string;
-  graceTime?: number;
+  graceTime?: string;
   isActive?: boolean;
   companyID?: number;
   regionID?: number;
