@@ -8,9 +8,29 @@ import { InterceptorService } from '../admin/shared/interceptor.service';
   styleUrl: './spinner.component.css'
 })
 export class SpinnerComponent {
-constructor(public spinner: InterceptorService, private cdr: ChangeDetectorRef) {}
+  public showOverlay = false;
+  private minDisplayTime = 1000;
+constructor(public spinner: InterceptorService) {
+  let timer: any = null;
+    let startTime: number;
 
-  ngOnInit() {
-    this.spinner.loading$.subscribe(() => this.cdr.detectChanges());
+    spinner.loading$.subscribe((loading) => {
+      if (loading) {
+        this.showOverlay = true;
+        startTime = Date.now();
+      } else {
+        const elapsed = Date.now() - startTime;
+        const remaining = this.minDisplayTime - elapsed;
+
+        if (remaining > 0) {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            this.showOverlay = false;
+          }, remaining);
+        } else {
+          this.showOverlay = false;
+        }
+      }
+    });
   }
 }
