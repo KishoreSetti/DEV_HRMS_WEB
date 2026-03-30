@@ -11,8 +11,16 @@
                 <div class="col">
                     <label>Company</label>
 
-                    <input type="text" [value]="companyName" disabled class="readonly-input" />
-
+                    <!-- <input type="text" [value]="companyName" disabled class="readonly-input" /> -->
+             <select class="form-select" formControlName="companyID">
+  <option value="">Select Company</option>
+  <option *ngFor="let company of companies" [value]="company.companyId">
+    {{ company.companyName }}
+  </option>
+</select>
+                    <div class="error" *ngIf="gradeForm.get('companyID')?.touched && gradeForm.get('companyID')?.invalid">
+  Company is required
+</div>
                 </div>
 
                 <!-- Region -->
@@ -20,7 +28,7 @@
                     <label>Region</label>
                     <!-- Region -->
                     <select formControlName="regionId">
-                        <option [ngValue]=''>---Select Region---</option>
+                        <option value="">---Select Region---</option>
                         <option *ngFor="let r of regions" [ngValue]="r.regionID">
                             {{r.regionName}}
                         </option>
