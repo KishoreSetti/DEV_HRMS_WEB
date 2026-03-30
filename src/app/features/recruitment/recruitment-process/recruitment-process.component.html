@@ -55,7 +55,7 @@
                 class="btn flex-fill me-1"
                 [class.btn-primary]="activeTab === i+1"
                 [class.btn-outline-primary]="activeTab !== i+1"
-                (click)="activeTab(i+1)">
+                (click)="setActiveTab(i+1)">
           {{ t }}
         </button>
       </div>
@@ -67,58 +67,34 @@
     <div class="card-body">
 
       <!-- TAB 1: Resume Upload / Candidate Intake -->
-      <!-- <div *ngIf="activeTab === 1">
+      <div *ngIf="activeTab === 1">
          <app-resume-upload></app-resume-upload>
-      </div> -->
+      </div>
 
       <!-- TAB 2: Screening / Shortlisting -->
-      <!-- <div *ngIf="activeTab === 2">
+      <div *ngIf="activeTab === 2">
         <app-screening></app-screening>
-      </div> -->
+      </div>
 
       <!-- TAB 3: Interview Process (dynamic rounds) -->
-      <!-- <div *ngIf="activeTab === 3">
+      <div *ngIf="activeTab === 3">
         <app-interview></app-interview>
-      </div> -->
+      </div>
 
       <!-- TAB 4: Offer Management -->
-      <!-- <div *ngIf="activeTab === 4">
+      <div *ngIf="activeTab === 4">
         <app-appointment></app-appointment>
-      </div> -->
+      </div>
 
       <!-- TAB 5: Onboarding -->
-      <!-- <div *ngIf="activeTab === 5">
+      <div *ngIf="activeTab === 5">
      <app-offer></app-offer>
-        </div> -->
+        </div>
 
-      <!-- <div *ngIf="activeTab === 6">
+      <div *ngIf="activeTab === 6">
         <app-onboarding></app-onboarding>
 
-      </div> -->
-
-      <div *ngIf="tabs[activeTab-1] === 'Resume Upload'">
-  <app-resume-upload></app-resume-upload>
-</div>
-
-<div *ngIf="tabs[activeTab-1] === 'Screening'">
-  <app-screening></app-screening>
-</div>
-
-<div *ngIf="tabs[activeTab-1] === 'Interview'">
-  <app-interview></app-interview>
-</div>
-
-<div *ngIf="tabs[activeTab-1] === 'Appointment'">
-  <app-appointment></app-appointment>
-</div>
-
-<div *ngIf="tabs[activeTab-1] === 'Offer'">
-  <app-offer></app-offer>
-</div>
-
-<div *ngIf="tabs[activeTab-1] === 'Onboarding'">
-  <app-onboarding></app-onboarding>
-</div>
+      </div>
 
     </div>
   </div>

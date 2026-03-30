@@ -7,32 +7,9 @@ import { Component } from '@angular/core';
   styleUrl: './recruitment-process.component.css'
 })
 export class RecruitmentProcessComponent {
-
-  canResumeUpload: boolean = false;
-canScreening: boolean = false;
-canInterview: boolean = false;
-canAppointment: boolean = false;
-canOffer: boolean = false;
-canOnboarding: boolean = false;
-  activeTab: any;
-tabs:any
-setTabs() {
-  this.tabs = [
-    this.canResumeUpload && 'Resume Upload',
-    this.canScreening && 'Screening',
-    this.canInterview && 'Interview',
-    this.canAppointment && 'Appointment',
-    this.canOffer && 'Offer',
-    this.canOnboarding && 'Onboarding'
-  ].filter(Boolean);
-
-  // Reset active tab safely
-  this.activeTab = 1;
-}
-
-//tabs = ['Resume Upload', 'Screening', 'Interview','Appointment','Offer', 'Onboarding'];
-  // totalStages = this.tabs.length;
-  // activeTab:Number = 1;
+tabs = ['Resume Upload', 'Screening', 'Interview','Appointment','Offer', 'Onboarding'];
+  totalStages = this.tabs.length;
+  activeTab:Number = 1;
 
   // filters
   globalFilter = '';
@@ -59,50 +36,12 @@ setTabs() {
   selectedCandidate: any = null;
 
   ngOnInit(): void {
-    this.setTabs();
     this.loadDummyData();
-    this.loadRecruitmentPermissions();
   }
 
-  loadRecruitmentPermissions() {
-  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
-
-  // 👉 Parent Menu
-  const parentMenu = menus.find((m: any) =>
-    m.menuName?.trim().toLowerCase() === "recruitment"
-  );
-
-  const parentId = parentMenu?.menuId;
-
-  if (!parentId) {
-    console.warn("Recruitment parent not found");
-    return;
+  setActiveTab(tab: number) {
+    this.activeTab = tab;
   }
-
-  // 👉 Child Menus
-  const recruitmentMenus = menus.filter((m: any) => m.parentId === parentId);
-
-  console.log("Recruitment Menus:", recruitmentMenus);
-
-  // 👉 Permission function
-  const getPermission = (menuName: string) => {
-    return recruitmentMenus.find((m: any) =>
-      m.menuName?.trim().toLowerCase() === menuName.toLowerCase()
-    )?.canView ?? false;
-  };
-
-  // 👉 Assign permissions
-  this.canResumeUpload = getPermission("Resume Upload");
-  this.canScreening = getPermission("Screening");
-  this.canInterview = getPermission("Interview");
-  this.canAppointment = getPermission("Appointment");
-  this.canOffer = getPermission("Offer");
-  this.canOnboarding = getPermission("Onboarding");
-}
-
-  // setActiveTab(tab: number) {
-  //   this.activeTab = tab;
-  // }
 
   /** ---------- Resume / Candidate functions ---------- */
   onResumeFiles(evt: any) {
@@ -260,49 +199,49 @@ setTabs() {
   }
 
   /** ---------- Onboarding ---------- */
-  // applyOnboarding() {
-  //   if (!this.onboardForm.candidate) { alert('Select candidate'); return; }
-  //   const on = {
-  //     joiningDate: this.onboardForm.joiningDate,
-  //     docsCollected: this.onboardForm.docsCollected,
-  //     bgCheck: this.onboardForm.bgCheck,
-  //     laptop: this.onboardForm.laptop,
-  //     buddy: this.onboardForm.buddy,
-  //     date: this.todayTime()
-  //   };
-  //   this.onboardForm.candidate.onboarding = on;
-  //   if (on.docsCollected && on.bgCheck === 'Clear') {
-  //     this.onboardForm.candidate.stage = this.totalStages; // fully onboarded
-  //   } else {
-  //     this.onboardForm.candidate.stage = Math.max(this.onboardForm.candidate.stage, 5);
-  //   }
-  //   // reset
-  //   this.onboardForm.joiningDate = ''; this.onboardForm.docsCollected = false; this.onboardForm.bgCheck = 'Pending'; this.onboardForm.laptop = false; this.onboardForm.buddy = '';
-  //   alert('Onboarding updated.');
-  // }
+  applyOnboarding() {
+    if (!this.onboardForm.candidate) { alert('Select candidate'); return; }
+    const on = {
+      joiningDate: this.onboardForm.joiningDate,
+      docsCollected: this.onboardForm.docsCollected,
+      bgCheck: this.onboardForm.bgCheck,
+      laptop: this.onboardForm.laptop,
+      buddy: this.onboardForm.buddy,
+      date: this.todayTime()
+    };
+    this.onboardForm.candidate.onboarding = on;
+    if (on.docsCollected && on.bgCheck === 'Clear') {
+      this.onboardForm.candidate.stage = this.totalStages; // fully onboarded
+    } else {
+      this.onboardForm.candidate.stage = Math.max(this.onboardForm.candidate.stage, 5);
+    }
+    // reset
+    this.onboardForm.joiningDate = ''; this.onboardForm.docsCollected = false; this.onboardForm.bgCheck = 'Pending'; this.onboardForm.laptop = false; this.onboardForm.buddy = '';
+    alert('Onboarding updated.');
+  }
 
   /** ---------- Helpers ---------- */
-  // advanceStage(c: any) {
-  //   if (c.stage < this.totalStages) c.stage++;
-  // }
+  advanceStage(c: any) {
+    if (c.stage < this.totalStages) c.stage++;
+  }
 
-  // moveToNextStage(candidate: any) {
-  //   this.advanceStage(candidate);
-  // }
+  moveToNextStage(candidate: any) {
+    this.advanceStage(candidate);
+  }
 
-  // calculateProgress(c: any) {
-  //   if (!c) return 0;
-  //   // basic progress mapping across 5 stages (1..5) -> percentage
-  //   const pct = Math.round(((c.stage - 1) / (this.totalStages - 1)) * 100);
-  //   return pct;
-  // }
+  calculateProgress(c: any) {
+    if (!c) return 0;
+    // basic progress mapping across 5 stages (1..5) -> percentage
+    const pct = Math.round(((c.stage - 1) / (this.totalStages - 1)) * 100);
+    return pct;
+  }
 
-  // getProgressColor(c: any) {
-  //   const pct = this.calculateProgress(c);
-  //   if (pct >= 80) return 'green';
-  //   if (pct >= 40) return 'yellow';
-  //   return 'red';
-  // }
+  getProgressColor(c: any) {
+    const pct = this.calculateProgress(c);
+    if (pct >= 80) return 'green';
+    if (pct >= 40) return 'yellow';
+    return 'red';
+  }
 
   today() {
     const d = new Date();

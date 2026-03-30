@@ -46,7 +46,7 @@ export class DesignationComponent {
 loadDepartments(): void {
   this.adminservice.getDepartments(this.userId).subscribe({
     next: (res: any) => {
-      this.departments = res?.data?.data || [];
+      this.departments = res?.data || [];
     },
     error: () => {
       Swal.fire('Error', 'Failed to load departments.', 'error');

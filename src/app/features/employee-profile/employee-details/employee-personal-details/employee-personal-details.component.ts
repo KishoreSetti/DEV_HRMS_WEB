@@ -15,6 +15,7 @@ import { AdminService } from '../../../../admin/servies/admin.service';
 export class EmployeePersonalDetailsComponent {
 personalForm!: FormGroup;
   selectedFile: File | null = null;
+  employmentTypes: any;
 userId = Number(sessionStorage.getItem('UserId') ?? 0);
  companyId=Number(sessionStorage.getItem("CompanyId"));
   regionId=Number(sessionStorage.getItem("RegionId"));
@@ -41,6 +42,7 @@ maritalStatusList: any[] = [];
     this.loadgender();
      if (this.userId > 0) {
       this.loadByUserId();
+      this.loadEmploymentTypes();
     }
      
   }
@@ -229,5 +231,18 @@ loadMaritalStatuses() {
     },
     error: (err) => console.error(err)
   });
+}
+loadEmploymentTypes() {
+  debugger;
+  this.adminService
+    .getEmploymentTypesByFilter(this.companyId, this.regionId)
+    .subscribe({
+      next: (res: any) => {
+        this.employmentTypes = res.data || [];
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to load Employment Types', 'error');
+      }
+    });
 }
 }

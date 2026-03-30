@@ -2618,5 +2618,10 @@ deleteGrade(id: number) {
  getRegionsByCompany(companyId: number) {
   return this.getAll(`MasterData/GetRegionsByCompany?companyId=${companyId}`);
 }
-
+getEmploymentTypesByFilter(companyId: number, regionId: number) {
+  debugger;
+  return this.http.get(
+    `${this.baseUrl}/MasterData/employment-type/filter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
 }
