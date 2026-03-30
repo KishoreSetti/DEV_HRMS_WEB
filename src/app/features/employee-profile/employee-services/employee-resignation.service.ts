@@ -46,6 +46,7 @@ export interface EmployeeShiftDto {
   shiftName: string;
   shiftStartTime: string;
   shiftEndTime: string;
+   grassTime: string;  
 }
 export interface Reference {
   referenceId?: number;
