@@ -38,7 +38,7 @@ export class AdminLayoutComponent {
      // { title: 'KPI Category', route: '/admin/kpi-category' },
       { title: 'Attachment Type', route: '/admin/attachment-type' },
       { title: 'Project Status', route: '/admin/project-status' },
-    //  { title: 'Asset Status', route: '/admin/asset-status' },
+      { title: 'Asset Status', route: '/admin/asset-status' },
       { title: 'Help Desk Category', route: '/admin/helpdesk-category' },
       { title: 'Expense Category Type', route: '/admin/expense-category' },
     //  { title: 'Expense Status', route: '/admin/expense-status' },
@@ -56,8 +56,11 @@ export class AdminLayoutComponent {
        { title: 'Interview Level', route: '/admin/interview-level' },
      { title: 'company-news-category', route: '/admin/company-news-category' },
      { title: 'EmploymentType', route: '/admin/employment-type'},
-     { title: 'Grade', route: '/admin/grade'} 
-    ],
+     { title: 'Grade', route: '/admin/grade'},
+     { title: 'Asset Type', route: '/admin/asset-type'},
+     { title: 'Asset Category', route: '/admin/asset-category'},
+     { title: 'Currency', route: '/admin/currency'}
+    ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },
     //   { title: 'Shift Settings', route: '/admin/shift-setting' },

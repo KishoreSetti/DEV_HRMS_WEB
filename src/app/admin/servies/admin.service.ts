@@ -227,11 +227,13 @@ export interface Designation {
 }
 
 export interface AssetStatus {
-  AssetStatusID: number;
-  AssetStatusName: string;
-  IsActive: boolean;
-  CompanyID: number;
-  RegionID: number;
+ assetStatusId: number;
+  assetStatusName: string;
+  description?: string;
+  companyId: number;
+  regionId: number;
+  isActive: boolean;
+  userId?: number;
 }
 export interface PolicyCategory {
   PolicyCategoryID: number;
@@ -1351,25 +1353,22 @@ getAttachmentTypesByCategory(category: string) {
 return this.http.post(`${this.baseUrl}/MasterData/project-status/${id}`, {});  
 }
 
-  // GET all asset statuses
-  getAssetStatuses(companyId: number, regionId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/asset-status?companyId=${companyId}&regionId=${regionId}`);
-  }
+getAssetStatus(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/asset-status?userId=${userId}`);
+}
 
-  // CREATE
-  createAssetStatus(status: AssetStatus): Observable<any> {
-    return this.http.post(`${this.baseUrl}/asset-status`, status);
-  }
+createAssetStatus(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateAssetStatus`, data);
+}
 
-  // UPDATE
-  updateAssetStatus(status: AssetStatus): Observable<any> {
-    return this.http.put(`${this.baseUrl}/asset-status/${status.AssetStatusID}`, status);
-  }
+updateAssetStatus(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateAssetStatus`, data);
+}
 
-  // DELETE
-  deleteAssetStatus(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/asset-status/${id}`);
-  }
+deleteAssetStatus(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetStatus?id=${id}`, {});
+}
+
 
   // GET all helpdesk categories
    getHelpdeskCategories(userId: number): Observable<any> {
@@ -2155,6 +2154,80 @@ updatePriority(data: any) {
 deletePriority(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeletePriority?id=${id}`, {});
 }
+//////////asset-types CRUD operations
+getAssetTypes(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/asset-types?userId=${userId}`);
+}
+
+createAssetType(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateAssetType`, data);
+}
+
+updateAssetType(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateAssetType`, data);
+}
+
+deleteAssetType(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetType?id=${id}`, {});
+}
+getAssetTypesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
+
+getAssetCategories(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/asset-categories?userId=${userId}`);
+}
+
+createAssetCategory(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateAssetCategory`, data);
+}
+
+updateAssetCategory(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateAssetCategory`, data);
+}
+
+deleteAssetCategory(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetCategory?id=${id}`, {});
+}
+getAssetCategoriesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/assetcategoryfilter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
+
+///////////Currency CRUD operations
+
+getCurrencies(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/currencies?userId=${userId}`);
+}
+
+createCurrency(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateCurrency`, data);
+}
+
+updateCurrency(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateCurrency`, data);
+}
+
+deleteCurrency(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteCurrency?id=${id}`, {});
+}
+
+getCurrenciesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/currencyfilter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
+
+
 getHolidayList(userId: number) {
   return this.http.get(`${this.baseUrl}/MasterData/holiday-list?userId=${userId}`);
 }

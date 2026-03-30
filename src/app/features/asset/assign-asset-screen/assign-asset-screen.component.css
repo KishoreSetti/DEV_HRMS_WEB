@@ -1,5 +1,6 @@
 
 
+
     .tab-container {
      
       margin-left:20px;
@@ -51,9 +52,7 @@
     /* Active tab */
     #tab1:checked ~ .tab-header label[for="tab1"],
     #tab2:checked ~ .tab-header label[for="tab2"],
-    #tab3:checked ~ .tab-header label[for="tab3"],
-    #tab4:checked ~ .tab-header label[for="tab4"],
-    #tab5:checked ~ .tab-header label[for="tab5"]
+    #tab3:checked ~ .tab-header label[for="tab3"]
    {
       background: #fff;
       color: #000;
@@ -73,14 +72,12 @@
     }
 
     /* Show active content */
-   #tab1:checked ~ #content1,
-#tab2:checked ~ #content2,
-#tab3:checked ~ #content3,
-#tab4:checked ~ #content4,
-#tab5:checked ~ #content5 {
-  display: block;
-}
-
+    #tab1:checked ~ .content #content1,
+    #tab2:checked ~ .content #content2,
+    #tab3:checked ~ .content #content3
+     {
+      display: block;
+    }
 
     /* Form styling */
     .form-group {
@@ -724,7 +721,7 @@
 }
 
 #tab1:checked ~ #content1,
-#tab4:checked ~ #content4 {
+#tab2:checked ~ #content2 {
   display:block;
 }
 
@@ -1353,5 +1350,3 @@ button:hover {
 #tab3:checked ~ #content3 {
   display: block;
 }
-
-

@@ -1,21 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import Swal from 'sweetalert2';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { AdminService, Company, Region } from '../../../servies/admin.service';
-import { NgxSpinnerService } from 'ngx-spinner';
-import { AssetStatus } from '../../../servies/admin.service';
-@Component({
-  selector: 'app-asset-status',
-  standalone: false,
-  templateUrl: './asset-status.component.html',
-  styleUrl: './asset-status.component.css'
-})
-export class AssetStatusComponent {
 
- list: AssetStatus[] = [];
-  model!: AssetStatus;
+export interface Currency {
+  currencyId: number;
+  currencyCode: string;
+  currencyName: string;
+  companyId: number;
+  regionId: number;
+  isActive: boolean;
+  userId?: number;
+}
+
+@Component({
+  selector: 'app-currency',
+  standalone: false,
+  templateUrl: './currency.component.html',
+  styleUrl: './currency.component.css'
+})
+export class CurrencyComponent {
+  list: Currency[] = [];
+  model!: Currency;
 
   companies: Company[] = [];
   regions: Region[] = [];
@@ -28,7 +33,7 @@ export class AssetStatusComponent {
   searchText = '';
   userId = Number(sessionStorage.getItem('UserId')) || 0;
 
-  constructor(private service: AdminService) {}
+  constructor(private service: AdminService) { }
 
   ngOnInit() {
     this.reset();
@@ -39,9 +44,9 @@ export class AssetStatusComponent {
 
   reset() {
     this.model = {
-      assetStatusId: 0,
-      assetStatusName: '',
-      description: '',
+      currencyId: 0,
+      currencyCode: '',
+      currencyName: '',
       companyId: 0,
       regionId: 0,
       isActive: true,
@@ -51,9 +56,10 @@ export class AssetStatusComponent {
   }
 
   load() {
-    this.service.getAssetStatus(this.userId).subscribe((res: any) => {
-      this.list = res.data || res;
+    this.service.getCurrencies(this.userId).subscribe((res: any) => {
+      this.list = res?.data ?? res ?? [];
     });
+
   }
 
   onCompanyChange() {
@@ -65,13 +71,13 @@ export class AssetStatusComponent {
     this.model.userId = this.userId;
 
     const obs = this.isEditMode
-      ? this.service.updateAssetStatus(this.model)
-      : this.service.createAssetStatus(this.model);
+      ? this.service.updateCurrency(this.model)
+      : this.service.createCurrency(this.model);
 
     obs.subscribe((res: any) => {
 
       if (!res.success) {
-        Swal.fire('Warning', 'Duplicate Asset Status exists', 'warning');
+        Swal.fire('Warning', 'Duplicate Currency exists', 'warning');
         return;
       }
 
@@ -81,20 +87,20 @@ export class AssetStatusComponent {
     });
   }
 
-  edit(x: AssetStatus) {
+  edit(x: Currency) {
     this.model = { ...x };
     this.regions = this.allRegions.filter(r => r.companyID == x.companyId);
     this.isEditMode = true;
   }
 
-  delete(x: AssetStatus) {
+  delete(x: Currency) {
     Swal.fire({
       title: 'Delete this record?',
       icon: 'warning',
       showCancelButton: true
     }).then(r => {
       if (r.isConfirmed) {
-        this.service.deleteAssetStatus(x.assetStatusId).subscribe(() => {
+        this.service.deleteCurrency(x.currencyId).subscribe(() => {
           this.load();
         });
       }
@@ -106,7 +112,6 @@ export class AssetStatusComponent {
       const data = res.data || res;
       this.companies = data.filter((x: any) => x.isActive);
 
-      this.companyMap = {};
       this.companies.forEach((c: any) => {
         this.companyMap[c.companyId] = c.companyName;
       });
@@ -119,7 +124,6 @@ export class AssetStatusComponent {
 
       this.allRegions = data.filter((x: any) => x.isActive);
 
-      this.regionMap = {};
       this.allRegions.forEach((r: any) => {
         this.regionMap[r.regionID] = r.regionName;
       });
@@ -130,7 +134,8 @@ export class AssetStatusComponent {
 
   filtered() {
     return this.list.filter(x =>
-      x.assetStatusName.toLowerCase().includes(this.searchText.toLowerCase())
+      (x.currencyName || '').toLowerCase().includes(this.searchText.toLowerCase()) ||
+      (x.currencyCode || '').toLowerCase().includes(this.searchText.toLowerCase())
     );
   }
 }

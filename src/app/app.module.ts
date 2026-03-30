@@ -116,6 +116,8 @@ import { MainUsersComponent } from './main-users/main-users.component';
 import { SuperAdminDashboardComponent } from './superAdmin/super-admin-dashboard/super-admin-dashboard.component';
 import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers/super-admin-demousers.component';
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
+import { AssetRequestComponent } from './features/asset/asset-request/asset-request.component';
+import { AssignAssetScreenComponent } from './features/asset/assign-asset-screen/assign-asset-screen.component';
 import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
 import { SpinnerComponent } from './spinner/spinner.component';
 @NgModule({
@@ -229,6 +231,8 @@ import { SpinnerComponent } from './spinner/spinner.component';
     
     SuperAdminDemousersComponent,
           SubscriptionPlansComponent,
+          AssetRequestComponent,
+          AssignAssetScreenComponent,
    
     
     

@@ -1,0 +1,120 @@
+<div class="card shadow-sm p-4">
+
+    <h3 class="mb-3">Assign Asset</h3>
+
+    <!-- ================= SECTION 1 ================= -->
+
+    <div class="row mb-3">
+
+        <div class="col-md-4">
+            <label>Request ID</label>
+            <select class="form-select" [(ngModel)]="form.requestId" (change)="onRequestChange()">
+                <option value="">Select</option>
+                <option *ngFor="let r of requests" [value]="r.requestID">
+                    {{ r.requestID }}
+                </option>
+
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label>Employee Name</label>
+            <input class="form-control" [(ngModel)]="form.employeeName" readonly>
+        </div>
+
+        <div class="col-md-4">
+            <label>Asset Type</label>
+            <input class="form-control" [(ngModel)]="form.assetType" readonly>
+        </div>
+
+    </div>
+
+    <!-- ================= SECTION 2 ================= -->
+
+    <div class="row mb-3">
+
+        <div class="col-md-4">
+            <label>Select Asset</label>
+            <select class="form-select" [(ngModel)]="form.assetId" (change)="onAssetChange()">
+                <option value="">Select</option>
+                <option *ngFor="let a of availableAssets" [value]="a.assetID">
+                    {{ a.assetName }}
+                </option>
+
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label>Asset Code</label>
+            <input class="form-control" [(ngModel)]="form.assetCode" readonly>
+        </div>
+
+    </div>
+
+    <!-- ================= SECTION 3 ================= -->
+
+    <div class="row mb-3">
+
+        <div class="col-md-4">
+            <label>Assign Date</label>
+            <input type="date" class="form-control" [(ngModel)]="form.assignDate">
+        </div>
+
+        <div class="col-md-4">
+            <label>Return Date</label>
+            <input type="date" class="form-control" [(ngModel)]="form.returnDate">
+        </div>
+
+        <div class="col-md-4">
+            <label>Remarks</label>
+            <textarea class="form-control" [(ngModel)]="form.remarks"></textarea>
+        </div>
+
+    </div>
+
+    <!-- ================= BUTTONS ================= -->
+    <div class="mb-4">
+        <button class="btn btn-success me-2" (click)="assignAsset()">Assign Asset</button>
+        <button class="btn btn-secondary" (click)="resetForm()">Cancel</button>
+    </div>
+
+</div>
+
+<!-- ================= TABLE ================= -->
+<div class="card mt-3 p-3">
+
+    <h4>Assigned Assets List</h4>
+
+    <table class="table table-bordered mt-2">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Employee</th>
+                <th>Asset Type</th>
+                <th>Asset</th>
+                <th>Code</th>
+                <th>Assign Date</th>
+                <th>Return Date</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let item of assignedList">
+                <td>{{ item.requestId }}</td>
+                <td>{{ item.employeeName }}</td>
+                <td>{{ item.assetType }}</td>
+                <td>{{ item.assetName }}</td>
+                <td>{{ item.assetCode }}</td>
+                <td>{{ item.assignDate }}</td>
+                <td>{{ item.returnDate }}</td>
+                <td>{{ item.remarks }}</td>
+            </tr>
+
+            <tr *ngIf="assignedList.length === 0">
+                <td colspan="8" class="text-center">No Data</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
