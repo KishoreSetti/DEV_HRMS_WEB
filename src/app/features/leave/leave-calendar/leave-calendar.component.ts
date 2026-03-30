@@ -304,7 +304,8 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
     this.leaveService.getUserLeaves(userId).subscribe({
       next: (res: any[]) => {
         // backend returns LeaveRequestDto style - map to our model
-        this.leaveData = (res || []).map(x => this.mapBackendToModel(x));
+        this.leaveData = (res || []).map(x => this.mapBackendToModel(x))
+        .filter(l => l.status === 'Approved');
         // employee dropdown remains single employee (self)
         const name = this.leaveData.length ? this.leaveData[0].employeeName : (sessionStorage.getItem('UserName') || 'You');
         this.employees = [{ userId, employeeName: name }];
@@ -338,7 +339,8 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
 
   processManagerLeaves(raw: any[]) {
     // Map leaves
-    this.leaveData = (raw || []).map(x => this.mapBackendToModel(x));
+    this.leaveData = (raw || []).map(x => this.mapBackendToModel(x))
+    .filter(l => l.status === 'Approved');
 
     // Build unique employee list
     const map = new Map<number, string>();
@@ -408,7 +410,9 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
 if (this.isWeekendForDay(day)) return [];
     const dateStr = `${this.currentYear}-${(this.currentMonth+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
     return this.leaveData.filter(l => {
-      return l.startDate <= dateStr && l.endDate >= dateStr &&
+          return l.status === 'Approved' &&   // ✅ ADD THIS LINE
+
+       l.startDate <= dateStr && l.endDate >= dateStr &&
         (this.selectedEmployee === 0 || l.userId === this.selectedEmployee);
     });
   }
@@ -468,7 +472,7 @@ if (this.isWeekendForDay(day)) return [];
       return [];
     }
 
-    return this.leaveData.filter(l => l.startDate <= dateStr && l.endDate >= dateStr &&
+    return this.leaveData.filter(l =>l.status === 'Approved' && l.startDate <= dateStr && l.endDate >= dateStr &&
       (this.selectedEmployee === 0 || l.userId === this.selectedEmployee));
   }
 

@@ -3,6 +3,7 @@ import { AdminService } from '../../../admin/servies/admin.service';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { EmployeeResignationService } from '../../employee-profile/employee-services/employee-resignation.service';
 
 @Component({
   selector: 'app-attendance-list',
@@ -23,8 +24,11 @@ toDate: string = '';
 
   companyId!: number;
   regionId!: number;
+  shiftName?: string;
+shiftStartTime?: string;
+shiftEndTime?: string;
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private employeeResignationService: EmployeeResignationService) {}
 
   // ================= EMPLOYEE PAGINATION =================
 
@@ -89,7 +93,6 @@ toDate: string = '';
   // ================= LOAD EMPLOYEES =================
 
   loadEmployees() {
-debugger;
     Swal.fire({
       title: 'Loading Employees...',
       allowOutsideClick: false,
@@ -107,6 +110,8 @@ debugger;
           console.log(res);
 
           this.employees = res;
+          // 👇 ADD THIS LINE
+this.loadShiftDetailsForEmployees();
 
           if (this.employees.length === 0) {
             Swal.fire({
@@ -263,5 +268,53 @@ searchReport() {
       this.paginatedReports
 
     });
+}
+loadShiftDetailsForEmployees() {
+
+  this.employees.forEach(emp => {
+
+    this.employeeResignationService
+      .getShiftallocationNameForClockInOut(
+        emp.employeeCode,
+        this.companyId,
+        this.regionId
+      )
+      .subscribe({
+        next: (res: any) => {
+          emp.shiftName = res.shiftName;
+          emp.shiftStartTime = res.shiftStartTime;
+          emp.shiftEndTime = res.shiftEndTime;
+        },
+        error: () => {
+          emp.shiftName = '';
+          emp.shiftStartTime = '';
+          emp.shiftEndTime = '';
+        }
+      });
+
+  });
+
+}
+getLateLoginText(emp: any): string {
+
+  if (!emp.clockIn || !emp.shiftStartTime) return '';
+
+  const [shiftH, shiftM] = emp.shiftStartTime.split(':').map(Number);
+  const shiftStart = new Date();
+  shiftStart.setHours(shiftH, shiftM, 0, 0);
+
+  const graceTime = new Date(shiftStart.getTime() + 15 * 60000);
+
+  const [inH, inM] = emp.clockIn.split(':').map(Number);
+  const clockIn = new Date();
+  clockIn.setHours(inH, inM, 0, 0);
+
+  if (clockIn > graceTime) {
+    const diffMs = clockIn.getTime() - graceTime.getTime();
+    const mins = Math.floor(diffMs / (1000 * 60));
+    return `(Late by ${mins} mins)`;
+  }
+
+  return '';
 }
 }

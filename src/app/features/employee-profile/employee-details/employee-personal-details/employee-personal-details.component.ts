@@ -73,7 +73,6 @@ loadgender() {
     this.service.GetByUserIdempProfile(this.userId).subscribe({
       next: (res: any) => {
         if (res) {
-          debugger;
           // backend field name might be personalId or PersonalId — adjust if necessary
           this.existingRecordId = res.id ?? res.id ?? res.personalDetailsId ?? null;
            this.editId=res.id;
@@ -117,6 +116,7 @@ loadgender() {
       linkedInProfile: [''],
       previousExperience: [''],
       ProfilePicturePath: [''],
+      ProfilePictureName : [''],
       brandGrade: [''],
       esicNumber: [''],
       pfNumber: [''],
@@ -134,7 +134,6 @@ loadgender() {
 
   // CREATE OR UPDATE
   onSubmit() {
-    debugger;
     // if (this.personalForm.invalid) {
     //   Swal.fire("Please fill required fields", '', 'warning');
     //   return;
@@ -149,7 +148,6 @@ loadgender() {
     }
  
 
-debugger;
     if (this.editId == null) {
       // CALL CREATE
       this.service.createempProfile(formData).subscribe(res => {

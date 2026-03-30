@@ -1237,7 +1237,13 @@ button:hover {
   padding: 6px 10px;   /* Increase hover area */
   cursor: pointer;
 }
-
+.profile-pic {
+    border-radius: 50%; 
+    object-fit: cover;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ccc;
+}
 /* Icon styling */
 .profile-icon {
   font-size: 24px;

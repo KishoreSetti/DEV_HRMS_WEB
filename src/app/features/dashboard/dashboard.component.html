@@ -91,12 +91,16 @@
   <div>Fri</div>
   <div>Sat</div>
 
-  <div *ngFor="let day of days"
-       [ngClass]="{'leave-day': isLeaveDay(day)}">
+ <div *ngFor="let day of days"
+     [ngClass]="{
+       'leave-day': !isWeekoff(day) && isLeaveDay(day),
+       'holiday-day': !isWeekoff(day) &&isHoliday(day),
+       'weekoff-day': isWeekoff(day)
+     }">
 
-       {{day}}
+  {{day}}
 
-  </div>
+</div>
 
 </div>
   </div>

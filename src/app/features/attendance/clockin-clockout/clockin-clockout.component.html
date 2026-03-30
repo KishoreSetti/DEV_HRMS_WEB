@@ -21,17 +21,17 @@
       <div class="row mb-3">
         <div class="col-md-4">
           <label>Employee Code</label>
-          <input class="form-control"  formControlName="employeeCode" readonly  />
+          <input class="form-control" formControlName="employeeCode" readonly />
         </div>
 
         <div class="col-md-4">
           <label>Employee Name</label>
           <input class="form-control" formControlName="employeeName" readonly />
         </div>
-         <div class="col-md-4">
+        <div class="col-md-4">
           <label>Shift Timings</label>
 
-         <h5 id="shiftTimings">{{ shiftAllocationName }} - {{ ShiftstartTime }} to {{ ShiftendTime }}</h5>
+          <h5 id="shiftTimings">{{ shiftAllocationName }} - {{ ShiftstartTime }} to {{ ShiftendTime }}</h5>
         </div>
 
         <!-- <div class="col-md-4">
@@ -54,7 +54,7 @@
     Action is required
   </small>
         </div> -->
-<!-- <div class="col-md-4">
+        <!-- <div class="col-md-4">
   <label>Action</label>
   <select class="form-select" formControlName="clockType">
     <option *ngFor="let action of availableActions" [value]="action">
@@ -103,28 +103,34 @@
   </div>
 
   <!-- TODAY SUMMARY -->
- <div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card p-3 text-center">
-      <h6>Clock In</h6>
-      <p>{{ todayClockIn }}</p>
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card p-3 text-center">
+        <h6>Clock In</h6>
+        <!-- <p>{{ todayClockIn }}</p> -->
+        <p>
+          {{ todayClockIn }}
+          <span class="text-danger" *ngIf="lateLoginText">
+            {{ lateLoginText }}
+          </span>
+        </p>
+      </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="card p-3 text-center">
-      <h6>Clock Out</h6>
-      <p>{{ todayClockOut }}</p>
+    <div class="col-md-4">
+      <div class="card p-3 text-center">
+        <h6>Clock Out</h6>
+        <p>{{ todayClockOut }}</p>
+      </div>
     </div>
-  </div>
 
-  <div class="col-md-4">
-    <div class="card p-3 text-center bg-light">
-      <h6>Duration of Day</h6>
-      <p class="fw-bold">{{ todayDuration }}</p>
+    <div class="col-md-4">
+      <div class="card p-3 text-center bg-light">
+        <h6>Duration of Day</h6>
+        <p class="fw-bold">{{ todayDuration }}</p>
+      </div>
     </div>
   </div>
-</div>
 
 
   <!-- ATTENDANCE TABLE -->
@@ -135,7 +141,7 @@
       <thead>
         <tr>
           <th>Date</th>
-          <th>Employee</th>         
+          <th>Employee</th>
           <th>Action</th>
           <th>Time</th>
         </tr>
@@ -144,7 +150,7 @@
       <tbody>
         <tr *ngFor="let r of attendanceRecords">
           <td>{{ r.attendanceDate | date:'yyyy-MM-dd' }}</td>
-          <td>{{ r.employeeName }}</td>         
+          <td>{{ r.employeeName }}</td>
           <td>{{ r.actionType }}</td>
           <td>{{ r.actionTime }}</td>
         </tr>

@@ -82,15 +82,34 @@
               </div>
             </div>
      <!-- Department -->
-  <div class="col-md-6">
+  <!-- <div class="col-md-6">
             <label class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
             <select class="form-select" name="DepartmentId" [(ngModel)]="user.departmentId" [disabled]="user.regionId == 0" required>
               <option [ngValue]="0">Select Department</option>
               <option *ngFor="let d of departments" [ngValue]="d.departmentId">
-                {{ d.description }}
+                {{ d.departmentName }}
               </option>
             </select>
-          </div>
+          </div> --><div class="col-md-6">
+  <label class="form-label fw-semibold">
+    Department <span class="text-danger">*</span>
+  </label>
+
+  <select class="form-select"
+        name="DepartmentId"
+        [(ngModel)]="user.departmentId"
+        [disabled]="!user.regionId"
+        required>
+
+  <option [ngValue]="0">Select Department</option>
+
+  <!-- 🔥 FIX HERE -->
+  <option *ngFor="let d of filteredDepartments" [ngValue]="d.departmentId">
+    {{ d.departmentName }}
+  </option>
+
+</select>
+</div>
 
 <!-- Reporting To -->
 <div class="col-md-6">

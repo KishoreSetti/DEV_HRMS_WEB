@@ -15,7 +15,11 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 6px;
 }
-
+.weekoff-day {
+  background-color: #9E9E9E; /* grey */
+  color: rgb(227, 72, 72);
+  border-radius: 50%;
+}
 .calendar div {
   padding: 10px;
   text-align: center;

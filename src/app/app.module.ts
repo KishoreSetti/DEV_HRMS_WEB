@@ -54,7 +54,7 @@ import { MyCalendarComponent } from './features/my-calendar/my-calendar/my-calen
 import { MyEventsComponent } from './features/events/my-events/my-events.component';
 import { CompensationComponent } from './features/compensation/compensation/compensation.component';
 import { RecruitmentProcessComponent } from './features/recruitment/recruitment-process/recruitment-process.component'; 
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { CommonUploadComponent } from './shared/common-upload/common-upload.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -118,11 +118,14 @@ import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
 import { AssetRequestComponent } from './features/asset/asset-request/asset-request.component';
 import { AssignAssetScreenComponent } from './features/asset/assign-asset-screen/assign-asset-screen.component';
+import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
+import { SpinnerComponent } from './spinner/spinner.component';
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     LayoutComponent,
+    SpinnerComponent,
     HeaderComponent,
     SidebarComponent,
     FooterComponent,
@@ -237,12 +240,17 @@ import { AssignAssetScreenComponent } from './features/asset/assign-asset-screen
   imports: [
     BrowserModule, ReactiveFormsModule,FullCalendarModule,
     AppRoutingModule, FormsModule, HttpClientModule, NgxSpinnerModule,
-    StrongPasswordDirective
+    StrongPasswordDirective,
 ],
 
   providers: [
     provideClientHydration(withEventReplay()),
    {provide: LocationStrategy, useClass: HashLocationStrategy},
+   {
+    provide: HTTP_INTERCEPTORS,
+    useClass: SpinnerInterceptor,
+    multi: true
+  },
      { provide: MAT_DATE_FORMATS, useValue: {
     parse: { dateInput: 'DD/MM/YYYY' },
     display: { dateInput: 'DD/MM/YYYY' }

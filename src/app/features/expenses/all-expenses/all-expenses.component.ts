@@ -42,7 +42,7 @@ regionId!: number;
       this.companyId = sessionStorage.getItem('CompanyId') ? Number(sessionStorage.getItem('CompanyId')) : 0;
       this.regionId = sessionStorage.getItem('RegionId') ? Number(sessionStorage.getItem('RegionId')) : 0;
     this.buildForm();
-    this.loadCategories();
+    //this.loadCategories();
     this.loadAllExpenses();
   }
 
@@ -92,13 +92,13 @@ regionId!: number;
   // ============================================================
   // 🔹 LOAD CATEGORIES
   // ============================================================
-  loadCategories(): void {
-    this.expenseService.getExpenseCategories().subscribe(res => {
-      if (res.success) {
-        this.categories = res.data;
-      }
-    });
-  }
+  // loadCategories(): void {
+  //   this.expenseService.getExpenseCategories().subscribe(res => {
+  //     if (res.success) {
+  //       this.categories = res.data;
+  //     }
+  //   });
+  // }
 
   // ============================================================
   // 🔹 APPLY FILTERS (SAME AS APPROVE)

@@ -37,8 +37,9 @@ currentMonth = new Date().getMonth() + 1;
 tickets: any[] = [];
 userId!: number;
   emojis: string[] = [];
- 
-
+ holidayDates: string[] = [];
+weekoffDays: string[] = [];   // store day names (Sunday, Saturday)
+weekoffDates: string[] = [];  // store actual dates
 attendanceRecords: any[] = [];
 attendanceChart: any;
 
@@ -58,8 +59,96 @@ this.loadAttendance();
     this.loadUserLeaves(this.userId);
     this.loadMyTickets();
   }
+    this.loadHolidays(this.companyId, this.currentUser.regionId); // ✅ ADD THIS
+this.loadWeekoffs(this.companyId, this.currentUser.regionId);
+}
+isWeekoff(day: number): boolean {
+
+  const date =
+    this.currentYear + '-' +
+    String(this.currentMonth).padStart(2,'0') + '-' +
+    String(day).padStart(2,'0');
+
+  return this.weekoffDates.includes(date);
+}
+loadWeekoffs(companyId: number, regionId: number) {
+
+  this.adminService.getWeekoffs(companyId, regionId).subscribe({
+    next: (res: any) => {
+
+      this.weekoffDays = res.data
+        .filter((x: any) => x.isActive && x.weekoffDate)
+        .map((x: any) => x.weekoffDate); // Sunday, Saturday
+
+      this.generateWeekoffDates(); // ✅ convert to dates
+
+      console.log("Weekoff Days:", this.weekoffDays);
+      console.log("Weekoff Dates:", this.weekoffDates);
+
+    },
+    error: err => console.error(err)
+  });
+
 }
 
+generateWeekoffDates() {
+
+  this.weekoffDates = [];
+
+  this.days.forEach(day => {
+
+    const dateObj = new Date(this.currentYear, this.currentMonth - 1, day);
+
+    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+
+    if (this.weekoffDays.includes(dayName)) {
+
+      const formatted =
+        this.currentYear + '-' +
+        String(this.currentMonth).padStart(2, '0') + '-' +
+        String(day).padStart(2, '0');
+
+      this.weekoffDates.push(formatted);
+    }
+
+  });
+
+}
+isHoliday(day: number): boolean {
+
+  const date =
+    this.currentYear + '-' +
+    String(this.currentMonth).padStart(2,'0') + '-' +
+    String(day).padStart(2,'0');
+
+  return this.holidayDates.includes(date);
+}
+loadHolidays(companyId: number, regionId: number) {
+
+  this.adminService.getHolidays(companyId, regionId).subscribe({
+    next: (res: any) => {
+
+      this.holidayDates = [];
+
+      if (res && res.data) {
+
+        res.data
+          .filter((x: any) => x.isActive && x.date)
+          .forEach((x: any) => {
+
+            const formatted = x.date.split('T')[0]; // YYYY-MM-DD
+
+            this.holidayDates.push(formatted);
+          });
+
+      }
+
+      console.log("Holiday Dates:", this.holidayDates);
+    },
+    error: (err) => console.error(err)
+  });
+
+}
 createAttendanceChart() {
 
   let clockInTime: any = null;
@@ -174,7 +263,7 @@ loadUserLeaves(userId: number) {
 
       this.leaveDates = [];
 
-      res.forEach(leave => {
+      res.filter((leave: any) => leave.status === 'Approved') .forEach(leave => {
 
         let start = new Date(leave.startDate);
         let end = new Date(leave.endDate);
@@ -207,6 +296,9 @@ isLeaveDay(day: number): boolean {
     this.currentYear + '-' +
     String(this.currentMonth).padStart(2,'0') + '-' +
     String(day).padStart(2,'0');
+    if (this.weekoffDates.includes(date)) {
+    return false;
+  }
 
   return this.leaveDates.includes(date);
 }

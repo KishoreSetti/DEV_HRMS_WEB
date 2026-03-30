@@ -36,7 +36,7 @@ export class AdminLayoutComponent {
       { title: 'Certification Type', route: '/admin/certification-type' },
       { title: 'Policy Category', route: '/admin/policy-category' },
      // { title: 'KPI Category', route: '/admin/kpi-category' },
-      //{ title: 'Attachment Type', route: '/admin/attachment-type' },
+      { title: 'Attachment Type', route: '/admin/attachment-type' },
       { title: 'Project Status', route: '/admin/project-status' },
       { title: 'Asset Status', route: '/admin/asset-status' },
       { title: 'Help Desk Category', route: '/admin/helpdesk-category' },

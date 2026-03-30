@@ -1,8 +1,9 @@
-import { Component,HostListener } from '@angular/core';
+import { Component,HostListener, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { timeEnd } from 'node:console';
 import { EmployeeResignationService } from '../employee-profile/employee-services/employee-resignation.service';
 import { AdminService } from '../../admin/servies/admin.service';
+import { environment } from '../../../environments/environment';
 interface LocationMap {
   [key: string]: string[];
 }
@@ -29,8 +30,12 @@ companyId = sessionStorage.getItem('CompanyId') as unknown as number;
 regionId = sessionStorage.getItem('RegionId') as unknown as number;
 private clockInTime!: Date;
 private timerRef: any;
- constructor(private router: Router, private employeeResignationService: EmployeeResignationService, private adminService: AdminService) {}
+profilePicture: string = '';
+//profilePicture: string = 'assets/images/default-profile.png';
+userId: number = Number(sessionStorage.getItem('UserId'));
+ constructor(private router: Router, private employeeResignationService: EmployeeResignationService, private adminService: AdminService, private ngZone: NgZone) {}
   ngOnInit() {
+    this.loadProfilePicture();
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     this.role = currentUser.role;
     sessionStorage.setItem('role', this.role);
@@ -50,6 +55,22 @@ private timerRef: any;
   }
     this.loadAttendance();
   }
+  loadProfilePicture() {
+  this.employeeResignationService.getProfilePicture(this.userId)
+    .subscribe({
+      next: (res: string) => {
+        if (res && res.trim() !== '') {
+          const cleanedPath = res.replace(/\\/g, '/').replace(/^Uploads\//, '').trim();
+          this.profilePicture = `${environment.baseurl}/Uploads/${cleanedPath}`;
+        } else {
+          this.profilePicture = 'assets/images/default-profile.png';
+        }
+      },
+      error: () => {
+        this.profilePicture = 'assets/images/default-profile.png';
+      }
+    });
+}
    logout() {
     // Optional: clear localStorage/sessionStorage or token
     localStorage.clear();
@@ -171,7 +192,6 @@ getSystemTime24(): string {
   return `${hh}:${mm}`;   // HH:mm
 }
 toggleClock() {
-  debugger;
   const now = this.getSystemTime();
 
   if (!this.isClockedIn) {

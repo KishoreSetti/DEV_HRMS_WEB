@@ -76,8 +76,14 @@ export class ExpensesService {
 
 
  // ✅ Call new API without parameters
- getExpenseCategories(): Observable<any> {
-  return this.http.get<any>(`${this.baseUrl}/GetAllExpenseCategoriesAsync`);
+//  getExpenseCategories(): Observable<any> {
+//   debugger;
+//   return this.http.get<any>(`${this.baseUrl}/GetAllExpenseCategoriesAsync`);
+// }
+getExpenseCategories(companyId: number, regionId: number): Observable<any> {
+  return this.http.get<any>(
+    `${this.baseUrl}/GetAllExpenseCategoriesAsync?companyId=${companyId}&regionId=${regionId}`
+  );
 }
 
 // ----------------------------------------------------
