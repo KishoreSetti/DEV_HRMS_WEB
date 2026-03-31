@@ -104,31 +104,60 @@ certificateFileInput!: ElementRef<HTMLInputElement>;
  // inside EmployeeCertificationComponent
 
 loadCertificationTypes() {
-  this.adminService.getcmpregionCertificationTypes(this.companyId,this.regionId).subscribe({
-    next: res => {
-      this.certificationTypeList = res || [];
-      // once we have types, load certifications and map names
+  this.adminService.getcmpregionCertificationTypes(this.companyId, this.regionId).subscribe({
+    next: (res: any) => {
+
+      let data: any[] = [];
+
+      if (Array.isArray(res)) {
+        data = res;
+      } 
+      else if (Array.isArray(res?.data)) {
+        data = res.data;
+      } 
+      else if (res?.data) {
+        data = [res.data]; // convert object → array
+      }
+
+      this.certificationTypeList = data;
+
+      // AFTER setting types
       this.loadCertifications();
     },
     error: err => {
       console.error('Failed to load certification types', err);
-      // still load certifications (will show id if types missing)
-      this.loadCertifications();
+      this.certificationTypeList = []; // VERY IMPORTANT
     }
   });
 }
 
 loadCertifications() {
   this.adminService.getCertificationsByUserId(this.userId).subscribe({
-    next: (res) => {
-      debugger;
-      // map each item to include certificationTypeName using the loaded list
-      this.certificationList = (res || []).map(item => {
-        const type = this.certificationTypeList.find(t => t.certificationTypeId === item.certificationTypeId);
+    next: (res: any) => {
+
+      let data: EmployeeCertificationDto[] = [];
+
+      if (Array.isArray(res)) {
+        data = res;
+      } 
+      else if (Array.isArray(res?.data)) {
+        data = res.data;
+      } 
+      else if (res?.data) {
+        data = [res.data]; // ✅ convert single object → array
+      }
+
+      this.certificationList = data.map((item: EmployeeCertificationDto) => {
+        const type = this.certificationTypeList.find(
+          (t: any) => t.certificationTypeId === item.certificationTypeId
+        );
+
         return {
           ...item,
-          certificationTypeName: type ? type.certificationTypeName : (item as any).certificationTypeName ?? '' // fallback
-        } as EmployeeCertificationDto;
+          certificationTypeName: type
+            ? type.certificationTypeName
+            : (item as any).certificationTypeName ?? ''
+        };
       });
     },
     error: (err) => {
@@ -141,7 +170,7 @@ loadCertifications() {
 
   onSubmit() {
     this.submitted = true;
-     debugger;
+     
     const fileControl = this.certificationForm.get('documentFile');
     if (!this.editMode && !this.selectedFile) {
       this.fileError = 'Certificate document is required';
@@ -248,29 +277,36 @@ loadCertifications() {
 
   // SEARCH + SORT + PAGINATION SAME AS EDUCATION
 
-  filteredCertifications(): EmployeeCertificationDto[] {
-    let filtered = this.certificationList;
-
-    if (this.searchText) {
-      const text = this.searchText.toLowerCase();
-      filtered = filtered.filter(c =>
-        c.certificationName.toLowerCase().includes(text) ||
-        c.description?.toLowerCase().includes(text)
-      );
-    }
-
-    if (this.sortColumn) {
-      filtered.sort((a, b) => {
-        const valA = (a[this.sortColumn!] ?? '').toString().toLowerCase();
-        const valB = (b[this.sortColumn!] ?? '').toString().toLowerCase();
-        if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
-        if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return filtered.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
+filteredCertifications(): EmployeeCertificationDto[] {
+  if (!Array.isArray(this.certificationList)) {
+    return [];
   }
+
+  let filtered = [...this.certificationList]; // avoid mutation
+
+  if (this.searchText) {
+    const text = this.searchText.toLowerCase();
+    filtered = filtered.filter(c =>
+      c.certificationName?.toLowerCase().includes(text) ||
+      c.description?.toLowerCase().includes(text)
+    );
+  }
+
+  if (this.sortColumn) {
+    filtered.sort((a, b) => {
+      const valA = (a[this.sortColumn!] ?? '').toString().toLowerCase();
+      const valB = (b[this.sortColumn!] ?? '').toString().toLowerCase();
+      return this.sortDirection === 'asc'
+        ? valA.localeCompare(valB)
+        : valB.localeCompare(valA);
+    });
+  }
+
+  return filtered.slice(
+    (this.currentPage - 1) * this.pageSize,
+    this.currentPage * this.pageSize
+  );
+}
 
   sortBy(column: keyof EmployeeCertificationDto) {
     if (this.sortColumn === column) {
@@ -303,7 +339,7 @@ onFilterChange() {
     return Math.ceil(filteredLength / this.pageSize);
   }
      loadPermission() {
-  debugger;
+  
 
   const userId = Number(sessionStorage.getItem("UserId"));
 
