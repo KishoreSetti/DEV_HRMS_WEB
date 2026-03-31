@@ -120,6 +120,8 @@ import { AssetRequestComponent } from './features/asset/asset-request/asset-requ
 import { AssignAssetScreenComponent } from './features/asset/assign-asset-screen/assign-asset-screen.component';
 import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
 import { SpinnerComponent } from './spinner/spinner.component';
+import { ErrorHandler } from '@angular/core';
+import { GlobalErrorHandler } from './admin/shared/global-error-handler';
 @NgModule({
   declarations: [
     AppComponent,
@@ -251,6 +253,11 @@ import { SpinnerComponent } from './spinner/spinner.component';
     useClass: SpinnerInterceptor,
     multi: true
   },
+  {
+    provide: ErrorHandler,
+    useClass: GlobalErrorHandler
+  },
+  
      { provide: MAT_DATE_FORMATS, useValue: {
     parse: { dateInput: 'DD/MM/YYYY' },
     display: { dateInput: 'DD/MM/YYYY' }
