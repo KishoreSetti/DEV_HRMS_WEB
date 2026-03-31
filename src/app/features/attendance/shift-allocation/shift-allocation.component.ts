@@ -93,7 +93,7 @@ export class ShiftAllocationComponent {
   }
 
   this.adminSvc.getShiftsForDropdown(companyId, regionId).subscribe({
-    next: (res: ShiftMasterDto[]) => this.shifts = res,
+    next: (res:any) => this.shifts = res,
     error: () => Swal.fire('Error', 'Failed to load shifts', 'error')
   });
 }
