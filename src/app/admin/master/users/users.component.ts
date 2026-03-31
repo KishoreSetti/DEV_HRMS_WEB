@@ -333,7 +333,7 @@ reportingManagers: User[] = [];
   loadDepartments(): void {
   this.userService.getDepartments(this.userId).subscribe({
     next: (res: any) => {
-      this.departments = (res?.data ?? []).filter((d: any) => d.isActive);
+      this.departments = (res?.data?.data ?? []).filter((d: any) => d.isActive);
 
       this.filterDepartments(); // 🔥 ADD THIS
     }
@@ -532,10 +532,7 @@ filterDepartments(): void {
     return;
   }
 
-  if (!this.user.reportingTo || this.user.reportingTo === 0) {
-    Swal.fire('Validation', 'Please select reporting manager', 'warning');
-    return;
-  }
+  
 
   if (!this.user.loginType || this.user.loginType.trim() === '') {
     Swal.fire('Validation', 'Please select login type', 'warning');
