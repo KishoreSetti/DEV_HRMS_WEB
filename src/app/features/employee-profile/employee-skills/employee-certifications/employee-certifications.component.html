@@ -27,7 +27,7 @@
       <label>Certification Type<span class="required">*</span></label>
       <select formControlName="certificationTypeId">
         <option value="">Select Type</option>
-        <option *ngFor="let type of certificationTypeList" [value]="type.certificationTypeID">
+        <option *ngFor="let type of certificationTypeList || []" [value]="type.certificationTypeId">
           {{ type.certificationTypeName }}
         </option>
       </select>
@@ -107,7 +107,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let item of filteredCertifications()">
+          <tr *ngFor="let item of filteredCertifications() || []">
             <td>{{ item.certificationName }}</td>
             <td>{{ item.certificationTypeId }}</td>
             <td>{{ item.description }}</td>
