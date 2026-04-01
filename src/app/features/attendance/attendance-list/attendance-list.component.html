@@ -55,11 +55,11 @@
                     <td>
                         {{ emp.clockIn ? emp.clockIn : '--:--' }}
                     </td>
-<td>
-  <span class="text-danger fw-bold" *ngIf="emp.lateMinutes && emp.lateMinutes > 0">
-    Late by {{ emp.lateMinutes }} mins
-  </span>
-</td>
+                    <td>
+                        <span class="text-danger fw-bold" *ngIf="emp.lateMinutes && emp.lateMinutes > 0">
+                            Late by {{ emp.lateMinutes }} mins
+                        </span>
+                    </td>
 
                     <td>
                         {{ emp.clockOut ? emp.clockOut : '--:--' }}
@@ -110,12 +110,20 @@
                 Search
             </button>
 
+            <button class="btn-report pdf" (click)="downloadPDF()">
+                Download PDF
+            </button>
+
+            <button class="btn-report excel" (click)="downloadExcel()">
+                Download Excel
+            </button>
+
             <button class="btn-report weekly" (click)="weekly()">
-                Weekly Report
+                View Weekly Report
             </button>
 
             <button class="btn-report monthly" (click)="monthly()">
-                Monthly Report
+                View Monthly Report
             </button>
 
         </div>
@@ -160,11 +168,11 @@
 
                     <td>{{ r.attendanceDate | date:'dd-MM-yyyy' }}</td>
                     <td>{{ r.clockIn }}</td>
-<td>
-  <span class="text-danger fw-bold" *ngIf="r.lateMinutes && r.lateMinutes > 0">
-    Late by {{ r.lateMinutes }} mins
-  </span>
-</td>
+                    <td>
+                        <span class="text-danger fw-bold" *ngIf="r.lateMinutes && r.lateMinutes > 0">
+                            Late by {{ r.lateMinutes }} mins
+                        </span>
+                    </td>
                     <td>{{ r.clockOut }}</td>
                     <td>{{ r.grossTime }}</td>
 

@@ -321,3 +321,44 @@ cursor:pointer;
 .report-filter button:active {
     transform: scale(0.96);
 }
+/* PDF BUTTON */
+.btn-report.pdf {
+    background: #d32f2f;
+    color: white;
+}
+
+/* EXCEL BUTTON */
+.btn-report.excel {
+    background: #d32f2f;
+    color: white;
+}
+
+/* HOVER EFFECT SAME AS OTHERS */
+.btn-report.pdf:hover,
+.btn-report.excel:hover {
+    background: #b71c1c;
+    transform: translateY(-1px);
+}
+
+/* DISABLED STATE */
+.btn-report.pdf:disabled,
+.btn-report.excel:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+.report-filter {
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+}
+
+/* Push last buttons to right */
+.btn-report.weekly {
+  margin-left: auto;
+}
+
+.btn-report.monthly {
+  margin-left: 0;
+}
