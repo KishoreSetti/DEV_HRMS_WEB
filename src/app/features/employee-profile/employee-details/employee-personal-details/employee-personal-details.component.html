@@ -68,9 +68,11 @@
 
     <!-- Profile Picture -->
     <div class="form-group">
-      <label>Profile Picture</label>
-      <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png">
-    </div>
+  <label>Profile Picture</label>
+  <button type="button" (click)="fileInput.click()">Choose File</button>
+  <input #fileInput type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png" style="display:none;">
+  <span>{{ personalForm.get('ProfilePictureName')?.value }}</span>
+</div>
 
     <!-- Passport -->
     <div class="form-group">

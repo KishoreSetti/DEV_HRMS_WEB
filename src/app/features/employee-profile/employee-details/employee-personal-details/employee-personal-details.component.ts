@@ -72,27 +72,49 @@ loadgender() {
 }
    // load existing record (if any) and patch the form
   private loadByUserId() {
-    this.service.GetByUserIdempProfile(this.userId).subscribe({
-      next: (res: any) => {
-        if (res) {
-          // backend field name might be personalId or PersonalId — adjust if necessary
-          this.existingRecordId = res.id ?? res.id ?? res.personalDetailsId ?? null;
-           this.editId=res.id;
-          // patch values (only those present in DTO will be patched)
-          this.personalForm.patchValue(res);
-          // set the personalId control (if exists)
-          if (this.existingRecordId) {
-            this.personalForm.patchValue({ personalId: this.existingRecordId });
-          }
-        } else {
-          this.existingRecordId = null;
-        }
-      },
-      error: (err) => {
-        console.error('Error loading personal details by userId', err);
+  this.service.GetByUserIdempProfile(this.userId).subscribe({
+    next: (res: any) => {
+      if (res) {
+        this.existingRecordId = res.id ?? null;
+        this.editId = res.id;
+
+        // Patch the form manually to map server field to form control
+        this.personalForm.patchValue({
+          firstName: res.firstName,
+          lastName: res.lastName,
+          dateOfBirth: res.dateOfBirth,
+          genderId: res.genderId,
+          mobileNumber: res.mobileNumber,
+          personalEmail: res.personalEmail,
+          permanentAddress: res.permanentAddress,
+          presentAddress: res.presentAddress,
+          panNumber: res.panNumber,
+          aadhaarNumber: res.aadhaarNumber,
+          passportNumber: res.passportNumber,
+          placeOfBirth: res.placeOfBirth,
+          uan: res.uan,
+          bloodGroup: res.bloodGroup,
+          citizenship: res.citizenship,
+          religion: res.religion,
+          drivingLicence: res.drivingLicence,
+          maritalStatusId: res.maritalStatusId,
+          marriageDate: res.marriageDate,
+          workPhone: res.workPhone,
+          linkedInProfile: res.linkedInProfile,
+          previousExperience: res.previousExperience,
+          ProfilePictureName: res.profilePictureName,
+          ProfilePicturePath: res.profilePicturePath,
+          brandGrade: res.brandGrade,
+          esicNumber: res.esicNumber,
+          pfNumber: res.pfNumber,
+          employmentType: res.employmentType,
+          dateofJoining: res.dateofJoining
+        });
       }
-    });
-  }
+    },
+    error: (err) => console.error(err)
+  });
+}
    createForm() {
     this.personalForm = this.fb.group({
       firstName: ['', Validators.required],
