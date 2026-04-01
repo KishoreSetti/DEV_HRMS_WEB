@@ -297,10 +297,11 @@ export class InterviewComponent {
 
     this.recruitmentService
       .getScreeningCandidatesTopTableInterview(
-        this.companyId,
-        this.regionId,
-        this.interviewForm.department,
-        this.interviewForm.designation
+        // this.companyId,
+        // this.regionId,
+        // this.interviewForm.department,
+        // this.interviewForm.designation
+        this.userId
       )
       .subscribe({
         next: (res: any) => {
