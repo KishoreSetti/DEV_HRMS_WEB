@@ -43,8 +43,11 @@ currentMonth = new Date().getMonth() + 1;
 tickets: any[] = [];
 userId!: number;
   emojis: string[] = [];
-   submittedTimesheets: any[] = [];
-weekoffDates: string[] = [];
+ holidayDates: string[] = [];
+weekoffDays: string[] = [];   // store day names (Sunday, Saturday)
+weekoffDates: string[] = [];  // store actual dates
+ submittedTimesheets: any[] = [];
+
 leaveTypes: any[] = [];
 userLeaves: any[] = [];
 
@@ -63,26 +66,21 @@ leaveApprovalSummary = {
   rejected: 0,
   total: 0
 };
-managerMessages: Array<{ title: string; message: string; date: string }> = [];
-hrAnnouncements: Array<{ headline: string; detail: string; date: string }> = [];
-
- holidayDates: string[] = [];
-weekoffDays: string[] = [];   // store day names (Sunday, Saturday)
-weekoffDates: string[] = [];  // store actual dates
-attendanceRecords: any[] = [];
-attendanceChart: any;
 todayAttendance = {
   status: 'Absent',
   checkInTime: '--',
   workingHours: '0h'
 };
+managerMessages: Array<{ title: string; message: string; date: string }> = [];
+hrAnnouncements: Array<{ headline: string; detail: string; date: string }> = [];
+attendanceRecords: any[] = [];
+attendanceChart: any;
 
   modules = [];
     constructor(private helpdeskService: HelpdeskService,
       private EmployeeResignationService: EmployeeResignationService
       ,private adminService: AdminService
       ,private timesheetService: TimesheetService) {}
-  
 ngOnInit(){
   this.currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
   this.companyId = this.currentUser.companyId;
@@ -107,9 +105,7 @@ this.loadAttendance();
   }
   this.loadWeekoffs(this.companyId, this.currentUser.regionId);
   this.loadLeaveTypes(this.companyId, this.currentUser.regionId);
-
 }
-
 private getProfileInitials(name: string): string {
   if (!name) {
     return 'EU';
@@ -119,39 +115,6 @@ private getProfileInitials(name: string): string {
     return parts[0].slice(0, 2).toUpperCase();
   }
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-loadWeekoffs(companyId: number, regionId: number) {
-
-  this.adminService.getWeekoffs(companyId, regionId).subscribe((res: any) => {
-
-    const weekoffDays = res.data
-      .filter((x: any) => x.isActive && x.weekoffDate)
-      .map((x: any) => x.weekoffDate); // Sunday, Saturday etc.
-
-    this.weekoffDates = [];
-
-    const daysInMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
-
-    for (let i = 1; i <= daysInMonth; i++) {
-
-      const dateObj = new Date(this.currentYear, this.currentMonth - 1, i);
-
-      const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-
-      if (weekoffDays.includes(dayName)) {
-
-        const formatted =
-          dateObj.getFullYear() + '-' +
-          String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
-          String(dateObj.getDate()).padStart(2, '0');
-
-        this.weekoffDates.push(formatted);
-      }
-    }
-
-    console.log("Weekoff Dates:", this.weekoffDates);
-  });
 }
 
 isWeekoffDay(day: number): boolean {
@@ -217,7 +180,6 @@ private updateLeaveSummaries() {
     availableDays: Math.max(s.totalDays - s.usedDays, 0)
   }));
 }
-
 private computeLeaveApprovalSummary() {
   let approved = 0;
   let rejected = 0;
@@ -241,37 +203,6 @@ private computeLeaveApprovalSummary() {
     total: this.userLeaves.length
   };
 }
-
-// private loadManagerMessages() {
-//   this.managerMessages = [
-//     {
-//       title: 'Timesheet Reminder',
-//       message: 'Please submit your weekly timesheet by end of day Friday.',
-//       date: '2026-03-29'
-//     },
-//     {
-//       title: 'Project Update',
-//       message: 'Update the client status report before Monday review.',
-//       date: '2026-03-28'
-//     }
-//   ];
-// }
-
-// private loadHrAnnouncements() {
-//   this.hrAnnouncements = [
-//     {
-//       headline: 'Leave policy update',
-//       detail: 'New leave approval policy will be effective from April 1st.',
-//       date: '2026-03-27'
-//     },
-//     {
-//       headline: 'Office closed',
-//       detail: 'The office will remain closed on Good Friday.',
-//       date: '2026-03-25'
-//     }
-//   ];
-// }
-
 loadMyTimesheets() {
     this.timesheetService.gettimesheetlisting(this.userId).subscribe(res => {
          console.log("Timesheet API Response:", res); // ✅ DEBUG
@@ -288,8 +219,89 @@ loadMyTimesheets() {
       }));
     });
   }
-    this.loadHolidays(this.companyId, this.currentUser.regionId); // ✅ ADD THIS
-this.loadWeekoffs(this.companyId, this.currentUser.regionId);
+  private formatTime(value: string): string {
+  if (!value) {
+    return '--';
+  }
+
+  const normalized = value.trim();
+  const ampmMatch = normalized.match(/(AM|PM)$/i);
+
+  if (ampmMatch) {
+    return normalized.toUpperCase();
+  }
+
+  const parts = normalized.split(':');
+  if (parts.length >= 2) {
+    let hours = Number(parts[0]);
+    const minutes = parts[1].substring(0,2);
+    const suffix = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${String(hours).padStart(2,'0')}:${minutes} ${suffix}`;
+  }
+
+  return normalized;
+}
+
+private calculateHours(startTime: string, endTime: string): string {
+  if (!startTime || !endTime) {
+    return '0';
+  }
+
+  const parse = (value: string) => {
+    const normalized = value.trim();
+    const ampmMatch = normalized.match(/(AM|PM)$/i);
+
+    if (ampmMatch) {
+      const date = new Date(`1970-01-01 ${normalized}`);
+      return date.getHours() + date.getMinutes() / 60;
+    }
+
+    const [h, m] = normalized.split(':').map(x => Number(x));
+    return h + (m || 0) / 60;
+  };
+
+  const start = parse(startTime);
+  const end = parse(endTime);
+  if (isNaN(start) || isNaN(end)) {
+    return '0';
+  }
+
+  const diff = Math.max(end - start, 0);
+  return diff.toFixed(1);
+}
+
+private updateTodayAttendance() {
+  const clockIn = this.attendanceRecords.find((r: any) => r.actionType?.toString().toLowerCase() === 'clockin');
+  const clockOut = this.attendanceRecords.find((r: any) => r.actionType?.toString().toLowerCase() === 'clockout');
+  const wfhRecord = this.attendanceRecords.find((r: any) =>
+    r.location?.toString().toLowerCase().includes('wfh') ||
+    r.isWorkFromHome ||
+    r.workMode?.toString().toLowerCase() === 'wfh' ||
+    r.attendanceType?.toString().toLowerCase().includes('wfh')
+  );
+
+  let status = 'Absent';
+  let checkInTime = '--';
+  let workingHours = '0h';
+
+  if (wfhRecord && !clockIn) {
+    status = 'WFH';
+  }
+
+  if (clockIn) {
+    status = wfhRecord ? 'WFH' : 'Present';
+    checkInTime = this.formatTime(clockIn.actionTime || clockIn.actionTimeText || clockIn.checkInTime || '');
+    if (clockOut) {
+      workingHours = `${this.calculateHours(clockIn.actionTime || clockIn.actionTimeText || clockIn.checkInTime || '', clockOut.actionTime || clockOut.actionTimeText || clockOut.checkOutTime || '')}h`;
+    }
+  }
+
+  this.todayAttendance = {
+    status,
+    checkInTime,
+    workingHours
+  };
 }
 isWeekoff(day: number): boolean {
 
@@ -437,90 +449,6 @@ createAttendanceChart() {
 
 }
 
-private formatTime(value: string): string {
-  if (!value) {
-    return '--';
-  }
-
-  const normalized = value.trim();
-  const ampmMatch = normalized.match(/(AM|PM)$/i);
-
-  if (ampmMatch) {
-    return normalized.toUpperCase();
-  }
-
-  const parts = normalized.split(':');
-  if (parts.length >= 2) {
-    let hours = Number(parts[0]);
-    const minutes = parts[1].substring(0,2);
-    const suffix = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-    return `${String(hours).padStart(2,'0')}:${minutes} ${suffix}`;
-  }
-
-  return normalized;
-}
-
-private calculateHours(startTime: string, endTime: string): string {
-  if (!startTime || !endTime) {
-    return '0';
-  }
-
-  const parse = (value: string) => {
-    const normalized = value.trim();
-    const ampmMatch = normalized.match(/(AM|PM)$/i);
-
-    if (ampmMatch) {
-      const date = new Date(`1970-01-01 ${normalized}`);
-      return date.getHours() + date.getMinutes() / 60;
-    }
-
-    const [h, m] = normalized.split(':').map(x => Number(x));
-    return h + (m || 0) / 60;
-  };
-
-  const start = parse(startTime);
-  const end = parse(endTime);
-  if (isNaN(start) || isNaN(end)) {
-    return '0';
-  }
-
-  const diff = Math.max(end - start, 0);
-  return diff.toFixed(1);
-}
-
-private updateTodayAttendance() {
-  const clockIn = this.attendanceRecords.find((r: any) => r.actionType?.toString().toLowerCase() === 'clockin');
-  const clockOut = this.attendanceRecords.find((r: any) => r.actionType?.toString().toLowerCase() === 'clockout');
-  const wfhRecord = this.attendanceRecords.find((r: any) =>
-    r.location?.toString().toLowerCase().includes('wfh') ||
-    r.isWorkFromHome ||
-    r.workMode?.toString().toLowerCase() === 'wfh' ||
-    r.attendanceType?.toString().toLowerCase().includes('wfh')
-  );
-
-  let status = 'Absent';
-  let checkInTime = '--';
-  let workingHours = '0h';
-
-  if (wfhRecord && !clockIn) {
-    status = 'WFH';
-  }
-
-  if (clockIn) {
-    status = wfhRecord ? 'WFH' : 'Present';
-    checkInTime = this.formatTime(clockIn.actionTime || clockIn.actionTimeText || clockIn.checkInTime || '');
-    if (clockOut) {
-      workingHours = `${this.calculateHours(clockIn.actionTime || clockIn.actionTimeText || clockIn.checkInTime || '', clockOut.actionTime || clockOut.actionTimeText || clockOut.checkOutTime || '')}h`;
-    }
-  }
-
-  this.todayAttendance = {
-    status,
-    checkInTime,
-    workingHours
-  };
-}
 
 loadAttendance() {
 
@@ -534,6 +462,7 @@ loadAttendance() {
       next: (res: any) => {
 
         this.attendanceRecords = res;
+
         this.updateTodayAttendance();
         this.createAttendanceChart();
 
@@ -571,7 +500,7 @@ generateCalendar() {
 }
 loadUserLeaves(userId: number) {
 
-  this.EmployeeResignationService.getUserLeaves(userId).subscribe({
+ this.EmployeeResignationService.getUserLeaves(userId).subscribe({
     next: (res: any[]) => {
 
       this.userLeaves = res || [];
@@ -581,7 +510,6 @@ loadUserLeaves(userId: number) {
 
       res.filter(x => x.status === 'Approved')
       .forEach(leave => {
-      res.filter((leave: any) => leave.status === 'Approved') .forEach(leave => {
 
         let start = new Date(leave.startDate);
         let end = new Date(leave.endDate);
@@ -605,7 +533,6 @@ loadUserLeaves(userId: number) {
     },
     error: err => console.error(err)
   });
-
 }
 
 isLeaveDay(day: number): boolean {
@@ -711,8 +638,4 @@ loadEvents() {
     });
 
 }
-
-
-
-
 }
