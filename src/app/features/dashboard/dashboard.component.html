@@ -103,68 +103,6 @@
   </div>
 </div>
 
-  <!-- <div class="card-employees">
-  <h3>Employees by Type</h3>
-  <div class="employee-type">
-    <div class="type-label">Full-time</div>
-    <div class="type-bar full" style="width: 90%;"></div>
-    <div class="type-count">90</div>
-  </div>
-  <div class="employee-type">
-    <div class="type-label">Part-time</div>
-    <div class="type-bar part" style="width: 40%;"></div>
-    <div class="type-count">40</div>
-  </div>
-  <div class="employee-type">
-    <div class="type-label">Contract</div>
-    <div class="type-bar contract" style="width: 20%;"></div>
-    <div class="type-count">20</div>
-  </div>
-</div> -->
-  <!-- <div class="card-new-employees">
-  <div class="circle-icon">
-    <i class="fas fa-user-plus"></i>
-  </div>
-  <div class="content">
-    <p class="label">New Employees</p>
-    <h2 class="count">5</h2>
-    <p class="subtitle">Recent Hires</p>
-  </div>
-</div> -->
-  <!-- <div class="card-project-teams">
-  <h3>Project Employment</h3>
-  <div class="team-bar">
-    <span class="team-name">Alpha</span>
-    <div class="bar alpha" style="width: 25%;"><span>25</span></div>
-  </div>
-  <div class="team-bar">
-    <span class="team-name">Beta</span>
-    <div class="bar beta" style="width: 40%;"><span>40</span></div>
-  </div>
-  <div class="team-bar">
-    <span class="team-name">Gamma</span>
-    <div class="bar gamma" style="width: 30%;"><span>30</span></div>
-  </div>
-</div> -->
-  <!-- <div class="card-donut">
-  <h3>Requests & Turnover</h3>
-  <svg viewBox="0 0 36 36" class="circular-chart">
-    <circle class="circle-bg" cx="18" cy="18" r="15.91549431" />
-    <circle class="circle profile" cx="18" cy="18" r="15.91549431" stroke-dasharray="25,100" />
-    <circle class="circle business" cx="18" cy="18" r="15.91549431" stroke-dasharray="16.7,100" />
-    <circle class="circle vacation" cx="18" cy="18" r="15.91549431" stroke-dasharray="33.3,100" />
-    <circle class="circle sick" cx="18" cy="18" r="15.91549431" stroke-dasharray="8.3,100" />
-  </svg>
-
-  <div class="legend">
-    <div><span class="dot profile"></span>Profile Update: 3</div>
-    <div><span class="dot business"></span>Business Trip: 2</div>
-    <div><span class="dot vacation"></span>Vacations: 4</div>
-    <div><span class="dot sick"></span>Sick Leaves: 1</div>
-    <div><span class="dot turnover"></span>Staff Turnover: 2%</div>
-  </div>
-</div> -->
-
   <!-- Timesheet Calendar -->
   <div class="card">
     <h3>Leaves</h3>
@@ -178,11 +116,7 @@
   <div>Fri</div>
   <div>Sat</div>
 
-<div *ngFor="let day of days"
-     [ngClass]="{
-       'weekoff-day': isWeekoffDay(day),
-       'disabled-day': isWeekoffDay(day),
-       'leave-day': !isWeekoffDay(day) && isLeaveDay(day)
+
  <div *ngFor="let day of days"
      [ngClass]="{
        'leave-day': !isWeekoff(day) && isLeaveDay(day),
