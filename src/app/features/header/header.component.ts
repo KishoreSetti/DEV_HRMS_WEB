@@ -60,8 +60,8 @@ userId: number = Number(sessionStorage.getItem('UserId'));
     .subscribe({
       next: (res: string) => {
         if (res && res.trim() !== '') {
-          const cleanedPath = res.replace(/\\/g, '/').replace(/^Uploads\//, '').trim();
-          this.profilePicture = `${environment.baseurl}/Uploads/${cleanedPath}`;
+          //const cleanedPath = res.replace(/\\/g, '/').replace(/^Uploads\//, '').trim();
+          this.profilePicture = `${environment.baseurl}/${res.replace(/\\/g, '/')}`;
         } else {
           this.profilePicture = 'assets/images/default-profile.png';
         }
