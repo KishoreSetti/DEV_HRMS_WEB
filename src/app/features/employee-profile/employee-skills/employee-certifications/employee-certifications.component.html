@@ -120,8 +120,8 @@
             </td>
 
             <td>
-              <i class="fa-solid fa-pen" style="cursor:pointer" (click)="edit(item)"></i>
-              <i class="fa-solid fa-trash ms-2" style="cursor:pointer" (click)="delete(item.certificationId)"></i>
+              <i class="fa-solid fa-pen" style="cursor:pointer" *ngIf="canEdit" (click)="edit(item)"></i>
+              <i class="fa-solid fa-trash ms-2" style="cursor:pointer" *ngIf="canDelete" (click)="delete(item.certificationId)"></i>
             </td>
           </tr>
 

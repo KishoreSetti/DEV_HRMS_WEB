@@ -65,11 +65,18 @@ loadPermissions() {
   const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
 
   const resignation = menus.find((m:any) =>
-      m.menuName?.trim().toLowerCase() === "resignation/exit");
+    m.menuName?.trim().toLowerCase() === "resignation/exit"
+  );
+
+  const approval = menus.find((m:any) =>
+    m.menuName?.trim().toLowerCase() === "manager approval"
+  );
 
   this.canViewResignation = resignation?.canView ?? false;
-  this.canViewApproval=resignation?.canView ?? false;;
+  this.canViewApproval = approval?.canView ?? false;
 
+  console.log("Resignation Permission:", this.canViewResignation);
+  console.log("Manager Approval Permission:", this.canViewApproval);
 }
   // ---------------- FILTER --------------------
   applyFilter() {

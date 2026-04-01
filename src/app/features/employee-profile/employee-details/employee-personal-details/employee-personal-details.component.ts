@@ -16,6 +16,9 @@ export class EmployeePersonalDetailsComponent {
 personalForm!: FormGroup;
   selectedFile: File | null = null;
   employmentTypes: any;
+  canCreate: boolean = true;
+canEdit: boolean = false;
+canDelete: boolean = false;
 userId = Number(sessionStorage.getItem('UserId') ?? 0);
  companyId=Number(sessionStorage.getItem("CompanyId"));
   regionId=Number(sessionStorage.getItem("RegionId"));
@@ -35,6 +38,8 @@ maritalStatusList: any[] = [];
     
   }
    ngOnInit(): void {
+      this.loadPermission();  // 🔥 ADD THIS
+
     this.loadBloodGroups();      // 👈 add this
  this.loadMaritalStatuses();  // 👈 add this
     this.createForm();
@@ -152,21 +157,31 @@ loadgender() {
 
     if (this.editId == null) {
       // CALL CREATE
-      this.service.createempProfile(formData).subscribe(res => {
-        Swal.fire("Created successfully!", '', 'success');
-        this.loadByUserId();
-        this.personalForm.reset();
-      });
+     this.service.createempProfile(formData).subscribe({
+  next: () => {
+    Swal.fire("Created successfully!", '', 'success');
+    this.loadByUserId();
+    this.personalForm.reset();
+  },
+  error: (err) => {
+    Swal.fire("Permission Denied", err.error, "error");
+  }
+});
 
     } else {
       formData.append("id", this.editId.toString());
        // CALL UPDATE
-      this.service.updateempProfile(formData).subscribe(res => {
-       Swal.fire("Updated successfully!", '', 'success');
-        this.loadByUserId();
-        this.editId = null;
-        this.personalForm.reset();
-      });
+     this.service.updateempProfile(formData).subscribe({
+  next: () => {
+    Swal.fire("Updated successfully!", '', 'success');
+    this.loadByUserId();
+    this.editId = null;
+    this.personalForm.reset();
+  },
+  error: (err) => {
+    Swal.fire("Permission Denied", err.error, "error");
+  }
+});
     }
   }
 
@@ -184,14 +199,19 @@ loadgender() {
   }
 
   // DELETE
-  delete(id: number) {
-    if (confirm("Are you sure you want to delete?")) {
-      this.service.deleteempProfile(id).subscribe(res => {
-       Swal.fire("Deleted successfully!", '', 'success');
-        this.loadAll();
-      });
-    }
+ delete(id: number) {
+  if (!this.canDelete) {
+    Swal.fire("You don't have permission to delete", "", "warning");
+    return;
   }
+
+  if (confirm("Are you sure?")) {
+    this.service.deleteempProfile(id).subscribe(() => {
+      Swal.fire("Deleted successfully!", '', 'success');
+      this.loadAll();
+    });
+  }
+}
 bloodGroupMap: { [key: number]: string } = {};
 
 loadBloodGroups() {
@@ -244,5 +264,33 @@ loadEmploymentTypes() {
         Swal.fire('Error', 'Failed to load Employment Types', 'error');
       }
     });
+}
+loadPermission() {
+  if (!this.canCreate) {
+  this.personalForm.disable();
+}
+  const userId = Number(sessionStorage.getItem("UserId"));
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const personalMenu = menus.find(
+    (m: any) => m.menuName === "Personal Details"
+  );
+
+  const menuId = personalMenu ? personalMenu.menuId : 0;
+
+  if (personalMenu) {
+    this.canCreate = personalMenu.canAdd;
+    this.canEdit = personalMenu.canEdit;
+    this.canDelete = personalMenu.canDelete;
+  }
+
+  this.adminService.getPermission(userId, menuId, 'create').subscribe({
+    next: (res: boolean) => {
+      this.canCreate = res;
+    },
+    error: () => {
+      this.canCreate = false;
+    }
+  });
 }
 }

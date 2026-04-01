@@ -13,7 +13,7 @@ export class EmployeeEmergencyContactComponent {
    emergencyForm!: FormGroup;
   emergencyList: any[] = [];
   relationList: any[] = [];
-canCreate: boolean = false;
+//canCreate: boolean = false;
   isEdit = false;
   editId!: number;
 
@@ -27,6 +27,8 @@ canCreate: boolean = false;
   ) {}
 
   ngOnInit(): void {
+      this.loadPermission();   // ✅ ADD THIS
+
     this.initForm();
     this.loadrelationship();
     this.getEmergencyContacts();
@@ -98,19 +100,27 @@ debugger;
     const payload = this.emergencyForm.value;
 
     if (this.isEdit) {
-      this.empFamilyService.updateEmergencyContact(payload)
-        .subscribe(() => {
-          this.resetForm();
-          this.getEmergencyContacts();
-          Swal.fire("Updated successfully!", '', 'success');
-        });
+      this.empFamilyService.updateEmergencyContact(payload).subscribe({
+  next: () => {
+    this.resetForm();
+    this.getEmergencyContacts();
+    Swal.fire("Updated successfully!", '', 'success');
+  },
+  error: (err) => {
+    Swal.fire("Permission Denied", err.error, "error");
+  }
+});
     } else {
-      this.empFamilyService.addEmergencyContact(payload)
-        .subscribe(() => {
-          this.resetForm();
-          this.getEmergencyContacts();
-          Swal.fire("Created successfully!", '', 'success');
-        });
+      this.empFamilyService.addEmergencyContact(payload).subscribe({
+  next: () => {
+    this.resetForm();
+    this.getEmergencyContacts();
+    Swal.fire("Created successfully!", '', 'success');
+  },
+  error: (err) => {
+    Swal.fire("Permission Denied", err.error, "error");
+  }
+});
     }
   }
 
@@ -124,49 +134,62 @@ debugger;
 
   // 🗑️ Delete
   delete(id: number) {
-    if (confirm('Are you sure you want to delete this contact?')) {
-      this.empFamilyService.deleteEmergencyContact(id)
-        .subscribe(() => {
-          this.getEmergencyContacts();
-          Swal.fire("Deleted successfully!", '', 'success');
-        });
-    }
+
+  if (!this.canDelete) {
+    Swal.fire("You don't have permission to delete", "", "warning");
+    return;
   }
+
+  if (confirm('Are you sure you want to delete this contact?')) {
+    this.empFamilyService.deleteEmergencyContact(id).subscribe({
+      next: () => {
+        this.getEmergencyContacts();
+        Swal.fire("Deleted successfully!", '', 'success');
+      },
+      error: (err) => {
+        Swal.fire("Permission Denied", err.error, "error");
+      }
+    });
+  }
+}
 
   resetForm() {
     this.emergencyForm.reset();
     this.emergencyForm.patchValue({ userId: this.userId });
     this.isEdit = false;
   }
-  loadPermission() {
-  debugger;
+canCreate: boolean = true;
+canEdit: boolean = false;
+canDelete: boolean = false;
 
+loadPermission() {
+  if (!this.canCreate) {
+  this.emergencyForm.disable();
+}
   const userId = Number(sessionStorage.getItem("UserId"));
-
   const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
 
-  const familyMenu = menus.find((m: any) => m.menuName === "Family Details");
+  // ✅ FIXED MENU NAME
+  const emergencyMenu = menus.find(
+    (m: any) => m.menuName === "Emergency Contact"
+  );
 
-  const menuId = familyMenu ? familyMenu.menuId : 0;
-    if (familyMenu) {
-    this.canCreate = familyMenu.canAdd;
-  //   this.canEdit = familyMenu.canEdit;
-  //   this.canDelete = familyMenu.canDelete;
-  //   this.canView = familyMenu.canView;
-   }
+  const menuId = emergencyMenu ? emergencyMenu.menuId : 0;
 
-  console.log("UserId:", userId);
-  console.log("MenuId:", menuId);
+  if (emergencyMenu) {
+    this.canCreate = emergencyMenu.canAdd;
+    this.canEdit = emergencyMenu.canEdit;
+    this.canDelete = emergencyMenu.canDelete;
+  }
 
   this.adminService.getPermission(userId, menuId, 'create').subscribe({
     next: (res: boolean) => {
-      console.log("Create Permission:", res);
       this.canCreate = res;
     },
-    error: (err) => {
-      console.error("Permission API error:", err);
+    error: () => {
       this.canCreate = false;
     }
   });
 }
+
 }
