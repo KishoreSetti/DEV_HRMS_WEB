@@ -26,6 +26,8 @@ username: any=sessionStorage.getItem('Name');
   editId: number | null = null; // store id for update
   bloodGroupList: any[] = [];
 maritalStatusList: any[] = [];
+showMarriageDate: boolean = false;
+marriedStatusId: number | null = null;
    constructor(
     private fb: FormBuilder,
     private service: EmployeeResignationService
@@ -38,6 +40,16 @@ maritalStatusList: any[] = [];
     this.loadBloodGroups();      // 👈 add this
  this.loadMaritalStatuses();  // 👈 add this
     this.createForm();
+    this.personalForm.get('maritalStatusId')?.valueChanges.subscribe(value => {
+    const selectedValue = Number(value);
+
+    if (selectedValue === this.marriedStatusId) {
+      this.showMarriageDate = true;
+    } else {
+      this.showMarriageDate = false;
+      this.personalForm.get('marriageDate')?.setValue('');
+    }
+  });
     this.loadAll();
     this.loadgender();
      if (this.userId > 0) {
@@ -249,7 +261,11 @@ loadMaritalStatuses() {
         m.regionId == this.regionId &&
         m.isActive === true
       );
-      console.log(res);
+      const marriedObj = this.maritalStatusList.find(
+        (m: any) => m.maritalStatusName.toLowerCase() === 'married'
+      );
+
+      this.marriedStatusId = marriedObj?.maritalStatusId || null;
     },
     error: (err) => console.error(err)
   });

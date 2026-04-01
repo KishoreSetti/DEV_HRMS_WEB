@@ -136,12 +136,6 @@
     <!-- Marital Status -->
     <div class="form-group">
       <label>Marital Status<span class="required">*</span></label>
-     <!-- <select formControlName="maritalStatusId">
-        <option value="">Select marital status</option>
-        <option value="4">Single</option>
-        <option value="5">Married</option>
-        <option value="6">Divorced</option>
-      </select> -->
       <select formControlName="maritalStatusId">
   <option value="">Select marital status</option>
   <option *ngFor="let ms of maritalStatusList"
@@ -152,10 +146,10 @@
     </div>
 
     <!-- Marriage Date -->
-    <div class="form-group"   >
-      <label>Marriage Date<span class="required">*</span></label>
-      <input type="date" formControlName="marriageDate">
-    </div>
+    <div class="form-group" *ngIf="showMarriageDate">
+  <label>Marriage Date<span class="required">*</span></label>
+  <input type="date" formControlName="marriageDate">
+</div>
 
     <!-- Work Phone -->
     <div class="form-group">
