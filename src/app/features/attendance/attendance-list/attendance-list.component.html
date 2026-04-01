@@ -20,7 +20,7 @@
         <div class="card-header">
             <h3>Employee Attendance</h3>
 
-            <button class="btn-save" (click)="saveAllAttendance()">
+            <button class="btn-save" *ngIf="canCreate" (click)="saveAllAttendance()">
                 Save All Attendance
             </button>
         </div>

@@ -84,6 +84,12 @@ toDate: string = '';
     this.regionId = Number(sessionStorage.getItem("RegionId"));
 
     this.loadEmployees();
+    this.loadPermission();  // ✅ ADD THIS
+if (!this.canView) {
+    Swal.fire("Access Denied", "You don't have permission", "error");
+    return;
+  }
+
   }
 
   // ================= LOAD EMPLOYEES =================
@@ -139,6 +145,10 @@ debugger;
   // ================= SAVE ATTENDANCE =================
 
 saveAllAttendance() {
+   if (!this.canCreate) {
+    Swal.fire("No Permission", "You cannot save attendance", "warning");
+    return;
+  }
 
   const employees = this.employees.map(emp => ({
     ...emp,
@@ -264,4 +274,24 @@ searchReport() {
 
     });
 }
+
+
+canView: boolean = false;
+canCreate: boolean = false;
+ 
+loadPermission() {
+ 
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+ 
+  const menu = menus.find((m: any) =>
+    m.menuName?.trim().toLowerCase() === "attendance list"
+  );
+ 
+  if (menu) {
+    this.canView = menu.canView;
+    this.canCreate = menu.canAdd;
+  }
+}
+
+
 }
