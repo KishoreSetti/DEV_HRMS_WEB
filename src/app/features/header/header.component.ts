@@ -256,17 +256,17 @@ records:any;
       });
   }
 attendanceRecords:any;
- loadAttendance() {
-    this.adminService.getTodayAttendance(
-      String(this.employeeCode),
-      this.companyId,
-      this.regionId
-    ).subscribe(res => {
-      this.attendanceRecords = res;
-      this.setTodaySummary();
-      this.setAvailableActions(); 
-    });
-  }
+//  loadAttendance() {
+//     this.adminService.getTodayAttendance(
+//       String(this.employeeCode),
+//       this.companyId,
+//       this.regionId
+//     ).subscribe(res => {
+//       this.attendanceRecords = res;
+//       this.setTodaySummary();
+//       this.setAvailableActions(); 
+//     });
+//   }
   todayDuration:any;
   todayClockIn:any='--:--';
   todayClockOut:any='--:--'
@@ -330,6 +330,63 @@ setAvailableActions() {
     this.availableActions = ['ClockIn'];
     //this.attendanceForm.patchValue({ clockType: 'ClockIn' });
     return;
+  }
+}
+loadAttendance() {
+  this.adminService.getTodayAttendance(
+    String(this.employeeCode),
+    this.companyId,
+    this.regionId
+  ).subscribe(res => {
+    this.attendanceRecords = res;
+
+    this.setTodaySummary();
+    this.setAvailableActions();
+
+    // ✅ IMPORTANT FIX
+    this.syncClockStateWithAPI();
+  });
+}
+syncClockStateWithAPI() {
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const todayRecords = this.attendanceRecords
+    .filter((r: any) => r.attendanceDate.startsWith(today))
+    .sort((a: any, b: any) => a.actionTime.localeCompare(b.actionTime));
+
+  if (todayRecords.length === 0) {
+    // ❌ No records → reset
+    this.isClockedIn = false;
+    this.clockStatus = 'Not Clocked In';
+    this.clockInDisplay = '--:--:--';
+    this.totalHoursDisplay = '00:00:00';
+    return;
+  }
+
+  const lastRecord = todayRecords[todayRecords.length - 1];
+
+  if (lastRecord.actionType === 'ClockIn') {
+    // 🟢 User is still clocked in
+
+    this.isClockedIn = true;
+    this.clockStatus = 'Clocked In';
+
+    this.clockInTime = this.parseTime(lastRecord.actionTime);
+    this.clockInDisplay = lastRecord.actionTime;
+
+    sessionStorage.setItem('clockInTime', this.clockInTime.toISOString());
+
+    this.startTimer();
+
+  } else {
+    // 🔴 User already clocked out
+
+    this.isClockedIn = false;
+    this.clockStatus = 'Clocked Out';
+
+    this.stopTimer();
+    sessionStorage.removeItem('clockInTime');
   }
 }
 
