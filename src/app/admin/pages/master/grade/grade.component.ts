@@ -36,7 +36,7 @@ companyId:  this.currentUser.companyId;
 companyName: this.currentUser.companyName;
 regionId:  this.currentUser.regionId;
 
-this.service.getGrades(this.companyId)
+this.service.getGrades(this.userId)
     .subscribe({
       next: (res: any) => {
         this.grades = res.data || res;
@@ -56,26 +56,23 @@ loadRegionsByCompany(companyId: number) {
 }
 
 ngOnInit(): void {
-
   this.initForm();
-  // Disable initially
+  this.loadCompanies();
+  this.loadGrades(); // ✅ HERE
+
   this.gradeForm.get('regionId')?.disable();
   this.gradeForm.get('gradeName')?.disable();
-debugger;
-  // ✅ SET COMPANY ID (hidden usage)
+
   this.gradeForm.patchValue({
     companyID: this.companyId
   });
 
-  // ✅ Load regions directly
   if (this.companyId) {
     this.loadRegionsByCompany(this.companyId);
     this.gradeForm.get('regionId')?.enable();
   }
 
-  // 🔥 Region change
   this.gradeForm.get('regionId')?.valueChanges.subscribe(regionId => {
-
     if (regionId) {
       this.gradeForm.get('gradeName')?.enable();
     } else {
@@ -87,9 +84,24 @@ debugger;
     this.gradeForm = this.fb.group({
       gradeID: [0],
       gradeName: ['', Validators.required],
-      companyID: [this.companyId, Validators.required],
+      companyID: ['', Validators.required],
       regionId: ['', Validators.required],
       isActive: [true]
+    });
+  }
+  loadCompanies(): void {
+    this.service.getCompanies(null, this.userId).subscribe({
+      next: (res: any) => {
+        console.log('All Companies 👉', res);
+  
+        const data = res?.data ?? res ?? [];
+  
+        // 🔥 Only active companies
+        this.companies = data.filter((c: any) => c.isActive === true);
+  
+        console.log('Active Companies 👉', this.companies);
+      },
+      error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
     });
   }
 // loadCompanies(): void {
@@ -135,12 +147,9 @@ loadRegions(): void {
 
 loadGrades() {
 
-  const companyId = this.companyId ;
-  // const regionId = this.regionId;
 
-  if (!companyId ) return;
 
-  this.service.getGrades(companyId)
+  this.service.getGrades(this.userId)
     .subscribe({
       next: (res: any) => {
         this.grades = res.data || res;
@@ -151,30 +160,51 @@ loadGrades() {
     });
 }
 
- save() {
-  debugger;
+save() {
   if (this.gradeForm.invalid) {
-    this.gradeForm.markAllAsTouched(); // 🔥 show errors
+    this.gradeForm.markAllAsTouched();
     return;
   }
 
   const data = {
-    ...this.gradeForm.getRawValue(), // 🔥 IMPORTANT for disabled fields
+    ...this.gradeForm.getRawValue(),
     userId: this.userId
   };
 
   if (this.isEdit) {
-    this.service.updateGrade(data).subscribe(() => {
-      Swal.fire('Success', 'Updated Successfully', 'success');
-      this.loadGrades();
-      this.resetForm();
+
+    this.service.updateGrade(data).subscribe({
+      next: (res: any) => {
+
+        if (res?.data?.success) {
+          Swal.fire('Success', res.data.message, 'success');
+          this.loadGrades();
+          this.resetForm();
+        } else {
+          Swal.fire('Error', res?.data?.message || 'Update failed', 'error');
+        }
+
+      },
+      error: () => Swal.fire('Error', 'Update failed', 'error')
     });
+
   } else {
-    this.service.createGrade(data).subscribe((res: any) => {
-      Swal.fire('Success', res.message, 'success');
-      this.loadGrades();
-      this.resetForm();
+
+    this.service.createGrade(data).subscribe({
+      next: (res: any) => {
+
+        if (res?.data?.success) {
+          Swal.fire('Success', res.data.message, 'success');
+          this.loadGrades();
+          this.resetForm();
+        } else {
+          Swal.fire('Error', res?.data?.message || 'Create failed', 'error');
+        }
+
+      },
+      error: () => Swal.fire('Error', 'Create failed', 'error')
     });
+
   }
 }
 
@@ -192,37 +222,29 @@ loadGrades() {
   }
 
 delete(item: any): void {
-  console.log('Deleting Grade ID:', item.gradeID);
 
   Swal.fire({
     title: `Delete "${item.gradeName}"?`,
-    text: 'This action cannot be undone!',
     icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Delete',
-    cancelButtonText: 'Cancel'
+    showCancelButton: true
   }).then(result => {
 
     if (result.isConfirmed) {
 
-      // 🔥 Show spinner (if you are using ngx-spinner)
-      // this.spinner.show();
-
       this.service.deleteGrade(item.gradeID).subscribe({
-        next: () => {
-          Swal.fire('Deleted', 'Grade deleted successfully', 'success');
-          this.loadGrades();
+        next: (res: any) => {
 
-          // this.spinner.hide();
+          // ✅ DELETE has no success flag
+          if (res?.message) {
+            Swal.fire('Deleted', res.message, 'success');
+            this.loadGrades();
+          } else {
+            Swal.fire('Error', 'Delete failed', 'error');
+          }
+
         },
-        error: (err) => {
-          Swal.fire(
-            'Error',
-            err?.error ?? 'Grade already deleted or not found',
-            'error'
-          );
-
-          // this.spinner.hide();
+        error: () => {
+          Swal.fire('Error', 'Delete failed', 'error');
         }
       });
 
@@ -230,26 +252,16 @@ delete(item: any): void {
 
   });
 }
-
 resetForm() {
   this.gradeForm.reset({
     gradeID: 0,
     gradeName: '',
-    companyID: this.companyId ? Number(this.companyId) : '',
+    companyID: '',
     regionId: '',
     isActive: true
   });
 
-  // Keep company locked
-  if (this.companyId) {
-    this.gradeForm.get('companyID')?.disable();
-    this.loadRegionsByCompany(Number(this.companyId));
-    this.gradeForm.get('regionId')?.enable();
-  } else {
-    this.gradeForm.get('regionId')?.disable();
-  }
 
-  this.gradeForm.get('gradeName')?.disable();
 
   this.isEdit = false;
 }
