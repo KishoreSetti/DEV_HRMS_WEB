@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
- // apiUrl: "https://localhost:44370/api",
+  //apiUrl: "https://localhost:44370/api",
   apiUrl: "https://rdw.cortracker360.com/api",
   //apiUrl: "https://machinery.cortracker360.com/api",
   //baseurl: "https://localhost:44370",

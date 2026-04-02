@@ -16,32 +16,38 @@
 
             <div class="col-md-4">
               <label class="form-label fw-semibold">Shift Name</label>
-              <input type="text" class="form-control" name="shiftName" [(ngModel)]="shift.shiftName" placeholder="Enter Shift Name" required />
+              <input type="text" class="form-control" name="shiftName" [(ngModel)]="shift.shiftName"
+                placeholder="Enter Shift Name" required />
             </div>
 
             <div class="col-md-6">
-            <label class="form-label fw-semibold">Company <span class="text-danger">*</span></label>
-            <select class="form-select" name="CompanyID" [(ngModel)]="shift.companyID" (change)="onCompanyChange()" required>
+              <label class="form-label fw-semibold">Company <span class="text-danger">*</span></label>
+              <select class="form-select" name="CompanyID" [(ngModel)]="shift.companyID" (change)="onCompanyChange()"
+                required>
                 <option [ngValue]="0">Select Company</option>
                 <option *ngFor="let c of companies" [ngValue]="c.companyId">{{ c.companyName }}</option>
-            </select>
+              </select>
             </div>
 
             <div class="col-md-6">
-            <label class="form-label fw-semibold">Region <span class="text-danger">*</span></label>
-            <select class="form-select" name="RegionID" [(ngModel)]="shift.regionID" required>
+              <label class="form-label fw-semibold">Region <span class="text-danger">*</span></label>
+              <select class="form-select" name="RegionID" [(ngModel)]="shift.regionID" required>
                 <option [ngValue]="0">Select Region</option>
                 <option *ngFor="let r of filteredRegions" [ngValue]="r.regionID">{{ r.regionName }}</option>
-            </select>
+              </select>
             </div>
             <div class="col-md-4">
-            <label class="form-label fw-semibold">Shift Start Time</label>
-            <input type="time" class="form-control" [(ngModel)]="shift.shiftStartTime" name="shiftStartTime" required>
+              <label class="form-label fw-semibold">Shift Start Time</label>
+              <input type="time" class="form-control" [(ngModel)]="shift.shiftStartTime" name="shiftStartTime" required>
             </div>
 
             <div class="col-md-4">
-            <label class="form-label fw-semibold">Shift End Time</label>
-            <input type="time" class="form-control" [(ngModel)]="shift.shiftEndTime" name="shiftEndTime" required>
+              <label class="form-label fw-semibold">Shift End Time</label>
+              <input type="time" class="form-control" [(ngModel)]="shift.shiftEndTime" name="shiftEndTime" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Grace Time</label>
+              <input type="time" class="form-control" [(ngModel)]="shift.graceTime" name="graceTime">
             </div>
 
             <div class="col-md-2 d-flex align-items-center">
@@ -91,6 +97,7 @@
                 <th>Region</th>
                 <th>Shift Start</th>
                 <th>Shift End</th>
+                <th>Grace Time</th>
                 <th>Status</th>
                 <th class="text-center">Actions</th>
               </tr>
@@ -103,6 +110,7 @@
                 <td>{{ s.regionName }}</td>
                 <td>{{ s.shiftStartTime }}</td>
                 <td>{{ s.shiftEndTime }}</td>
+                <td>{{ s.graceTime || '-' }}</td>
                 <td>
                   <span class="badge" [ngClass]="s.isActive ? 'bg-success' : 'bg-secondary'">
                     {{ s.isActive ? 'Active' : 'Inactive' }}
@@ -130,7 +138,8 @@
             <li class="page-item" [class.disabled]="currentPage === 1">
               <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
             </li>
-            <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index" [class.active]="currentPage === i + 1">
+            <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+              [class.active]="currentPage === i + 1">
               <a class="page-link" (click)="goToPage(i + 1)">{{ i + 1 }}</a>
             </li>
             <li class="page-item" [class.disabled]="currentPage === totalPages">

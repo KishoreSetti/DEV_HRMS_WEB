@@ -14,6 +14,9 @@ selectAll = false;
   selectedLeave: any = null;
   leaveList: any[] = [];
 
+  canApprove: boolean = false;
+canReject: boolean = false;
+
   // Sorting
 sortColumn: keyof any | null = null;
 sortDirection: 'asc' | 'desc' = 'asc';
@@ -30,6 +33,7 @@ pageSizeOptions = [5, 10, 20, 50];
   ngOnInit(): void {
     this.managerId = Number(sessionStorage.getItem("UserId")); // Logged in manager
     this.loadLeaves();
+    this.loadPermission();
   }
 
   loadLeaves() {
@@ -223,4 +227,19 @@ rejectSelected() {
       });
     });
   }
+
+  loadPermission() {
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const approvalMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "leave approve"
+  );
+
+  if (approvalMenu) {
+    this.canApprove = approvalMenu.canEdit;   // approve action
+    this.canReject = approvalMenu.canDelete;  // reject action
+  }
+
+  console.log("Approval Menu:", approvalMenu);
+}
 }

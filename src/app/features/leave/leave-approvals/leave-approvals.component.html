@@ -126,10 +126,10 @@
   </div>
 
   <div class="mt-3">
-    <button class="btn btn-success me-2" (click)="approveSelected()">
+    <button class="btn btn-success me-2" *ngIf="canApprove" (click)="approveSelected()">
       Approve Selected
     </button>
-    <button class="btn btn-danger" (click)="rejectSelected()">
+    <button class="btn btn-danger" *ngIf="canReject" (click)="rejectSelected()">
       Reject Selected
     </button>
   </div>

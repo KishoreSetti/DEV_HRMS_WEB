@@ -68,9 +68,11 @@
 
     <!-- Profile Picture -->
     <div class="form-group">
-      <label>Profile Picture</label>
-      <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png">
-    </div>
+  <label>Profile Picture</label>
+  <button type="button" (click)="fileInput.click()">Choose File</button>
+  <input #fileInput type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png" style="display:none;">
+  <span>{{ personalForm.get('ProfilePictureName')?.value }}</span>
+</div>
 
     <!-- Passport -->
     <div class="form-group">
@@ -134,12 +136,6 @@
     <!-- Marital Status -->
     <div class="form-group">
       <label>Marital Status<span class="required">*</span></label>
-     <!-- <select formControlName="maritalStatusId">
-        <option value="">Select marital status</option>
-        <option value="4">Single</option>
-        <option value="5">Married</option>
-        <option value="6">Divorced</option>
-      </select> -->
       <select formControlName="maritalStatusId">
   <option value="">Select marital status</option>
   <option *ngFor="let ms of maritalStatusList"
@@ -150,10 +146,10 @@
     </div>
 
     <!-- Marriage Date -->
-    <div class="form-group"   >
-      <label>Marriage Date<span class="required">*</span></label>
-      <input type="date" formControlName="marriageDate">
-    </div>
+    <div class="form-group" *ngIf="showMarriageDate">
+  <label>Marriage Date<span class="required">*</span></label>
+  <input type="date" formControlName="marriageDate">
+</div>
 
     <!-- Work Phone -->
     <div class="form-group">
@@ -175,7 +171,18 @@
     </div>
      <div class="form-group">
       <label>Employment Type<span class="required">*</span></label>
-      <input type="text" formControlName="employmentType" placeholder="Enter employment type">
+      <!-- <input type="text" formControlName="employmentType" placeholder="Enter employment type">
+        -->
+      <select class="form-control" formControlName="employmentType">
+        <option value="">-- Select Employment Type --</option>
+
+        <option 
+          *ngFor="let type of employmentTypes" 
+          [value]="type.EmploymenttypeID">
+          {{ type.employmenttypeName }}
+        </option>
+
+      </select>
     </div>
       <div class="form-group">
       <label>Date of Joining<span class="required">*</span></label>

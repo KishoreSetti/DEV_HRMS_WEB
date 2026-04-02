@@ -35,7 +35,7 @@ export class PayGroupsComponent {
 
   ngOnInit(): void {
 
-    this.userId = Number(sessionStorage.getItem('userCompanyIdpay'));
+    this.userId = Number(sessionStorage.getItem('userCompanyId'));
     this.companyId = sessionStorage.getItem('CompanyId') || '';
     this.regionId = sessionStorage.getItem('RegionId') || '';
 

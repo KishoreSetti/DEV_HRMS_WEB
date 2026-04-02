@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EmployeeResignationService } from '../employee-services/employee-resignation.service';
 import Swal from 'sweetalert2';
+import { AdminService } from '../../../admin/servies/admin.service';
 @Component({
   selector: 'app-employee-emergency-contact',
   standalone: false,
@@ -12,7 +13,7 @@ export class EmployeeEmergencyContactComponent {
    emergencyForm!: FormGroup;
   emergencyList: any[] = [];
   relationList: any[] = [];
-
+canCreate: boolean = false;
   isEdit = false;
   editId!: number;
 
@@ -22,7 +23,7 @@ export class EmployeeEmergencyContactComponent {
 
   constructor(
     private fb: FormBuilder,
-    private empFamilyService: EmployeeResignationService
+    private empFamilyService: EmployeeResignationService,private adminService: AdminService
   ) {}
 
   ngOnInit(): void {
@@ -45,16 +46,36 @@ export class EmployeeEmergencyContactComponent {
       regionId: [this.regionId],
     });
   }
-relationshipMap: any;
+relationshipMap: { [key: number]: string } = {};
 
-  // 📄 Load Relationships
-  loadrelationship() {
-    this.empFamilyService
-      .GetAllRelationShip(this.userId, this.companyId, this.regionId)
-      .subscribe(res => {
-        this.relationList = res;
-      });
-  }
+loadrelationship() {
+
+  this.empFamilyService
+    .GetAllRelationShip(this.userId, this.companyId, this.regionId)
+    .subscribe({
+      next: (res: any[]) => {
+
+        console.log('All Relationships 👉', res);
+
+        // ✅ Filter Active + Company + Region
+        this.relationList = (res || []).filter((r: any) =>
+          r.companyId == this.companyId &&
+          r.regionId == this.regionId &&
+          r.isActive === true
+        );
+
+        // ✅ Build Map
+        this.relationshipMap = {};
+        this.relationList.forEach((r: any) => {
+          this.relationshipMap[r.relationshipId] = r.relationshipName;
+        });
+
+        console.log('Filtered Relationships 👉', this.relationList);
+        console.log('Relationship Map 👉', this.relationshipMap);
+      },
+      error: (err) => console.error(err)
+    });
+}
 
  getEmergencyContacts() {
   this.empFamilyService.getEmergencyContactsByUserId(this.userId)
@@ -117,4 +138,35 @@ debugger;
     this.emergencyForm.patchValue({ userId: this.userId });
     this.isEdit = false;
   }
+  loadPermission() {
+  debugger;
+
+  const userId = Number(sessionStorage.getItem("UserId"));
+
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const familyMenu = menus.find((m: any) => m.menuName === "Family Details");
+
+  const menuId = familyMenu ? familyMenu.menuId : 0;
+    if (familyMenu) {
+    this.canCreate = familyMenu.canAdd;
+  //   this.canEdit = familyMenu.canEdit;
+  //   this.canDelete = familyMenu.canDelete;
+  //   this.canView = familyMenu.canView;
+   }
+
+  console.log("UserId:", userId);
+  console.log("MenuId:", menuId);
+
+  this.adminService.getPermission(userId, menuId, 'create').subscribe({
+    next: (res: boolean) => {
+      console.log("Create Permission:", res);
+      this.canCreate = res;
+    },
+    error: (err) => {
+      console.error("Permission API error:", err);
+      this.canCreate = false;
+    }
+  });
+}
 }

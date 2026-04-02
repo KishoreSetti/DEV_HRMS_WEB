@@ -12,7 +12,7 @@ import autoTable from 'jspdf-autotable';
   styleUrl: './relationship.component.css'
 })
 export class RelationshipComponent {
-    userId!: number;
+   userId!: number;
   companyId!: number;
   regionId!: number;
 relationship: Relationship = this.getEmptyRelationship();
@@ -63,26 +63,46 @@ relationshipModel: any = {
   companies: any[] = [];
   regions: any[] = [];
 loadCompanies(): void {
-   this.adminService.getCompanies(null,this.userId).subscribe((res: any[]) => {
-    this.companyMap = res.reduce((map, c) => {
-      map[c.companyId] = c.companyName;
-      this.companies = res;
-      return map;
-    }, {} as Record<number, string>);
-  });
-  }
+  this.adminService.getCompanies(null, this.userId).subscribe((res: any) => {
+    console.log('All Companies 👉', res);
 
-  loadRegions(): void {
-    debugger;
-    this.adminService.getRegions(null,this.userId).subscribe((res: any[]) => {
-    this.regionMap = res.reduce((map, r) => {
-      debugger;
-      map[r.regionID] = r.regionName;
-      this.regions = res;
+    const data = res?.data ?? res ?? [];
+
+    // 🔥 Filter only active companies
+    this.companies = data.filter((c: any) => c.isActive === true);
+
+    // ✅ Build company map correctly
+    this.companyMap = this.companies.reduce((map: any, c: any) => {
+      map[c.companyId] = c.companyName;
       return map;
-    }, {} as Record<number, string>);
+    }, {});
+
+    console.log('Active Companies 👉', this.companies);
+    console.log('Company Map 👉', this.companyMap);
   });
-  }
+}
+
+loadRegions(): void {
+  debugger;
+
+  this.adminService.getRegions(null, this.userId).subscribe((res: any) => {
+    console.log('All Regions 👉', res);
+
+    const data = res?.data ?? res ?? [];
+
+    // 🔥 Filter only active regions
+    this.regions = data.filter((r: any) => r.isActive === true);
+
+    // ✅ Build region map correctly
+    this.regionMap = this.regions.reduce((map: any, r: any) => {
+      map[r.regionID] = r.regionName;
+      return map;
+    }, {});
+
+    console.log('Active Regions 👉', this.regions);
+    console.log('Region Map 👉', this.regionMap);
+  });
+}
   // Load
   loadRelationships(): void {
 
@@ -100,7 +120,7 @@ loadCompanies(): void {
           companyName: this.companyMap[r.companyId] ?? '',
           regionName: this.regionMap[r.regionId] ?? ''
         }))
-        .sort((a: any, b: any) => b.RelationshipID - a.relationshipId);
+        .sort((a: any, b: any) => b.RelationshipID - a.RelationshipID);
 
       this.spinner.hide();
     },
@@ -111,57 +131,9 @@ loadCompanies(): void {
   });
   }
 
-  // // Submit (Create / Update)
-  // onSubmit(): void {
-  //   this.spinner.show();
-  //   if (this.isEditMode) {
-  //     this.adminService.updateRelationship(this.relationship).subscribe({
-  //       next: () => {
-  //         this.spinner.hide();
-  //         Swal.fire('Updated', `${this.relationship.relationshipName} updated successfully!`, 'success');
-  //         this.loadRelationships();
-  //         this.resetForm();
-  //       },
-  //       error: () => {
-  //         this.spinner.hide();
-  //         Swal.fire('Error', 'Update failed. Please contact IT Administrator.', 'error');
-  //       }
-  //     });
-  //   } else {
-  //     this.adminService.createRelationship(this.relationship).subscribe({
-  //       next: () => {
-  //         this.spinner.hide();
-  //         Swal.fire('Added', `${this.relationship.relationshipName} added successfully!`, 'success');
-  //         this.loadRelationships();
-  //         this.resetForm();
-  //       },
-  //       error: () => {
-  //         this.spinner.hide();
-  //         Swal.fire('Error', 'Create failed. Please contact IT Administrator.', 'error');
-  //       }
-  //     });
-  //   }
-  // }
-   // Submit (Create / Update)
+  // Submit (Create / Update)
   onSubmit(): void {
     this.spinner.show();
-    if (this.isEditMode) {
-
-  const exists = this.relationships.some(r =>
-    r.relationshipId !== this.relationship.relationshipId && // 👈 important
-    r.relationshipName.toLowerCase().trim() === this.relationship.relationshipName.toLowerCase().trim() &&
-    r.companyId === this.relationship.companyId &&
-    r.regionId === this.relationship.regionId
-  );
-
-  if (exists) {
-    this.spinner.hide();
-    Swal.fire('Warning', 'Relationship already exists!', 'warning');
-    return;
-  }
-
-  // continue update API
-}
     if (this.isEditMode) {
       this.adminService.updateRelationship(this.relationship).subscribe({
         next: () => {
@@ -176,18 +148,6 @@ loadCompanies(): void {
         }
       });
     } else {
-
-      const exists = this.relationships.some(r =>
-        r.relationshipName.toLowerCase() === this.relationship.relationshipName.toLowerCase() &&
-        r.companyId === this.relationship.companyId &&
-        r.regionId === this.relationship.regionId
-      );
-
-      if (exists) {
-        Swal.fire('Warning', 'Relationship already exists!', 'warning');
-        return;
-      }
-
       this.adminService.createRelationship(this.relationship).subscribe({
         next: () => {
           this.spinner.hide();
@@ -195,11 +155,10 @@ loadCompanies(): void {
           this.loadRelationships();
           this.resetForm();
         },
-        
-       error: (err) => {
-        this.spinner.hide();
-        Swal.fire('Error', err.error?.message || 'Create failed', 'error');
-      }
+        error: () => {
+          this.spinner.hide();
+          Swal.fire('Error', 'Create failed. Please contact IT Administrator.', 'error');
+        }
       });
     }
   }

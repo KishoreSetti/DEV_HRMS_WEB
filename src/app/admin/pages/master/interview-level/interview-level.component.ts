@@ -111,38 +111,48 @@ searchText = '';
   }
 
 
-  onSubmit(){
+ onSubmit() {
 
-    this.interview.CompanyID = this.companyId;
+  this.interview.CompanyID = this.companyId;
+  this.interview.RegionID = this.regionId;
+  this.interview.UserId = this.userId;
 
-    this.interview.RegionID = this.regionId;
+  const obs = this.isEditMode
+    ? this.adminService.updateInterviewLevel(this.interview)
+    : this.adminService.createInterviewLevel(this.interview);
 
-    this.interview.UserId = this.userId;
+  obs.subscribe({
 
-    const obs = this.isEditMode
-      ? this.adminService.updateInterviewLevel(this.interview)
-      : this.adminService.createInterviewLevel(this.interview);
+    next: (res: any) => {
 
-    obs.subscribe({
-
-      next:()=>{
-
+      // ❌ HANDLE DUPLICATE
+      if (!res.success) {
         Swal.fire(
-          this.isEditMode ? 'Updated!' : 'Added!',
-          'Interview Level saved successfully',
-          'success'
+          'Warning',
+          res.message || 'Duplicate record exists',
+          'warning'
         );
-
-        this.loadInterviewLevels();
-
-        this.clearForm();
-
+        return;
       }
 
-    });
+      // ✅ SUCCESS
+      Swal.fire(
+        this.isEditMode ? 'Updated!' : 'Added!',
+        res.message || 'Saved successfully',
+        'success'
+      );
 
-  }
+      this.loadInterviewLevels();
+      this.clearForm();
+    },
 
+    error: () => {
+      Swal.fire('Error', 'Duplicate record exists', 'error');
+    }
+
+  });
+
+}
 
   editInterviewLevel(s:InterviewLevel){
 
@@ -198,54 +208,70 @@ searchText = '';
   }
 
 
-  loadCompanies(){
+loadCompanies() {
 
-    this.adminService.getCompanies(null,this.userId).subscribe({
+  this.adminService.getCompanies(null, this.userId).subscribe({
 
-      next:(res:Company[])=>{
+    next: (res: any) => {
 
-        this.companies = res || [];
+      console.log('All Companies 👉', res);
 
-        this.companyMap = {};
+      const data = res?.data ?? res ?? [];
 
-        this.companies.forEach(c =>
-          this.companyMap[c.companyId] = c.companyName
-        );
+      // 🔥 Only active companies
+      this.companies = data.filter((c: any) => c.isActive === true);
 
-        if(this.companyId){
-          this.loadRegions();
-        }
+      // ✅ Build company map
+      this.companyMap = {};
+      this.companies.forEach((c: any) => {
+        this.companyMap[c.companyId] = c.companyName;
+      });
 
+      console.log('Active Companies 👉', this.companies);
+
+      // ✅ Load regions if company selected
+      if (this.companyId) {
+        this.loadRegions();
       }
 
-    });
+    }
 
-  }
+  });
+
+}
 
 
-  loadRegions(){
+loadRegions() {
 
-    this.adminService.getRegions(null,this.userId).subscribe({
+  this.adminService.getRegions(null, this.userId).subscribe({
 
-      next:(res:Region[])=>{
+    next: (res: any) => {
 
-        const allRegions = res || [];
+      console.log('All Regions 👉', res);
 
-        this.regionMap = {};
+      const data = res?.data ?? res ?? [];
 
-        allRegions.forEach(r=>{
-          this.regionMap[r.regionID] = r.regionName;
-        });
+      // 🔥 Only active regions
+      const activeRegions = data.filter((r: any) => r.isActive === true);
 
-        this.regions = allRegions.filter(r =>
-          r.companyID == this.companyId
-        );
+      // ✅ Build region map from active only
+      this.regionMap = {};
+      activeRegions.forEach((r: any) => {
+        this.regionMap[r.regionID] = r.regionName;
+      });
 
-      }
+      // ✅ Filter regions by selected company
+      this.regions = activeRegions.filter((r: any) =>
+        r.companyID == this.companyId
+      );
 
-    });
+      console.log('Filtered Regions 👉', this.regions);
 
-  }
+    }
+
+  });
+
+}
 
 
   onCompanyChange(){

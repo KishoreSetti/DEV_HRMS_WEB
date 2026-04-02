@@ -15,30 +15,46 @@
   <input type="radio" id="tab1" name="tab" checked>
   <input type="radio" id="tab2" name="tab">
   <input type="radio" id="tab3" name="tab">
+  <input type="radio" id="tab4" name="tab">
+  <input type="radio" id="tab5" name="tab">
 
   <!-- Tab Header -->
   <div class="tab-header">
     <label class="tab-label" for="tab1">Add Asset</label>
-    <label class="tab-label" for="tab2">My Assets</label>
+    <label class="tab-label" for="tab4">Asset Requests</label>
     <label class="tab-label" for="tab3">Asset Approval</label>
+    <label class="tab-label" for="tab5">Assign Asset Screen</label>
+    <label class="tab-label" for="tab2">My Assets</label>
+
+
   </div>
 
   <!-- TAB 1: ADD ASSET -->
   <div id="content1" class="tab-content">
-   <app-add-assets></app-add-assets>
-  
+    <app-add-assets></app-add-assets>
+
   </div>
 
-  <!-- TAB 2: MY ASSETS WITH FILTERS -->
-  <div id="content2" class="tab-content">
-   
-    <app-my-asset></app-my-asset>
+  <!-- TAB 4: ASSET HISTORY -->
+  <div id="content4" class="tab-content">
+    <app-asset-request></app-asset-request>
   </div>
 
   <!-- TAB 3: ASSET APPROVAL -->
   <div id="content3" class="tab-content">
-   <app-asset-approval></app-asset-approval>
+    <app-asset-approval></app-asset-approval>
   </div>
+
+  <div id="content5" class="tab-content">
+    <app-assign-asset-screen></app-assign-asset-screen>
+  </div>
+
+  <!-- TAB 2: MY ASSETS WITH FILTERS -->
+  <div id="content2" class="tab-content">
+     <app-my-asset></app-my-asset>
+  </div>
+
+
 
 </div>
 

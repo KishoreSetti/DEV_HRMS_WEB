@@ -104,9 +104,12 @@
 
 
     <div class="text-start mt-3 d-flex gap-2">
-      <button type="submit" class="btn btn-primary">
+      <button type="submit" *ngIf="canCreate" class="btn btn-primary">
         Submit Leave Request
       </button>
+      <!-- <button type="submit" class="btn btn-primary">
+        Submit Leave Request
+      </button> -->
 
       <!-- ✅ Reset Button -->
       <button type="button" class="btn btn-primary" (click)="resetForm()">

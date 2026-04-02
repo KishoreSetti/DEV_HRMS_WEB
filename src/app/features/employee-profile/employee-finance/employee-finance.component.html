@@ -14,13 +14,15 @@
 
   <!-- Radios for 6 tabs -->
 
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
-  <input type="radio" id="tab3" name="tab">
- <div class="tab-header">
-    <label class="tab-label" for="tab1">Bank Details</label>
-    <label class="tab-label" for="tab2">DD</label>
-    <label class="tab-label" for="tab3">W4(USA)</label>
+  <input  type="radio" id="tab1" name="tab" checked>
+  <input  type="radio" id="tab2" name="tab">
+  <input  type="radio" id="tab3" name="tab">
+
+  <!-- Tab Header -->
+  <div class="tab-header">
+    <label class="tab-label" *ngIf="canViewBank" for="tab1">Bank Details</label>
+    <label class="tab-label" *ngIf="canViewDD" for="tab2">DD</label>
+    <label class="tab-label" *ngIf="canViewW4" for="tab3">W4(USA)</label>
   </div>
   <!-- Tab Header -->
 

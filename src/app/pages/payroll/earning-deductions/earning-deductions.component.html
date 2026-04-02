@@ -105,7 +105,11 @@
     <div class="card shadow-sm">
       <div class="card-body">
 
-        <input type="text" class="form-control w-25 mb-3" placeholder="Search" [(ngModel)]="searchText">
+       <input type="text"
+       class="form-control w-25 mb-3"
+       placeholder="Search"
+       [(ngModel)]="searchText"
+       (ngModelChange)="changePage(1)">
 
         <table class="table table-bordered table-hover">
           <thead class="table-light">
@@ -136,6 +140,42 @@
           </tbody>
         </table>
 
+        <!-- ================= PAGINATION ================= -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+
+  <!-- Page Size -->
+  <div>
+    <label>
+      Show
+      <select class="form-select d-inline w-auto ms-2"
+              [(ngModel)]="pageSize"
+              (change)="changePage(1)">
+        <option *ngFor="let size of [5,10,20,50]" [ngValue]="size">
+          {{ size }}
+        </option>
+      </select>
+      entries
+    </label>
+  </div>
+
+  <!-- Navigation -->
+  <div>
+    <button class="btn btn-outline-secondary btn-sm me-2"
+            (click)="changePage(currentPage - 1)"
+            [disabled]="currentPage === 1">
+      Previous
+    </button>
+
+    <span>Page {{ currentPage }} of {{ totalPages() }}</span>
+
+    <button class="btn btn-outline-secondary btn-sm ms-2"
+            (click)="changePage(currentPage + 1)"
+            [disabled]="currentPage === totalPages()">
+      Next
+    </button>
+  </div>
+
+</div>
       </div>
     </div>
 

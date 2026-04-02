@@ -39,7 +39,7 @@ export class DesignationComponent {
     this.loadRegions();
     this.loadDesignations();
    this.loadDepartments();
-     
+     this.loadGrades();
   }
   departments: any[] = [];
 
@@ -69,10 +69,15 @@ regions:any;
       error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
     });
   }
+  // getCompanyName(companyId: number): string {
+  //   const c = this.companies.find((x:any) => x.companyID === companyId);
+  //   return c ? c.companyName : '-';
+  // }
   getCompanyName(companyId: number): string {
-    const c = this.companies.find((x:any) => x.companyID === companyId);
-    return c ? c.companyName : '-';
-  }
+  const c = this.companies.find((x:any) => x.companyID == companyId);
+  return c ? c.companyName : '-';
+}
+
 
   getRegionName(regionId: number): string {
     const r = this.regions.find((x:any) => x.regionId === regionId);
@@ -102,9 +107,19 @@ getEmptyDesignation(): Designation {
     userId: Number(sessionStorage.getItem("UserId")),
     companyName: '',
     regionName: '',
-    departmentName: ''
-   
+    departmentName: '',
+   gradeId: 0,
   };
+}
+grades: any[] = [];
+
+loadGrades(): void {
+  this.adminservice.getGrades(this.userId).subscribe({
+    next: (res: any) => {
+      this.grades = res.data ;
+    },
+    error: () => Swal.fire('Error', 'Failed to load grades.', 'error')
+  });
 }
  changePageSize(event: any): void {
     this.pageSize = +event.target.value;
@@ -179,10 +194,33 @@ getEmptyDesignation(): Designation {
   // ------------------------------------------------------------
   // 🔹 Edit Designation
   // ------------------------------------------------------------
-  editDesignation(d: Designation): void {
-    this.designation = { ...d };
-    this.isEditMode = true;
-  }
+  // editDesignation(d: Designation): void {
+  //   this.designation = { ...d };
+  //   this.isEditMode = true;
+  // }
+
+editDesignation(d: any): void {
+  console.log('EDIT DATA:', d);
+
+  this.designation = {
+    designationID: d.designationID,
+    designationName: d.designationName,
+
+    companyId: Number(d.companyID),
+    regionId: Number(d.regionID),
+    departmentId: Number(d.departmentID),
+    gradeId: d.gradeID ? Number(d.gradeID) : 0,
+
+    isActive: d.isActive,
+    userId: this.userId,
+
+    companyName: d.companyName,
+    regionName: d.regionName,
+    departmentName: d.departmentName
+  };
+
+  this.isEditMode = true;
+}
 
   // ------------------------------------------------------------
   // 🔹 Delete (Soft Delete)

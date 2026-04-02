@@ -79,16 +79,31 @@ setLastWorkingDay(noticePeriodStr: string) {
 
   this.resignationModel.lastWorkingDay = formattedDate;
 }
+  // loadResignations() {
+  //   this.resignationService.getAll(this.companyId, this.regionId, this.roleId).subscribe({
+  //     next: (data) => {
+  //       this.resignations = data;
+  //       this.filteredResignations = data;
+  //       this.updatePagination();
+  //     },
+  //     error: (err) => console.error('Error loading resignations:', err),
+  //   });
+  // }
   loadResignations() {
-    this.resignationService.getAll(this.companyId, this.regionId, this.roleId).subscribe({
-      next: (data) => {
-        this.resignations = data;
-        this.filteredResignations = data;
-        this.updatePagination();
-      },
-      error: (err) => console.error('Error loading resignations:', err),
-    });
-  }
+  const loggedEmployeeCode = sessionStorage.getItem('EmployeeCode');
+
+  this.resignationService.getAll(this.companyId, this.regionId, this.roleId).subscribe({
+    next: (data) => {
+
+      // ✅ FILTER ONLY LOGIN USER DATA
+      this.resignations = data.filter(r => r.employeeId === loggedEmployeeCode);
+
+      this.filteredResignations = this.resignations;
+      this.updatePagination();
+    },
+    error: (err) => console.error('Error loading resignations:', err),
+  });
+}
 
   // ---------------- FILTER --------------------
   applyFilter() {

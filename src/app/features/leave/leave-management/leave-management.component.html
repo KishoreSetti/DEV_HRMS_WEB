@@ -19,9 +19,9 @@
 
   <!-- TAB HEADERS -->
   <div class="tab-header">
-    <label for="tab1" class="tab-label">Apply Leave</label>
-    <label for="tab2" class="tab-label">Leave Approvals</label>
-    <label for="tab3" class="tab-label">Leave Calendar</label>
+    <label for="tab1"  *ngIf="canApplyLeave" class="tab-label">Apply Leave</label>
+    <label for="tab2" *ngIf="canViewApproval" class="tab-label">Leave Approvals</label>
+    <label for="tab3" *ngIf="canViewCalendar" class="tab-label">Leave Calendar</label>
   </div>
 
   <!-- ========================= APPLY LEAVE TAB ========================= -->

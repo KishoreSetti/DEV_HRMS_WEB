@@ -221,31 +221,51 @@ export interface Designation {
   companyName:string,
   regionName:string,
   departmentId:number,
-  departmentName:string
+  departmentName:string,
+   gradeId?: number,
+  gradeName?: string,
 }
 
 export interface AssetStatus {
-  AssetStatusID: number;
-  AssetStatusName: string;
-  IsActive: boolean;
-  CompanyID: number;
-  RegionID: number;
+ assetStatusId: number;
+  assetStatusName: string;
+  description?: string;
+  companyId: number;
+  regionId: number;
+  isActive: boolean;
+  userId?: number;
 }
 export interface PolicyCategory {
   PolicyCategoryID: number;
-  CompanyID: number;
-  RegionID: number;
+ CompanyId:number;
+  RegionId: number;
+    companyName: string;   // ✅ add
+  regionName: string; 
   PolicyCategoryName: string;
     Description?: string;
+    
   IsActive: boolean;
   UserId?: number;
 } 
+export interface Grade {
+  gradeID: number;
+  gradeName: string;
+  companyID: number;
+  regionId: number;
+  isActive: boolean;
+
+  companyName?: string;
+  regionName?: string;
+  userId?: number;
+}
 export interface AttachmentType {
-  AttachmentTypeID?: number;
-  AttachmentTypeName: string;
-  IsActive: boolean;
-  CompanyID: number;   // <-- add this
-  RegionID: number;    // <-- add this
+  attachmentTypeId: number;
+  attachmentCategory: string;
+  attachmentTypeName: string;
+  isActive: boolean;
+  companyId: number;
+  regionId: number;
+  userId: number;
 }
 export interface ProjectStatus {
   ProjectStatusID: number;
@@ -266,18 +286,21 @@ export interface AttendanceStatus {
   description?: string;
   createdBy:number;
   modifiedBy:number;
-
+userId:number;
   
 }
 export interface ExpenseCategory {
   expenseCategoryID: number;
   expenseCategoryName: string;
   isActive: boolean;
-  CompanyID: number;
-  RegionID: number;
+  companyId: number;
+  regionId: number;
   SortOrder: number;
   Description: string;
   UserId: number;
+   // ✅ MUST ADD THESE
+  companyName: string;
+  regionName: string;
 }
 export interface LeaveStatus {
   LeaveStatusID: number;
@@ -316,6 +339,12 @@ export interface LeaveType {
    CompanyID: number;
   RegionID: number;
   userId:number;
+   gradeAllocations: GradeAllocation[];
+}
+export interface GradeAllocation {
+  gradeID: number;
+  leaveDays: number;
+  gradename: string;
 }
 export interface ExpenseStatus {
   ExpenseStatusID: number;
@@ -415,14 +444,23 @@ export interface MenuItem {
   orderNo?: number;
   children?: MenuItem[];
 }
-export interface CertificationType {
-  certificationTypeID: number;
-  certificationTypeName: string;
-  isActive: boolean;
-  userId:number;
-  companyID: number;
-  regionID: number;
-}
+// export interface CertificationType {
+//   certificationTypeID: number;
+//   certificationTypeName: string;
+//   isActive: boolean;
+//   userId:number;
+//   companyID: number;
+//   regionID: number;
+// }
+// export interface CertificationType {
+//  CertificationTypeID: number;
+ 
+//   CertificationTypeName: string;
+//   IsActive: boolean;
+//   userId?: number;
+//    companyID: number;
+//   regionId: number;
+// }
 export interface BloodGroup {
   bloodGroupID: number;
   companyID: number;
@@ -544,7 +582,7 @@ export interface ShiftMasterDto {
   shiftName: string;
   shiftStartTime?: string; // e.g. "09:00:00" or ISO time string
   shiftEndTime?: string;
-  graceTime?: number;
+  graceTime?: string;
   isActive?: boolean;
   companyID?: number;
   regionID?: number;
@@ -597,13 +635,22 @@ export interface TeamHierarchyDto {
   expanded?: boolean; // optional for UI toggle
 }
 
+// export interface CertificationType {
+//   certificationTypeID: number;
+//   certificationTypeName: string;
+//   isActive: boolean;
+ 
+//   CompanyID: number;           // optional
+//   RegionID: number; 
+//   userId?: number;           // optional
+// }
 export interface CertificationType {
   certificationTypeID: number;
   certificationTypeName: string;
   isActive: boolean;
-  Description?: string | null; // optional
-  CompanyID?: number;           // optional
-  RegionID?: number;            // optional
+  companyID: number;
+  regionId: number;
+  userId?: number;
 }
 export interface ClockInOutDto {
   attendanceId?: number;   // optional for new records
@@ -863,9 +910,9 @@ export class AdminService {
     return this.http.post<User>(`${this.baseUrl}/UserManagement/UpdateUser`, user);
   }
 
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/UserManagement/DeleteUser/${id}`);
-  }
+  deleteUser(id: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/UserManagement/DeleteUser`, id);
+ }
   login(username: string, password: string): Observable<any> {
     const model = {email: username,password: password };
     return this.http.post<any>(`${this.baseUrl}/UserManagement/Login`, model).pipe(
@@ -1184,8 +1231,14 @@ updatePolicyCategory(data: any) {
   return this.http.post(`${this.baseUrl}/MasterData/UpdatePolicyCategory`, data);
 }
 
-deletePolicyCategory(id: number) {
-  return this.http.post(`${this.baseUrl}/MasterData/DeletePolicyCategory?id=${id}`, {});
+// deletePolicyCategory(id: number) {
+// //   return this.http.post(`${this.baseUrl}/MasterData/DeletePolicyCategory?id=${id}`, {});
+// }
+deletePolicyCategory(policyCategoryId: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeletePolicyCategory/${policyCategoryId}`,
+    {}
+  );
 }
 // ===================== POLICIES =====================
 
@@ -1255,20 +1308,29 @@ deletePolicyCategory(id: number) {
   return this.http.get(`${this.baseUrl}/MasterData/policy-category?userId=${userId}`);
 }
 getAttachmentTypes(companyId: number, regionId: number) {
-  return this.http.get<any>(`${this.baseUrl}/AttachmentType/Get?companyId=${companyId}&regionId=${regionId}`);
-}
+  return this.http.get<any>(`${this.baseUrl}/MasterData/GetByUserAttachment?userId=${sessionStorage.getItem('UserId')}`);}
 
 createAttachmentType(data: AttachmentType) {
-  return this.http.post<any>(`${this.baseUrl}/AttachmentType/Create`, data);
-}
+  return this.http.post<any>(`${this.baseUrl}/MasterData/CreateAttachmnet`, data);}
 
 updateAttachmentType(data: AttachmentType) {
-  return this.http.put<any>(`${this.baseUrl}/AttachmentType/Update`, data);
+  return this.http.put<any>(`${this.baseUrl}/MasterData/UpdateAttachmnet`, data);
 }
 
 deleteAttachmentType(id: number) {
-  return this.http.delete<any>(`${this.baseUrl}/AttachmentType/Delete/${id}`);
+
+    return this.http.delete<any>(`${this.baseUrl}/MasterData/DeleteAttachmnet/${id}`);
 }
+
+
+getAttachmentTypesByCategory(category: string) {
+  const userId = sessionStorage.getItem('UserId');
+  return this.http.get<any>(
+    `${this.baseUrl}/MasterData/GetAttachmentByCategory?category=${category}`
+  );
+}
+
+
 // GET all project statuses
  getProjectStatuses(userId: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/MasterData/project-status?userId=${userId}`);
@@ -1281,33 +1343,32 @@ deleteAttachmentType(id: number) {
 
   // UPDATE
   updateProjectStatus(status: ProjectStatus): Observable<any> {
-     return this.http.put(`${this.baseUrl}/MasterData/project-status/${status.ProjectStatusID}`, status);
+   //  return this.http.put(`${this.baseUrl}/MasterData/project-status/${status.ProjectStatusID}`, status);
+   return this.http.post(`${this.baseUrl}/MasterData/project-status/${status.ProjectStatusID}`, status);
   }
 
   // DELETE
   deleteProjectStatus(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/MasterData/project-status/${id}`);
-  }
+  //  return this.http.delete(`${this.baseUrl}/MasterData/project-status/${id}`);
+return this.http.post(`${this.baseUrl}/MasterData/project-status/${id}`, {});  
+}
 
-  // GET all asset statuses
-  getAssetStatuses(companyId: number, regionId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/asset-status?companyId=${companyId}&regionId=${regionId}`);
-  }
+getAssetStatus(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/asset-status?userId=${userId}`);
+}
 
-  // CREATE
-  createAssetStatus(status: AssetStatus): Observable<any> {
-    return this.http.post(`${this.baseUrl}/asset-status`, status);
-  }
+createAssetStatus(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateAssetStatus`, data);
+}
 
-  // UPDATE
-  updateAssetStatus(status: AssetStatus): Observable<any> {
-    return this.http.put(`${this.baseUrl}/asset-status/${status.AssetStatusID}`, status);
-  }
+updateAssetStatus(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateAssetStatus`, data);
+}
 
-  // DELETE
-  deleteAssetStatus(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/asset-status/${id}`);
-  }
+deleteAssetStatus(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetStatus?id=${id}`, {});
+}
+
 
   // GET all helpdesk categories
    getHelpdeskCategories(userId: number): Observable<any> {
@@ -1321,27 +1382,35 @@ deleteAttachmentType(id: number) {
 
   // UPDATE
   updateHelpdeskCategory(category: HelpdeskCategory): Observable<any> {
-    return this.http.put(`${this.baseUrl}/MasterData/helpdesk-category/${category.HelpdeskCategoryID}`, category);
+   // return this.http.put(`${this.baseUrl}/MasterData/helpdesk-category/${category.HelpdeskCategoryID}`, category);
+  return this.http.post(`${this.baseUrl}/MasterData/helpdesk-category/${category.HelpdeskCategoryID}`, category);
   }
 
   // DELETE
   deleteHelpdeskCategory(id: number): Observable<any> {
-   return this.http.delete(`${this.baseUrl}/MasterData/helpdesk-category/${id}`);
-  }
- getAttendanceStatus(companyId: number, regionId: number) {
- return this.http.get<any>(`${this.baseUrl}/MasterData/GetAllAttendanceStatus?companyId=${companyId}&regionId=${regionId}`); 
+  // return this.http.delete(`${this.baseUrl}/MasterData/helpdesk-category/${id}`);
+ return this.http.post(`${this.baseUrl}/MasterData/helpdesk-category/${id}`, {});  
 }
+//  getAttendanceStatus(companyId: number, regionId: number) {
+//  return this.http.get<any>(`${this.baseUrl}/MasterData/GetAllAttendanceStatus?companyId=${companyId}&regionId=${regionId}`); 
+// }
 
+ getAttendanceStatus(userId: number) {
+ return this.http.get<any>(`${this.baseUrl}/MasterData/GetAllAttendanceStatus?userId=${userId}`); 
+}
 createAttendanceStatus(model: AttendanceStatus) {
   return this.http.post(`${this.baseUrl}/MasterData/AddAttendanceStatus`, model);
 }
 
 updateAttendanceStatus(model: AttendanceStatus) {
-  return this.http.put(`${this.baseUrl}/MasterData/UpdateAttendanceStatus`, model);
+ // return this.http.put(`${this.baseUrl}/MasterData/UpdateAttendanceStatus`, model);
+return this.http.post(`${this.baseUrl}/MasterData/UpdateAttendanceStatus`, model);
+
 }
 
 deleteAttendanceStatus(id: number) {
- return this.http.delete(`${this.baseUrl}/MasterData/DeleteAttendanceStatus/${id}`);
+ //return this.http.delete(`${this.baseUrl}/MasterData/DeleteAttendanceStatus/${id}`);
+return this.http.post(`${this.baseUrl}/MasterData/DeleteAttendanceStatus/${id}`, {});
 }
 // ================= LEAVE STATUS ===================
 
@@ -1863,10 +1932,13 @@ getMyTeam(managerUserId: number): Observable<TeamHierarchyDto> {
 
  // ================= CERTIFICATION TYPE =================
 
-getCertificationTypes(companyId: number, regionId: number) {
-  return this.http.get<any>(
-    `${this.baseUrl}/MasterData/certification-types?companyId=${companyId}&regionId=${regionId}`
-  );
+// getCertificationTypes(companyId: number, regionId: number) {
+//   return this.http.get<any>(
+//     `${this.baseUrl}/MasterData/certification-types?companyId=${companyId}&regionId=${regionId}`
+//   );
+// }
+getCertificationTypes(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/certification-type-list?userId=${userId}`);
 }
 
 getcmpregionCertificationTypes(companyId: number, regionId: number) {
@@ -1874,29 +1946,37 @@ getcmpregionCertificationTypes(companyId: number, regionId: number) {
     `${this.baseUrl}/MasterData/GetCmpregionAllAsync?companyId=${companyId}&regionId=${regionId}`
   );
 }
-
-
-
-createCertificationType(data: CertificationType) {
-  return this.http.post(
-    `${this.baseUrl}/MasterData/CreateCertificationType`,
-    data
-  );
+createCertificationType(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateCertificationType`, data);
 }
 
-updateCertificationType(id: number, data: CertificationType) {
-  return this.http.post(
-    `${this.baseUrl}/MasterData/UpdateCertificationType`,
-    data
-  );
+
+// createCertificationType(data: CertificationType) {
+//   return this.http.post(
+//     `${this.baseUrl}/MasterData/CreateCertificationType`,
+//     data
+//   );
+// }
+
+// updateCertificationType(id: number, data: CertificationType) {
+//   return this.http.post(
+//     `${this.baseUrl}/MasterData/UpdateCertificationType`,
+//     data
+//   );
+// }
+updateCertificationType(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateCertificationType`, data);
 }
 
 // DELETE (HARD DELETE – no query params)
+// deleteCertificationType(id: number) {
+//   return this.http.post(
+//     `${this.baseUrl}/MasterData/DeleteCertificationType?id=${id}`,
+//     {}
+//   );
+// }
 deleteCertificationType(id: number) {
-  return this.http.post(
-    `${this.baseUrl}/MasterData/DeleteCertificationType?id=${id}`,
-    {}
-  );
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteCertificationType?id=${id}`, {});
 }
 // ---------------- CLOCK IN / CLOCK OUT ----------------
 
@@ -2074,6 +2154,80 @@ updatePriority(data: any) {
 deletePriority(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeletePriority?id=${id}`, {});
 }
+//////////asset-types CRUD operations
+getAssetTypes(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/asset-types?userId=${userId}`);
+}
+
+createAssetType(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateAssetType`, data);
+}
+
+updateAssetType(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateAssetType`, data);
+}
+
+deleteAssetType(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetType?id=${id}`, {});
+}
+getAssetTypesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
+
+getAssetCategories(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/asset-categories?userId=${userId}`);
+}
+
+createAssetCategory(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateAssetCategory`, data);
+}
+
+updateAssetCategory(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateAssetCategory`, data);
+}
+
+deleteAssetCategory(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetCategory?id=${id}`, {});
+}
+getAssetCategoriesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/assetcategoryfilter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
+
+///////////Currency CRUD operations
+
+getCurrencies(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/currencies?userId=${userId}`);
+}
+
+createCurrency(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateCurrency`, data);
+}
+
+updateCurrency(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateCurrency`, data);
+}
+
+deleteCurrency(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteCurrency?id=${id}`, {});
+}
+
+getCurrenciesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/currencyfilter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
+
+
 getHolidayList(userId: number) {
   return this.http.get(`${this.baseUrl}/MasterData/holiday-list?userId=${userId}`);
 }
@@ -2083,6 +2237,7 @@ createHoliday(data: any) {
 }
 
 updateHoliday(data: any) {
+  debugger;
   return this.http.post(`${this.baseUrl}/MasterData/UpdateHoliday`, data);
 }
 
@@ -2433,5 +2588,40 @@ getAllMenus(){
 }
 getMenusByType(type: string){
   return this.http.get<any[]>(`${this.baseUrl}/SubscriptionPlan/GetMenusByType/${type}`);
+}
+getGrades(userId:number){
+  return this.getAll(`MasterData/GetGradeAll?companyId=${userId}`);
+}
+getDesignation(companyId: number, regionId: number) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/GetDesignations?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+// getGrades(companyId: number) {
+//   return this.http.get<any>(`${this.baseUrl}/MasterData/GetGradeAll`, {
+//     params: { companyId}
+//   });
+// }
+
+createGrade(data: Grade) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateGrade`, data);
+}
+
+updateGrade(data: Grade) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateGrade`, data);
+}
+
+deleteGrade(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteGrade?id=${id}`, {});
+}
+ getRegionsByCompany(companyId: number) {
+  return this.getAll(`MasterData/GetRegionsByCompany?companyId=${companyId}`);
+}
+getEmploymentTypesByFilter(companyId: number, regionId: number) {
+  debugger;
+  return this.http.get(
+    `${this.baseUrl}/MasterData/employment-type/filter?companyId=${companyId}&regionId=${regionId}`
+  );
 }
 }

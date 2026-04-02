@@ -1,4 +1,7 @@
  <div class="form-container">
+    <!-- <div *ngIf="!canCreate" style="color:red;">
+        You don't have permission to add employee family details
+      </div> -->
     <!-- Form Section -->
     <form [formGroup]="emergencyForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
@@ -39,7 +42,7 @@
       </div>
 
      <div style="flex-basis: 100%;">
-      <button type="submit" class="submit-btn">
+       <button type="submit" class="submit-btn" >
         {{ isEdit ? 'Update' : 'Save' }}
       </button>
     </div>

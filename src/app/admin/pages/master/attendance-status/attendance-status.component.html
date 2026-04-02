@@ -31,80 +31,67 @@
     <!-- Form -->
     <div class="card shadow-sm mb-4">
       <div class="card-body">
-        <form (ngSubmit)="onSubmit(statusForm)" #statusForm="ngForm" novalidate>
+        <form #statusForm="ngForm" (ngSubmit)="onSubmit(statusForm)" novalidate>
+
           <div class="row g-3">
 
-            <!-- <div class="col-md-6">
-              <label class="form-label fw-semibold">Attendance Status</label>
-              <input type="text" class="form-control" name="StatusName"
-                [(ngModel)]="attendance.AttendanceStatusName"
-                placeholder="Enter Status Name"
-                required />
-            </div> -->
+            <!-- Attendance Status -->
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Attendance Status *</label>
+              <input type="text" class="form-control" name="attendanceStatusName"
+                [(ngModel)]="attendance.attendanceStatusName" required placeholder="Enter Status Name"
+                (input)="checkDuplicate()">
+            </div>
 
+            <!-- ✅ Company -->
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Company *</label>
+              <select class="form-select" [(ngModel)]="companyId" name="companyId" (change)="onCompanyChange()"
+                required>
 
-            <div class="col-md-6">
-  <label class="form-label fw-semibold">
-    Attendance Status <span class="text-danger">*</span>
-  </label>
+                <option value="">-- Select Company --</option>
+                <option *ngFor="let c of companies" [value]="c.companyId">
+                  {{ c.companyName }}
+                </option>
+              </select>
+            </div>
 
-  <input type="text"
-         class="form-control"
-         name="StatusName"
-         [(ngModel)]="attendance.attendanceStatusName"
-         #statusName="ngModel"
-         placeholder="Enter Status Name"
-         required
-         (input)="checkDuplicate()"
-         minlength="2"
-         maxlength="100"
-         pattern=".*\S.*" />
+            <!-- ✅ Region -->
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Region *</label>
+              <select class="form-select" [(ngModel)]="regionId" name="regionId" (change)="onRegionChange()" required>
 
-  <!-- Validation Messages -->
-  <div *ngIf="statusName.invalid && statusName.touched" class="text-danger small mt-1">
-    <div *ngIf="statusName.errors?.['required']">
-      Status name is required.
-    </div>
-    <div *ngIf="statusName.errors?.['minlength']">
-      Minimum 2 characters required.
-    </div>
-    <div *ngIf="statusName.errors?.['pattern']">
-      Status name cannot be empty or only spaces.
-    </div>
-  </div>
+                <option value="">-- Select Region --</option>
+                <option *ngFor="let r of regions" [value]="r.regionID">
+                  {{ r.regionName }}
+                </option>
+              </select>
+            </div>
 
-  <!-- Duplicate Warning -->
-  <div *ngIf="isDuplicate" class="text-danger small mt-1">
-    This attendance status already exists.
-  </div>
-</div>
-
-
-            <div class="col-md-6 d-flex align-items-center">
-              <div class="form-check form-switch mt-3">
-                <input class="form-check-input" type="checkbox" id="isActiveSwitch"
-                  [(ngModel)]="attendance.isActive" name="IsActive">
-                <label class="form-check-label ms-2" for="isActiveSwitch">
-                  {{ attendance.isActive ? 'Active' : 'Inactive' }}
-                </label>
+            <!-- Active -->
+            <div class="col-md-2 d-flex align-items-center mt-4">
+              <label class="me-2 fw-semibold">Is Active</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="attendance.isActive" name="isActive">
               </div>
             </div>
 
-            <div class="col-md-12 d-flex justify-content-start mt-3">
-              <!-- <button type="submit" class="btn btn-dark px-4" [disabled]="!statusForm.valid">
-                <i class="fa-solid fa-save me-2"></i>
-                {{ isEditMode ? 'Update Status' : 'Save Status' }}
-              </button> -->
-              <button type="submit"
-        class="btn btn-dark px-4"
-        [disabled]="!statusForm.valid || isDuplicate || isSubmitting">
-  <i class="fa-solid fa-save me-2"></i>
-  {{ isEditMode ? 'Update Status' : 'Save Status' }}
-</button>
+            <!-- Buttons -->
+            <div class="col-md-10 mt-4 text-end">
+              <button class="btn btn-success me-2" type="submit" [disabled]="!statusForm.valid || isDuplicate">
+
+                {{ isEditMode ? 'Update' : 'Save' }}
+              </button>
+
+              <button class="btn btn-secondary" type="button" (click)="resetForm()">
+                Reset
+              </button>
             </div>
 
           </div>
+
         </form>
+
       </div>
     </div>
 
@@ -116,8 +103,7 @@
         <div class="mb-3 row g-3 align-items-end">
 
           <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="Search Status"
-              [(ngModel)]="searchText" />
+            <input type="text" class="form-control" placeholder="Search Status" [(ngModel)]="searchText" />
           </div>
 
           <div class="col-md-4">
@@ -140,6 +126,9 @@
                   Attendance Status
                   <i class="fa" [ngClass]="getSortIcon('attendanceStatusName')"></i>
                 </th>
+                <th>Company</th>
+                <th>Region</th>
+
                 <th>Status</th>
                 <th class="text-center">Actions</th>
               </tr>
@@ -149,6 +138,8 @@
               <tr *ngFor="let s of pagedAttendance; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ s.attendanceStatusName }}</td>
+                <td>{{ companyMap[s.companyId] || '-' }}</td>
+                <td>{{ regionMap[s.regionId] || '-' }}</td>
 
                 <td>
                   <span class="badge" [ngClass]="s.isActive ? 'bg-success' : 'bg-secondary'">
@@ -157,13 +148,11 @@
                 </td>
 
                 <td class="text-center">
-                  <button class="btn btn-sm btn-outline-primary me-2"
-                    (click)="editAttendance(s)">
+                  <button class="btn btn-sm btn-outline-primary me-2" (click)="editAttendance(s)">
                     <i class="fa-solid fa-pen-to-square"></i>
                   </button>
 
-                  <button class="btn btn-sm btn-outline-danger"
-                    (click)="deleteAttendance(s)">
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteAttendance(s)">
                     <i class="fa-solid fa-trash"></i>
                   </button>
                 </td>
@@ -185,9 +174,8 @@
               <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
             </li>
 
-            <li class="page-item"
-                *ngFor="let page of [].constructor(totalPages); let i = index"
-                [class.active]="currentPage === i + 1">
+            <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+              [class.active]="currentPage === i + 1">
               <a class="page-link" (click)="goToPage(i + 1)">{{ i + 1 }}</a>
             </li>
 
@@ -205,10 +193,6 @@
 </div>
 
 <!-- Bulk Upload -->
-<app-common-upload
-  [visible]="showUploadPopup"
-  [screenName]="'Attendance Status'"
-  [model]="attendanceModel"
-  (close)="closeUploadPopup()"
-  (uploadComplete)="onBulkUploadComplete($event)">
+<app-common-upload [visible]="showUploadPopup" [screenName]="'Attendance Status'" [model]="attendanceModel"
+  (close)="closeUploadPopup()" (uploadComplete)="onBulkUploadComplete($event)">
 </app-common-upload>

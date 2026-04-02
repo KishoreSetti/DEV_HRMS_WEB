@@ -169,7 +169,7 @@
             <tbody>
               <tr *ngFor="let d of pagedDepartments; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-                <td>{{ d.description }}</td>
+                <td>{{ d.departmentName }}</td>
                
                 <td>{{ getCompanyName(d.companyId) }}</td>
                 <td>{{ getRegionName(d.regionId) }}</td>

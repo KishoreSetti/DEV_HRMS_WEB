@@ -18,10 +18,15 @@
 
   <!-- Tab Header -->
   <div class="tab-header">
-    <label class="tab-label" for="tab1">Create Expense</label>
+    <label class="tab-label"  for="tab1">Create Expense</label>
     <label class="tab-label" for="tab2">All Expenses</label>
     <label class="tab-label" for="tab3">Approve Expenses</label>
   </div>
+  <!-- <div class="tab-header">
+  <label *ngIf="canCreateExpense" for="tab1">Create Expense</label>
+  <label *ngIf="canViewAllExpense" for="tab2">All Expenses</label>
+  <label *ngIf="canApproveExpense" for="tab3">Approve Expenses</label>
+</div> -->
 
   <!-- TAB 1: CREATE EXPENSE -->
   <div id="content1" class="tab-content">

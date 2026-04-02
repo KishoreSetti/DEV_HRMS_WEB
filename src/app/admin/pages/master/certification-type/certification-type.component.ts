@@ -21,7 +21,7 @@ interface UploadModel {
 })
 export class CertificationTypeComponent {
   certifications: CertificationType[] = [];
-  certification!: CertificationType;
+  certification: CertificationType = {} as CertificationType;
   isEditMode = false;
 
   searchText = '';
@@ -59,22 +59,23 @@ userId:any;
   }
 
   // ================= FORM =================
-  resetForm(): void {
-    this.certification = {
-      certificationTypeID: 0,
-      certificationTypeName: '',
-      isActive: true,
-      companyID: this.companyId,
-      regionID: this.regionId,
-      userId:Number(sessionStorage.getItem("UserId"))
-    };
-    this.isEditMode = false;
-  }
+resetForm(): void {
+  this.certification = {
+    certificationTypeID: 0,
+    certificationTypeName: '',
+    isActive: true,
+    companyID: this.companyId,
+    regionId: this.regionId,
+    userId: this.userId
+  };
+
+  this.isEditMode = false;
+}
 
   onSubmit(): void {
     const api$ = this.isEditMode
       ? this.adminService.updateCertificationType(
-          this.certification.certificationTypeID,
+         
           this.certification
         )
       : this.adminService.createCertificationType(this.certification);
@@ -86,13 +87,18 @@ userId:any;
     });
   }
 
-  editCertification(c: CertificationType): void {
-   this.certification = {
-      ...c,
-      certificationTypeID: c.certificationTypeID ?? (c as any).CertificationTypeID
-    };
-    this.isEditMode = true;
-  }
+editCertification(c: CertificationType): void {
+  this.certification = {
+    certificationTypeID: c.certificationTypeID ?? 0,
+    certificationTypeName: c.certificationTypeName ?? '',
+    isActive: c.isActive ?? true,
+    companyID: c.companyID ?? this.companyId,
+    regionId: c.regionId ?? this.regionId,
+    userId: this.userId
+  };
+
+  this.isEditMode = true;
+}
 
   // ================= HARD DELETE =================
   deleteCertification(c: CertificationType): void {
@@ -125,18 +131,26 @@ userId:any;
   }
 
   // ================= LIST =================
-  loadCertifications(): void {
-    this.adminService
-      .getCertificationTypes(this.userId, this.regionId)
-      .subscribe(res => {
-        debugger;
-     this.certifications = (res as any[]).map(item => ({
-          ...item,
-          certificationTypeID: item.certificationTypeID ?? item.CertificationTypeID,
-          CertificationTypeID: item.CertificationTypeID ?? item.certificationTypeID
-        }));
-      });
-  }
+loadCertifications(): void {
+  this.adminService.getCertificationTypes(this.userId)
+    .subscribe((res: any) => {
+
+      console.log('API Response:', res); // 🔍 check this in console
+
+      const data = Array.isArray(res)
+        ? res
+        : res.data || res.result || res.items || [];
+
+      this.certifications = data.map((item: any) => ({
+        certificationTypeID: item.CertificationTypeID ?? item.certificationTypeID,
+        certificationTypeName: item.CertificationTypeName ?? item.certificationTypeName,
+        isActive: item.IsActive ?? item.isActive,
+        companyID: item.CompanyID ?? item.companyID,
+        regionId: item.RegionID ?? item.regionId,
+        userId: item.UserId ?? item.userId
+      }));
+    });
+}
 
   filteredCertifications(): CertificationType[] {
     return this.certifications.filter(c =>
@@ -174,18 +188,34 @@ userId:any;
   companies: any;
   regions: any;
 loadCompanies(): void {
-    this.adminService.getCompanies(null,this.userId).subscribe({
-      next: (res:any) => (this.companies = res),
-      error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
-    });
-  }
+  this.adminService.getCompanies(null, this.userId).subscribe({
+    next: (res: any) => {
 
-  loadRegions(): void {
-    this.adminService.getRegions(null,this.userId).subscribe({
-      next: (res:any) => (this.regions = res),
-      error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
-    });
-  }
+      const data = Array.isArray(res)
+        ? res
+        : res.data || res.result || [];
+
+      this.companies = data.filter((c: any) => c.isActive === true);
+
+    },
+    error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
+  });
+}
+
+loadRegions(): void {
+  this.adminService.getRegions(null, this.userId).subscribe({
+    next: (res: any) => {
+
+      const data = Array.isArray(res)
+        ? res
+        : res.data || res.result || [];
+
+      this.regions = data.filter((r: any) => r.isActive === true);
+
+    },
+    error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
+  });
+}
   // ================= BULK UPLOAD =================
   openUploadPopup(): void {
     this.certificationModel = {

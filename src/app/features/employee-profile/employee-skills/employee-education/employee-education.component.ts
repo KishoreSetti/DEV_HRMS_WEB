@@ -9,6 +9,10 @@ import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from
   styleUrl: './employee-education.component.css'
 })
 export class EmployeeEducationComponent {
+
+   canCreate: boolean = false;
+   canEdit: boolean = false;
+   canDelete: boolean = false;
   educationForm!: FormGroup;
   educationList: EmployeeEducationDto[] = [];
   selectedFile: File | null = null;
@@ -51,7 +55,7 @@ certificateFileInput!: ElementRef<HTMLInputElement>;
     this.userId = Number(sessionStorage.getItem("UserId"));
     this.companyId = Number(sessionStorage.getItem("CompanyId"));
     this.regionId = Number(sessionStorage.getItem("RegionId"));
-
+ this.loadPermission();
     this.initializeForm();
     this.loadEducation();
     this.loadModeOfStudy();
@@ -244,6 +248,10 @@ certificateFileInput!: ElementRef<HTMLInputElement>;
   }
 
   delete(id: number) {
+      if (!this.canDelete) {
+    Swal.fire("You don't have permission to delete this record", "", "warning");
+    return;
+  }
     Swal.fire({
       title: "Are you sure?",
       text: "You cannot undo this action.",
@@ -331,4 +339,35 @@ certificateFileInput!: ElementRef<HTMLInputElement>;
     }).length;
     return Math.ceil(filteredLength / this.pageSize);
   }
+    loadPermission() {
+  debugger;
+
+  const userId = Number(sessionStorage.getItem("UserId"));
+
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const familyMenu = menus.find((m: any) => m.menuName === "Education");
+
+  const menuId = familyMenu ? familyMenu.menuId : 0;
+    if (familyMenu) {
+    this.canCreate = familyMenu.canAdd;
+     this.canEdit = familyMenu.canEdit;
+     this.canDelete = familyMenu.canDelete;
+  //   this.canView = familyMenu.canView;
+   }
+
+  console.log("UserId:", userId);
+  console.log("MenuId:", menuId);
+
+  this.adminService.getPermission(userId, menuId, 'create').subscribe({
+    next: (res: boolean) => {
+      console.log("Create Permission:", res);
+      this.canCreate = res;
+    },
+    error: (err) => {
+      console.error("Permission API error:", err);
+      this.canCreate = false;
+    }
+  });
+}
 }

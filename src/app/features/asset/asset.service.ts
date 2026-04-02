@@ -23,6 +23,8 @@ export interface AssetDto {
   modifiedBy?: number;
  employeeName?: string; // ✅ NEW
  reportingTo:number;
+ assetType: number;        // ✅ ADD
+  assetCategory?: number;   // ✅ ADD
 }
 export interface EmployeeDto {
   userId: number;
@@ -66,8 +68,8 @@ export class AssetService {
     return this.http.post<void>(`${this.apiUrl}/DeleteAsset?id=${assetId}`,{});
   }
   // ✅ STATUS API
-  getAssetStatuses$() {
-    return this.http.get<AssetStatus[]>(`${this.apiUrl}/statuses`);
+  getAssetStatuses$(companyId: number, regionId: number) {
+    return this.http.get<AssetStatus[]>(`${this.apiUrl}/statuses?companyId=${companyId}&regionId=${regionId}`);
   }
  // ✅ NEW: Get all employees
 
@@ -105,4 +107,42 @@ approveRejectAssets(payload: any): Observable<any> {
     payload
   );
 }
+createAssetRequest(payload: any) {
+  return this.http.post<number>(
+    `${environment.apiUrl}/Asset/CreateRequest`,
+    payload
+  );
+}
+
+getMyRequests(userId: number) {
+  return this.http.get<any[]>(
+    `${environment.apiUrl}/Asset/user-requests?userId=${userId}`
+  );
+}
+
+getApprovedRequests(companyId: number, regionId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/approved-requests?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+// ✅ Get Available Assets
+getAvailableAssets$(companyId: number, regionId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/available-assets?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+assignAsset$(payload: any) {
+  return this.http.post(
+    `${this.apiUrl}/assign-asset`,
+    payload
+  );
+}
+
+getAssignments$(companyId: number, regionId: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/assignments?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+
 }

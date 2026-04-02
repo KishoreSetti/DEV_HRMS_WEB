@@ -65,7 +65,7 @@ userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getIte
     this.departmentService.getDepartments(Number(sessionStorage.getItem("UserId"))).subscribe({
       next: (res:any) => {
         debugger;
-        this.departments = res.data;
+        this.departments = res.data.data;
       },
       error: () => Swal.fire('Error', 'Failed to load departments.', 'error')
     });

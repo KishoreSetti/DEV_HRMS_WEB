@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Observable, shareReplay } from 'rxjs';
-import { AssetDto,AssetStatus,AssetService,EmployeeDto } from '../asset.service';
+import { AssetDto, AssetStatus, AssetService, EmployeeDto } from '../asset.service';
 import Swal from 'sweetalert2';
+import { AdminService } from '../../../admin/servies/admin.service';
 @Component({
   selector: 'app-add-assets',
   standalone: false,
@@ -10,17 +11,20 @@ import Swal from 'sweetalert2';
   styleUrl: './add-assets.component.css'
 })
 export class AddAssetsComponent {
- assetForm!: FormGroup;
+  assetForm!: FormGroup;
   assets: AssetDto[] = [];
   employees: EmployeeDto[] = [];
   assetStatuses: AssetStatus[] = [];
+  assetTypes: any[] = [];
 
+  currencies: any[] = [];
+  assetCategories: any[] = [];
   isEditMode = false;
 
-  private companyId!: number;
-  private regionId!: number;
+  companyId!: number;
+  regionId!: number;
   private userId!: number;
-loggedInUserName: string = '';
+  loggedInUserName: string = '';
   // ================= SORTING =================
   sortColumn: keyof AssetDto | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -32,16 +36,47 @@ loggedInUserName: string = '';
 
   constructor(
     private fb: FormBuilder,
-    private assetService: AssetService
-  ) {}
+    private assetService: AssetService,
+    private service: AdminService
+  ) { }
 
   ngOnInit(): void {
     this.loadSessionData();
     this.initForm();
-      this.assetForm.patchValue({
-    userID: this.userId
-  });
+    this.loadAssetTypes();
+    this.loadCurrency();
+    this.loadAssetCategories();
+    this.assetForm.patchValue({
+      userID: this.userId
+    });
+
     this.loadEmployeesAndStatuses(); // load employees & statuses first
+  }
+  loadCurrency() {
+    this.service.getCurrenciesByCompanyRegion(
+      this.companyId,
+      this.regionId
+
+    ).subscribe((res: any) => {
+      this.currencies = res.data || res;
+    });
+  }
+
+  loadAssetTypes() {
+    this.service.getAssetTypesByCompanyRegion(
+      this.companyId,
+      this.regionId
+    ).subscribe((res: any) => {
+      this.assetTypes = res.data || res;
+    });
+  }
+  loadAssetCategories() {
+    this.service.getAssetCategoriesByCompanyRegion(
+      this.companyId,
+      this.regionId
+    ).subscribe((res: any) => {
+      this.assetCategories = res.data || res;
+    });
   }
 
   // ================= LOAD EMPLOYEES & STATUSES =================
@@ -51,7 +86,7 @@ loggedInUserName: string = '';
       this.employees = empRes;
 
       // Load statuses after employees
-      this.assetService.getAssetStatuses$().subscribe(statusRes => {
+      this.assetService.getAssetStatuses$(this.companyId, this.regionId).subscribe(statusRes => {
         this.assetStatuses = statusRes;
 
         // Finally load assets
@@ -69,25 +104,27 @@ loggedInUserName: string = '';
   // }
   private loadSessionData(): void {
 
-  this.companyId = Number(sessionStorage.getItem('CompanyId'));
-  this.regionId = Number(sessionStorage.getItem('RegionId'));
+    this.companyId = Number(sessionStorage.getItem('CompanyId'));
+    this.regionId = Number(sessionStorage.getItem('RegionId'));
 
-  const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 
-  this.userId = user.userId;
-  this.loggedInUserName = user.fullName;
+    this.userId = user.userId;
+    this.loggedInUserName = user.fullName;
 
-}
+  }
 
   // ================= FORM =================
   private initForm(): void {
     this.assetForm = this.fb.group(
       {
         assetID: [null],
- userID: [this.userId],
-  employeeName: [this.loggedInUserName],
+        userID: [this.userId],
+        employeeName: [this.loggedInUserName],
         assetName: ['', [Validators.required, Validators.maxLength(150), Validators.pattern(/^[a-zA-Z0-9\-\/\s]+$/)]],
         assetCode: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-Z0-9]+$/)]],
+        assetType: [null, Validators.required],
+        assetCategory: [null],
         assetLocation: ['', [Validators.required, Validators.maxLength(100)]],
         assetCost: [0, [Validators.required, Validators.min(1)]],
         currencyCode: ['INR', Validators.required],
@@ -97,7 +134,7 @@ loggedInUserName: string = '';
         warrantyStartDate: [null],
         warrantyEndDate: [null],
         assetReturnDate: [null],
-        reportingTo:[null],
+        reportingTo: [null],
         assetStatusID: [null, Validators.required]
       },
       {
@@ -135,23 +172,23 @@ loggedInUserName: string = '';
   // }
   private loadAssets(): void {
 
-  const loggedUserId = Number(sessionStorage.getItem('UserId'));
+    const loggedUserId = Number(sessionStorage.getItem('UserId'));
 
-  this.assetService.getAllAssets$().subscribe(res => {
+    this.assetService.getAllAssets$().subscribe(res => {
 
-    const userAssets = res.filter(a => a.userID === loggedUserId);
+      const userAssets = res.filter(a => a.userID === loggedUserId);
 
-    this.assets = userAssets.map(a => ({
-      ...a,
-      employeeName: this.employees.find(e => e.userId === a.userID)?.fullName ?? '',
-      assetStatusName: this.assetStatuses.find(s => s.assetStatusId === a.assetStatusID)?.assetStatusName ?? ''
-    }));
+      this.assets = userAssets.map(a => ({
+        ...a,
+        employeeName: this.employees.find(e => e.userId === a.userID)?.fullName ?? '',
+        assetStatusName: this.assetStatuses.find(s => s.assetStatusId === a.assetStatusID)?.assetStatusName ?? ''
+      }));
 
-    this.currentPage = 1;
+      this.currentPage = 1;
 
-  });
+    });
 
-}
+  }
 
   // ================= GET STATUS NAME (OPTIONAL) =================
   getStatusName(id: number): string {
@@ -170,16 +207,18 @@ loggedInUserName: string = '';
       assetID: this.isEditMode ? v.assetID : undefined,
       companyID: this.companyId,
       regionID: this.regionId,
-     userID: this.userId,
-employeeName: this.loggedInUserName,
+      userID: this.userId,
+      employeeName: this.loggedInUserName,
       assetName: v.assetName,
       assetCode: v.assetCode,
+      assetType: v.assetType,          // ✅ ADD THIS
+      assetCategory: v.assetCategory,  // ✅ ADD THIS
       assetLocation: v.assetLocation,
       assetCost: v.assetCost,
       currencyCode: v.currencyCode,
       assetDescription: v.assetDescription,
       assetModel: v.assetModel,
-      reportingTo:Number(sessionStorage.getItem("reportingManagerId")),
+      reportingTo: Number(sessionStorage.getItem("reportingManagerId")),
       purchaseOrder: v.purchaseOrder,
       assetStatusID: v.assetStatusID,
       warrantyStartDate: v.warrantyStartDate ? new Date(v.warrantyStartDate).toISOString() : undefined,
@@ -204,12 +243,23 @@ employeeName: this.loggedInUserName,
     this.resetForm();
     this.loadAssets();
   }
+getAssetTypeName(id?: number): string {
+  return this.assetTypes.find(x => x.assetTypeId === id)?.assetTypeName ?? '-';
+}
+
+getAssetCategoryName(id?: number): string {
+  return this.assetCategories.find(x => x.assetCategoryId === id)?.assetCategoryName ?? '-';
+}
+
+
 
   // ================= EDIT / DELETE =================
   edit(asset: AssetDto): void {
     this.isEditMode = true;
     this.assetForm.patchValue({
       ...asset,
+      assetType: asset.assetType,          // ✅ ADD
+      assetCategory: asset.assetCategory,  // ✅ ADD
       userID: this.employees.find(e => e.fullName === asset.employeeName)?.userId,
       warrantyStartDate: asset.warrantyStartDate?.split('T')[0] ?? null,
       warrantyEndDate: asset.warrantyEndDate?.split('T')[0] ?? null,

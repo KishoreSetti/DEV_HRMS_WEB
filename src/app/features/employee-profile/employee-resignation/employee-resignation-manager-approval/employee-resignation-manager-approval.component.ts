@@ -18,21 +18,28 @@ export class EmployeeResignationManagerApprovalComponent {
 
   selectAll = false;
 
+
   constructor(private resignationService: EmployeeResignationService) {}
 
   ngOnInit(): void {
     this.loadForManager();
   }
 
-  loadForManager(): void {
-    this.resignationService
-      .getResignationsForManager(this.managerUserId)
-      .subscribe(res => {
-        this.filteredResignations = res;
-        this.updateSelectAllState();
-      });
-  }
+ 
 
+loadForManager(): void {
+  console.log('ManagerUserId:', this.managerUserId);
+
+  this.resignationService
+    .getResignationsForManager(this.managerUserId) // ✅ ONLY USERID
+    .subscribe(res => {
+
+      console.log('API Response:', res);
+
+      this.filteredResignations = res;
+      this.updateSelectAllState();
+    });
+}
   // ✅ CHECK IF ANY PENDING RECORD EXISTS
   hasPendingResignations(): boolean {
     return this.filteredResignations.some(r => r.status === 'Pending');

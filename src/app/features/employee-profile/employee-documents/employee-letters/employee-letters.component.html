@@ -85,7 +85,7 @@
       <option value="">Select Employee</option>
 
       <option *ngFor="let emp of employees" [value]="emp.employeeCode">
-        {{ emp.fullName }} ({{ emp.employeeCode }})
+        {{ emp.employeeName }}
       </option>
 
     </select>
@@ -257,7 +257,7 @@
       <tbody>
         <tr *ngFor="let l of filteredLetters(); let i = index">
           <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-          <td>{{ l.documentType }}</td>
+          <td>{{  getDocumentTypeName(l.documentType) }}</td>
           <td>{{ l.title }}</td>
           <td>{{ l.empCode }} - {{ l.empName }}</td>
           <td>{{ l.issuedDate }}</td>

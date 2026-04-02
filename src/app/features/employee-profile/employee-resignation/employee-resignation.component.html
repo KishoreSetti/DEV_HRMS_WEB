@@ -19,8 +19,10 @@
 
   <!-- Tab Header -->
   <div class="tab-header">
-    <label class="tab-label" for="tab1">Employee Resignation Details</label>
-    <label class="tab-label" for="tab2">Manager Approval</label>
+    <!-- <label class="tab-label" for="tab1">Employee Resignation Details</label>
+    <label class="tab-label" for="tab2">Manager Approval</label> -->
+      <label class="tab-label" *ngIf="canViewResignation" for="tab1">Employee Resignation Details</label>
+    <label class="tab-label" *ngIf="canViewApproval" for="tab2">Manager Approval</label>
     <!-- <label class="tab-label" for="tab3">HR Approval</label> -->
 
   </div>
