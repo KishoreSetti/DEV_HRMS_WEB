@@ -1,357 +1,126 @@
-
-<div class="dashboard-header">
-  <h2 class="dashboard-title">Dashboard</h2>
-  <nav class="breadcrumb">
-    <a href="#"><i class="fas fa-home"></i> Home</a> &gt; 
-    <span>Dashboard</span>
-  </nav>
-</div>
-  <div class="dashboard">
-  <div class="card quick-info-card">
-    <div class="avatar">
-      <ng-container *ngIf="profileImage; else initialsBlock">
-        <img [src]="profileImage" alt="Profile photo" />
-      </ng-container>
-      <ng-template #initialsBlock>
-        <span>{{ profileInitials }}</span>
-      </ng-template>
-    </div>
-    <div class="quick-info-details">
-      <h3>{{ employeeName || currentUser.fullName || currentUser.userName || 'Employee' }}</h3>
-      <p><small>Employee ID:</small><strong>{{ employeeCode || currentUser.employeeCode || currentUser.EmployeeCode || '-' }}</strong></p>
-      <p><small>Department:</small><strong>{{ departmentName || currentUser.departmentName || currentUser.DepartmentName || '-' }}</strong></p>
-    </div>
-  </div>
-
-  <div class="card-total-employees">
-  <div class="icon-circle">
-    <i class="fas fa-users"></i>
-  </div>
-  <div class="content">
-    <p class="label">Total Employees</p>
-    <p class="number">{{dashboardData?.totalEmployees}}</p>
-  </div>
-</div>
-
-<div class="card attendance-summary-card small-card">
-  <h4>Today Attendance</h4>
-
-  <div class="attendance-summary">
-
-    <div class="attendance-status-row">
-      <span class="attendance-status" [ngClass]="{
-        'status-present': todayAttendance.status === 'Present',
-        'status-absent': todayAttendance.status === 'Absent',
-        'status-wfh': todayAttendance.status === 'WFH'
-      }">
-        {{ todayAttendance.status }}
-      </span>
+<div class=" dashboard">
+<h2 class="dashboard-title">Dashboard</h2>
+  <!-- HEADER -->
+  <div class="header span-4">
+    <div>
+      <h2>Welcome, {{ employeeName }}</h2>
+      <p>{{ today | date:'fullDate' }}</p>
     </div>
 
-    <div class="attendance-detail">
-      <span>In</span>
-      <span>{{ todayAttendance.checkInTime }}</span>
-    </div>
-
-    <div class="attendance-detail">
-      <span>Hours</span>
-      <span>{{ todayAttendance.workingHours }}</span>
-    </div>
-
-  </div>
-</div>
-
-  <div class="card quick-actions-card full-row">
-    <h3>Quick Actions  🚀</h3>
-    <div class="action-buttons">
-      <a routerLink="/leave-management" class="action-btn">Apply Leave</a>
-      <a routerLink="/clockin-out" class="action-btn">Mark Attendance</a>
-      <a routerLink="/timesheet" class="action-btn">Fill Timesheet</a>
-      <a routerLink="/my-calendar" class="action-btn">View Calendar</a>
-    </div>
-  </div>
-
-  
-<div class="card notification-panel full-row">
-  <h3>Notifications / Alerts</h3>
-  <div class="alerts-grid">
-    <div class="alert-card">
-      <div class="alert-card-header">
-        <h4>Leave Approval Status</h4>
-        <span class="status-pill">{{ leaveApprovalSummary.total }} updates</span>
-      </div>
-      <div class="status-summary">
-        <span class="badge approved">Approved {{ leaveApprovalSummary.approved }}</span>
-        <span class="badge pending">Pending {{ leaveApprovalSummary.pending }}</span>
-        <span class="badge rejected">Rejected {{ leaveApprovalSummary.rejected }}</span>
-      </div>
-      <div class="pending-leaves-section">
-        <h5>Pending leaves</h5>
-        <div *ngIf="pendingLeaves.length; else noPendingLeaves" class="notification-list">
-          <div *ngFor="let leave of pendingLeaves" class="notification-item">
-            <div>
-              <strong>{{ leave.leaveTypeName || leave.leaveType || 'Leave Request' }}</strong>
-              <p>{{ leave.status || 'Pending' }} · {{ leave.startDate | date:'dd MMM' }} to {{ leave.endDate | date:'dd MMM' }}</p>
-            </div>
-          </div>
-        </div>
-        <ng-template #noPendingLeaves>
-          <p class="text-muted">No pending leave requests.</p>
-        </ng-template>
-      </div>
-    </div>  
-  </div>
-</div>
-
-  <!-- Timesheet Calendar -->
-  <div class="card">
-    <h3>Leaves</h3>
-   <div class="calendar">
-
-  <div>Sun</div>
-  <div>Mon</div>
-  <div>Tue</div>
-  <div>Wed</div>
-  <div>Thu</div>
-  <div>Fri</div>
-  <div>Sat</div>
-
-
- <div *ngFor="let day of days"
-     [ngClass]="{
-       'leave-day': !isWeekoff(day) && isLeaveDay(day),
-       'holiday-day': !isWeekoff(day) &&isHoliday(day),
-       'weekoff-day': isWeekoff(day)
-     }">
-
-  {{day}}
-
-</div>
-
-</div>
-  </div>
-
-  <!-- Leave Types -->
-  <div class="card">
-    <h3>Leave Types ({{ leaveTypes.length }})</h3>
-    <div class="leave-types">
-      <div *ngIf="leaveSummaries.length > 0; else noLeaveTypes">
-        <div *ngFor="let summary of leaveSummaries" class="leave-type-row">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <strong>{{ summary.leaveTypeName }}</strong>
-            
-              <div class="text-muted small">Total Leaves: {{ summary.totalDays }}</div>
-            </div>
-            <div class="text-end">
-              <div>Used: {{ summary.usedDays }}</div>
-              <div>Available: {{ summary.availableDays }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <ng-template #noLeaveTypes>
-        <p class="text-muted">Leave types not loaded yet.</p>
+    <div class="profile">
+      <img *ngIf="profileImage; else initials" [src]="profileImage">
+      <ng-template #initials>
+        <div class="avatar">{{ profileInitials }}</div>
       </ng-template>
     </div>
   </div>
 
-  <!-- Recruitment Pie Chart -->
-<div class="card">
-  <h3>Company Events</h3>
-
-  <div class="events-container">
-    <div class="event-card" *ngFor="let event of events">
-      
-      <h4 class="event-title">{{event.eventName}}</h4>
-      
-      <p class="event-date">
-        {{event.eventDate | date:'dd MMM yyyy'}}
-      </p>
-      
-      <p class="event-desc">
-        {{event.description}}
-      </p>
-
+  <!-- STATS -->
+  <div class="card stat-card" *ngFor="let card of statCards">
+    <i [class]="card.icon"></i>
+    <div>
+      <p>{{ card.label }}</p>
+      <h2>{{ card.value }}</h2>
     </div>
   </div>
 
-</div>
-
-  <!-- Working Format Line Chart -->
-  <!-- <div class="card"><h3>Attendance</h3>
-  <canvas id="attendanceChart" width="250" height="250"></canvas>
-</div> -->
-<div class="card-tabbed full-row">
-  
-
-  <!-- Tabs -->
-  <div class="tabs-horizontal">
-    <!-- Tab inputs -->
-    <input type="radio" id="tab1" name="hr-tasks" checked>
-    <input type="radio" id="tab2" name="hr-tasks">
-
-    <!-- Tab labels -->
-    <div class="tab-labels">
-      <label for="tab1">Timesheet Pending</label>
-      <label for="tab2">Help Desk</label>
-    </div>
-
-    <!-- Tab content -->
-    <div class="tab-content" id="content1">
-      <table>
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Project</th>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ts of submittedTimesheets">
-            <td>{{ ts.employeeName }}</td>
-           <td>
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item py-1"
-        *ngFor="let p of ts.projects || []; let pi = index">
-      
-      Project {{ pi + 1 }}: {{ p.projectName }}
-    
-    </li>
-  </ul>
-</td>
-            <td>{{ ts.timesheetDate | date:'dd MMM yyyy' }}</td>
-            <td>
-              <span class="badge" [ngClass]="{
-                'bg-warning': ts.status==='Pending',
-                'bg-primary': ts.status==='Submitted',
-                'bg-success': ts.status==='Approved',
-                'bg-danger': ts.status==='Rejected'
-              }">{{ ts.status }}</span>
-            
-          
-          </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="tab-content" id="content2">
-      <table>
-        <thead>
-          <tr>
-            <th>Ticket ID</th>
-            <th>Category</th>
-            <th>Subject</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-       <tbody>
-<tr *ngFor="let t of tickets">
-
-  <td>{{ t.ticketNumber }}</td>
-  <td>{{ t.categoryName }}</td>
-  <td>{{ t.subject }}</td>
-
-  <td>
-    <span class="badge"
-      [ngClass]="{
-        'bg-warning text-dark': t.status === 'Open',
-        'bg-success': t.status === 'Approved',
-        'bg-danger': t.status === 'Rejected'
-      }">
-      {{ t.status }}
-    </span>
-  </td>
-
-</tr>
-</tbody>
-      </table>
-    </div>
-  </div>
-</div>
-  <!-- Chatbot -->
-  <!-- <div class="chatbot-toggle"><i class="fa fa-comments"></i></div>
-  <div class="chatbot">
-    <div class="chatbot-header">HRMS Chatbot</div>
-    <div class="chatbot-messages">
-      <p><b>Bot:</b> Hi! How can I help you today?</p>
-    </div>
-    <div class="chatbot-input">
-      <input type="text" placeholder="Type your message...">
-      <button><i class="fa fa-paper-plane"></i></button>
-    </div>
-  </div> -->
-  <!-- Chat Toggle -->
-<div class="chatbot-toggle" (click)="toggleChat()">
-  <i class="fa fa-comments"></i>
-</div>
-
-<!-- Chat Window -->
-<!-- Chat Toggle -->
-<div class="chatbot-toggle" (click)="toggleChat()">💬</div>
-
-<div class="chatbot" *ngIf="isOpen">
-
-  <!-- Header -->
-  <div class="chatbot-header">
-    🤖 HRMS Assistant
-    <span class="close" (click)="toggleChat()">×</span>
+  <!-- CHART -->
+  <div class="card span-2">
+    <h3>Attendance Overview 📊</h3>
+    <canvas id="attendanceChart"></canvas>
   </div>
 
-  <!-- Messages -->
-  <div class="chatbot-messages">
+  <!-- LEAVE SUMMARY -->
+  <div class="card span-2">
+    <h3>Leave Summary</h3>
 
-    <div *ngFor="let msg of messages"
-         class="message"
-         [ngClass]="msg.sender === 'User' ? 'user' : 'bot'">
-
-      <div class="bubble">
-        <span *ngIf="msg.text">{{ msg.text }}</span>
-        <span *ngIf="msg.attachmentName">📎 {{ msg.attachmentName }}</span>
+    <div class="leave-summary">
+      <div *ngFor="let s of leaveCards" class="leave-box">
+        <i [class]="s.icon"></i>
+        <p>{{ s.label }}</p>
+        <h4>{{ s.value }}</h4>
       </div>
     </div>
+  </div>
 
-    <!-- Intro -->
-    <div *ngIf="showIntro" class="intro-actions">
-      <button class="primary-btn" (click)="openModules()">
-        📂 View Modules
+  <!-- QUICK ACTIONS -->
+  <div class="card span-2">
+    <h3>Quick Actions</h3>
+
+    <div class="actions">
+      <a routerLink="/leave"><i class="fas fa-calendar"></i> Leave</a>
+      <a routerLink="/attendance"><i class="fas fa-clock"></i> Attendance</a>
+      <a routerLink="/timesheet"><i class="fas fa-file-alt"></i> Timesheet</a>
+      <a routerLink="/helpdesk"><i class="fas fa-headset"></i> Helpdesk</a>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="card span-2">
+    <h3>Notifications</h3>
+
+    <div class="notification">
+      <span class="approved">Approved: {{ leaveApprovalSummary.approved }}</span>
+      <span class="pending">Pending: {{ leaveApprovalSummary.pending }}</span>
+      <span class="rejected">Rejected: {{ leaveApprovalSummary.rejected }}</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="card span-4">
+    <h3>Tasks & Activities</h3>
+
+    <div class="tabs">
+      <button [class.active]="activeTab === 'timesheet'" (click)="activeTab='timesheet'">
+        Timesheet
+      </button>
+      <button [class.active]="activeTab === 'helpdesk'" (click)="activeTab='helpdesk'">
+        Helpdesk
       </button>
     </div>
 
-    <!-- Modules (NO auto close) -->
-    <div *ngIf="showModules" class="module-list">
-      <button *ngFor="let m of modules">{{ m }}</button>
+    <!-- TIMESHEET -->
+    <div *ngIf="activeTab === 'timesheet'" class="tab-body">
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+
+        <tr *ngFor="let ts of submittedTimesheets">
+          <td>{{ ts.employeeName }}</td>
+          <td>{{ ts.timesheetDate | date }}</td>
+          <td>
+            <span class="badge" [ngClass]="ts.status?.toLowerCase()">
+              {{ ts.status }}
+            </span>
+          </td>
+        </tr>
+      </table>
     </div>
 
-  </div>
+    <!-- HELPDESK -->
+    <div *ngIf="activeTab === 'helpdesk'" class="tab-body">
+      <table>
+        <tr>
+          <th>Ticket</th>
+          <th>Priority</th>
+          <th>Status</th>
+        </tr>
 
-  <!-- Emoji Picker -->
-  <div class="emoji-picker" *ngIf="showEmojiPicker">
-    <span *ngFor="let e of emojis" (click)="addEmoji(e)">
-      {{ e }}
-    </span>
-  </div>
+        <tr *ngFor="let t of tickets">
+          <td>{{ t.ticketNumber }}</td>
+          <td>{{ t.priority }}</td>
+          <td>
+            <span class="badge" [ngClass]="t.status?.toLowerCase()">
+              {{ t.status }}
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
 
-  <!-- Input -->
-  <div class="chatbot-input">
-
-    <!-- Emoji (NO background) -->
-    <button class="icon-btn" (click)="toggleEmojiPicker()">😊</button>
-
-    <!-- Attachment (NO background) -->
-    <button class="icon-btn" (click)="triggerFileUpload()">📎</button>
-
-    <input type="text"
-           [(ngModel)]="userMessage"
-           placeholder="Type your message..."
-           (keyup.enter)="sendMessage()" />
-
-    <!-- SEND BUTTON (FIXED & VISIBLE) -->
-    <button class="send-btn" (click)="sendMessage()">➤</button>
-
-    <input type="file" hidden #fileInput (change)="onFileSelected($event)" />
   </div>
 
 </div>
