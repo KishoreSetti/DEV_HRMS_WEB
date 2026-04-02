@@ -190,18 +190,22 @@
                     <td *ngIf="!module.children?.length"></td>
 
                     <!-- Permissions for modules without children -->
-                    <ng-container *ngIf="!module.children?.length">
-                      <td *ngFor="let action of actions" [hidden]="!module.allowedActions.includes(action)">
+                    <td *ngFor="let action of actions">
+                      <ng-container *ngIf="module.allowedActions.includes(action); else emptyCell">
                         <input type="checkbox" [(ngModel)]="module.permissions[action]"
                           (change)="updateParentStatus(module)" />
-                      </td>
-                    </ng-container>
+                      </ng-container>
+
+                      <ng-template #emptyCell>
+                        <!-- empty cell to maintain alignment -->
+                      </ng-template>
+                    </td>
 
                     <!-- If has children and not expanded: show message -->
-                    <td [attr.colspan]="actions.length + 1" class="text-center text-muted small"
+                    <!-- <td [attr.colspan]="actions.length + 1" class="text-center text-muted small"
                       *ngIf="module.children?.length && !module.expanded">
                       Click arrow to expand submodules
-                    </td>
+                    </td> -->
                   </tr>
 
                   <!-- Submodules / Under-submodules -->
@@ -251,18 +255,19 @@
               </td>
 
               <!-- If no children: show checkboxes -->
-              <ng-container *ngIf="!menu.children?.length">
-                <td *ngFor="let action of actions" [hidden]="!menu.allowedActions.includes(action)">
-
+              <td *ngFor="let action of actions">
+                <ng-container *ngIf="menu.allowedActions.includes(action); else emptyCell">
                   <input type="checkbox" [(ngModel)]="menu.permissions[action]" (change)="updateParentStatus(menu)" />
-                </td>
-              </ng-container>
+                </ng-container>
+
+                <ng-template #emptyCell></ng-template>
+              </td>
 
               <!-- If has children and not expanded: show message -->
-              <td [attr.colspan]="actions.length" class="text-center text-muted small"
+              <!-- <td [attr.colspan]="actions.length" class="text-center text-muted small"
                 *ngIf="menu.children?.length && !menu.expanded">
                 Click arrow to expand submodules
-              </td>
+              </td> -->
             </tr>
 
             <!-- Recursive call -->
