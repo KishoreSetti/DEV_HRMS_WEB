@@ -92,6 +92,12 @@ export class AttendanceListComponent {
     this.regionId = Number(sessionStorage.getItem("RegionId"));
 
     this.loadEmployees();
+    this.loadPermission();  // ✅ ADD THIS
+if (!this.canView) {
+    Swal.fire("Access Denied", "You don't have permission", "error");
+    return;
+  }
+
   }
 
   // ================= LOAD EMPLOYEES =================
@@ -147,35 +153,39 @@ export class AttendanceListComponent {
 
   // ================= SAVE ATTENDANCE =================
 
-  saveAllAttendance() {
-
-    const employees = this.employees.map(emp => ({
-      ...emp,
-      clockIn: emp.clockIn || null,
-      clockOut: emp.clockOut || null,
-      grossTime: emp.grossTime || null
-    }));
-
-    const payload = {
-      companyId: this.companyId,
-      regionId: this.regionId,
-      attendanceDate: new Date().toISOString().split('T')[0],
-      employees: employees
-    };
-
-    this.adminService.saveAttendance(payload).subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Attendance saved successfully'
-        });
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    });
+saveAllAttendance() {
+   if (!this.canCreate) {
+    Swal.fire("No Permission", "You cannot save attendance", "warning");
+    return;
   }
+
+  const employees = this.employees.map(emp => ({
+    ...emp,
+    clockIn: emp.clockIn || null,
+    clockOut: emp.clockOut || null,
+    grossTime: emp.grossTime || null
+  }));
+
+  const payload = {
+    companyId: this.companyId,
+    regionId: this.regionId,
+    attendanceDate: new Date().toISOString().split('T')[0],
+    employees: employees
+  };
+
+  this.adminService.saveAttendance(payload).subscribe({
+    next: () => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Attendance saved successfully'
+      });
+    },
+    error: (err) => {
+      console.error(err);
+    }
+  });
+}
 
   // ================= WEEKLY REPORT =================
 
@@ -462,11 +472,25 @@ export class AttendanceListComponent {
       bookType: 'xlsx',
       type: 'array'
     });
+}
 
-    const file = new Blob([excelBuffer], {
-      type: 'application/octet-stream'
-    });
 
-    saveAs(file, `Attendance_Report_${this.fromDate}_to_${this.toDate}_Downloaded_${today}.xlsx`);
+canView: boolean = false;
+canCreate: boolean = false;
+ 
+loadPermission() {
+ 
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+ 
+  const menu = menus.find((m: any) =>
+    m.menuName?.trim().toLowerCase() === "attendance list"
+  );
+ 
+  if (menu) {
+    this.canView = menu.canView;
+    this.canCreate = menu.canAdd;
   }
+}
+
+
 }
