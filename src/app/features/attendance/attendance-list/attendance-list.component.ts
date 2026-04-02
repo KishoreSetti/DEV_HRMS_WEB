@@ -16,6 +16,8 @@ import { saveAs } from 'file-saver';
   styleUrl: './attendance-list.component.css'
 })
 export class AttendanceListComponent {
+  selectedDate: string = '';
+  unsavedDates: string[] = [];
   fromDate: string = '';
   toDate: string = '';
 
@@ -91,13 +93,69 @@ export class AttendanceListComponent {
     this.companyId = Number(sessionStorage.getItem("CompanyId"));
     this.regionId = Number(sessionStorage.getItem("RegionId"));
 
-    this.loadEmployees();
+    this.selectedDate = new Date().toISOString().split('T')[0];
+
+    this.loadEmployeesByDate();
+    this.checkUnsavedDates();
+
+    //this.loadEmployees();
     this.loadPermission();  // ✅ ADD THIS
-if (!this.canView) {
-    Swal.fire("Access Denied", "You don't have permission", "error");
-    return;
+    if (!this.canView) {
+      Swal.fire("Access Denied", "You don't have permission", "error");
+      return;
+    }
+
   }
 
+  // ================= checkUnsavedDates =================
+
+  checkUnsavedDates() {
+
+    this.adminService.getUnsavedDates(this.companyId, this.regionId)
+      .subscribe((res: any) => {
+        console.log('checkUnsavedDates', res)
+        this.unsavedDates = res;
+      });
+  }
+
+  // ================= loadEmployeesByDate =================
+
+  loadEmployeesByDate() {
+
+    Swal.fire({
+      title: 'Loading Attendance...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    this.adminService.getEmployeesByDate(
+      this.companyId,
+      this.regionId,
+      this.selectedDate
+    ).subscribe({
+      next: (res: any) => {
+        console.log('loadEmployeesByDate', res)
+
+        Swal.close();
+
+        this.employees = res;
+        this.loadShiftDetailsForEmployees();
+      },
+      error: () => {
+        Swal.close();
+        Swal.fire("Error", "Failed to load attendance", "error");
+      }
+    });
+  }
+
+  // ================= onDateChange =================
+
+  onDateChange() {
+    // When date changes → reload attendance
+    this.loadEmployeesByDate();
+
+    // refresh unsaved warning
+    this.checkUnsavedDates();
   }
 
   // ================= LOAD EMPLOYEES =================
@@ -153,39 +211,37 @@ if (!this.canView) {
 
   // ================= SAVE ATTENDANCE =================
 
-saveAllAttendance() {
-   if (!this.canCreate) {
-    Swal.fire("No Permission", "You cannot save attendance", "warning");
-    return;
-  }
-
-  const employees = this.employees.map(emp => ({
-    ...emp,
-    clockIn: emp.clockIn || null,
-    clockOut: emp.clockOut || null,
-    grossTime: emp.grossTime || null
-  }));
-
-  const payload = {
-    companyId: this.companyId,
-    regionId: this.regionId,
-    attendanceDate: new Date().toISOString().split('T')[0],
-    employees: employees
-  };
-
-  this.adminService.saveAttendance(payload).subscribe({
-    next: () => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Attendance saved successfully'
-      });
-    },
-    error: (err) => {
-      console.error(err);
+  saveAllAttendance() {
+    if (!this.canCreate) {
+      Swal.fire("No Permission", "You cannot save attendance", "warning");
+      return;
     }
-  });
-}
+
+    const employees = this.employees.map(emp => ({
+      ...emp,
+      clockIn: emp.clockIn || null,
+      clockOut: emp.clockOut || null,
+      grossTime: emp.grossTime || null
+    }));
+
+    const payload = {
+      companyId: this.companyId,
+      regionId: this.regionId,
+      attendanceDate: this.selectedDate, // ✅ ONLY THIS (IMPORTANT)
+      employees: employees
+    };
+
+    this.adminService.saveAttendance(payload).subscribe({
+      next: () => {
+        Swal.fire("Success", "Attendance saved successfully", "success");
+
+        this.checkUnsavedDates(); // ✅ refresh warning
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
 
   // ================= WEEKLY REPORT =================
 
@@ -320,6 +376,17 @@ saveAllAttendance() {
     return '';
   }
 
+  getMonthYearText(): string {
+    if (!this.fromDate) return '';
+
+    const date = new Date(this.fromDate);
+
+    const month = date.toLocaleString('default', { month: 'long' });
+    const year = date.getFullYear();
+
+    return `For the Month of ${month} ${year}`;
+  }
+
   getTodayDate(): string {
     const today = new Date();
 
@@ -361,20 +428,24 @@ saveAllAttendance() {
 
   generatePDF() {
 
-    const today = this.getTodayDate(); // today's date
+    const now = new Date();
+    const today = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
+
+    const monthText = this.getMonthYearText();
 
     const doc = new jsPDF();
 
     // ✅ Title
     doc.setFontSize(14);
-    doc.text('Attendance Report', 14, 10);
+    doc.text(`Attendance Report ${monthText}`, 14, 10);
 
     // ✅ Date range
     doc.setFontSize(10);
     doc.text(`From: ${this.fromDate}  To: ${this.toDate}`, 14, 16);
 
-    // ✅ Downloaded date (TOP RIGHT)
-    doc.text(`Downloaded: ${today}`, 140, 10);
+    // ✅ Downloaded date + time (TOP RIGHT)
+    doc.text(`Downloaded: ${today} ${time}`, 130, 10);
 
     const tableData = this.reports.map((r: any) => [
       r.employeeCode,
@@ -389,18 +460,18 @@ saveAllAttendance() {
     ]);
 
     autoTable(doc, {
-      startY: 22, // ✅ push table down
+      startY: 22,
       head: [[
         'Emp Code', 'Emp Name', 'Shift', 'Date', 'Clock In', 'Late', 'Clock Out', 'Gross Time', 'Status'
       ]],
       body: tableData
     });
 
-    // ✅ Footer (BOTTOM)
+    // ✅ Footer
     const finalY = (doc as any).lastAutoTable.finalY || 30;
-    doc.text(`Generated on: ${today}`, 14, finalY + 10);
+    doc.text(`Generated on: ${today} at ${time}`, 14, finalY + 10);
 
-    doc.save(`Attendance_Report_${this.fromDate}_to_${this.toDate}_Downloaded_${today}.pdf`);
+    doc.save(`Attendance_Report_${this.fromDate}_to_${this.toDate}_${today}.pdf`);
   }
 
   downloadExcel() {
@@ -433,14 +504,17 @@ saveAllAttendance() {
 
   generateExcel() {
 
-    const today = this.getTodayDate();
+    const now = new Date();
+    const today = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
 
-    // ✅ Add header rows manually
+    const monthText = this.getMonthYearText();
+
     const headerData = [
-      ['Attendance Report'],
+      [`Attendance Report ${monthText}`],
       [`From: ${this.fromDate}   To: ${this.toDate}`],
-      [`Downloaded On: ${today}`],
-      [] // empty row
+      [`Downloaded On: ${today} ${time}`],
+      []
     ];
 
     const reportData = this.reports.map((r: any) => ({
@@ -457,10 +531,10 @@ saveAllAttendance() {
 
     const worksheet = XLSX.utils.json_to_sheet([]);
 
-    // ✅ Add header first
+    // ✅ Add header
     XLSX.utils.sheet_add_aoa(worksheet, headerData, { origin: 'A1' });
 
-    // ✅ Add table below header
+    // ✅ Add table
     XLSX.utils.sheet_add_json(worksheet, reportData, { origin: 'A5' });
 
     const workbook = {
@@ -472,25 +546,29 @@ saveAllAttendance() {
       bookType: 'xlsx',
       type: 'array'
     });
-}
 
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
 
-canView: boolean = false;
-canCreate: boolean = false;
- 
-loadPermission() {
- 
-  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
- 
-  const menu = menus.find((m: any) =>
-    m.menuName?.trim().toLowerCase() === "attendance list"
-  );
- 
-  if (menu) {
-    this.canView = menu.canView;
-    this.canCreate = menu.canAdd;
+    saveAs(blob, `Attendance_Report_${this.fromDate}_to_${this.toDate}_${today}.xlsx`);
   }
-}
+
+
+  canView: boolean = false;
+  canCreate: boolean = false;
+
+  loadPermission() {
+
+    const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+    const menu = menus.find((m: any) =>
+      m.menuName?.trim().toLowerCase() === "attendance list"
+    );
+
+    if (menu) {
+      this.canView = menu.canView;
+      this.canCreate = menu.canAdd;
+    }
+  }
 
 
 }
