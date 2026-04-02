@@ -495,6 +495,11 @@ export interface MenuMaster {
   icon?: string;
   orderNo?: number;
   isActive: boolean | number;
+  canView?: boolean;
+  canAdd?: boolean;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  canApprove?: boolean;
   CreatedBy?: string;
   CreatedDate?: Date;
   ModifiedBy?: string;
