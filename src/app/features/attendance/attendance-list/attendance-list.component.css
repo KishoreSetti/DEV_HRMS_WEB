@@ -362,3 +362,63 @@ cursor:pointer;
 .btn-report.monthly {
   margin-left: 0;
 }
+/* DATE FILTER CONTAINER */
+.date-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+/* LABEL */
+.date-filter label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-right: 5px;
+}
+
+/* DATE INPUT */
+.date-input {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    height: 34px;
+}
+
+/* BUTTON */
+.btn-search {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+/* BUTTON HOVER */
+.btn-search:hover {
+    background-color: #b71c1c;
+}
+
+/* RESPONSIVE (mobile support) */
+@media (max-width: 768px) {
+    .date-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-input,
+    .btn-search {
+        width: 100%;
+    }
+}
+.attendance-date {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 10px;
+}

@@ -17,6 +17,30 @@
             Employees Attendance - {{ todayDate | date:'dd MMM yyyy' }}
         </div>
 
+        <!-- ✅ SHOW ONLY IF UNSAVED DATES EXIST -->
+        <div *ngIf="unsavedDates.length > 0">
+
+            <!-- DATE FILTER -->
+            <div class="date-filter">
+                <label>Select Date To Save Missed Attendance:</label>
+
+                <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="date-input">
+
+                <button class="btn-search" (click)="loadEmployeesByDate()">
+                    Load Attendance
+                </button>
+            </div>
+
+            <!-- UNSAVED WARNING -->
+            <div class="unsaved-warning">
+                ⚠️ You have not saved attendance for:
+                <span *ngFor="let d of unsavedDates">
+                    {{ d | date:'dd MMM yyyy' }},
+                </span>
+            </div>
+
+        </div>
+
         <div class="card-header">
             <h3>Employee Attendance</h3>
 

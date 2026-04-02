@@ -2482,6 +2482,33 @@ dateRangeReport(companyId: number, regionId: number, fromDate: string, toDate: s
 
   return this.http.get(`${this.baseUrl}/Attendance/DateRangeReport`, { params });
 }
+
+// =============================
+// GET EMPLOYEES BY DATE
+// =============================
+getEmployeesByDate(companyId: number, regionId: number, date: string) {
+
+  let params = new HttpParams()
+    .set('companyId', companyId)
+    .set('regionId', regionId)
+    .set('date', date);
+
+  return this.http.get(`${this.baseUrl}/Attendance/GetEmployeesByDate`, { params });
+}
+
+// =============================
+// GET UNSAVED DATES
+// =============================
+getUnsavedDates(companyId: number, regionId: number) {
+
+  let params = new HttpParams()
+    .set('companyId', companyId)
+    .set('regionId', regionId);
+
+  return this.http.get(`${this.baseUrl}/Attendance/UnsavedDates`, { params });
+}
+
+
   getCompanyNewsCategoryList(userId: number) {
   return this.http.get(`${this.baseUrl}/MasterData/companynewscategory-list/${userId}`);
 }
