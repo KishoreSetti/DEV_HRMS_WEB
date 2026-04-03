@@ -333,8 +333,19 @@ export class RolesPermissionsComponent {
   // ---------- Fetch Dynamic MenuMaster ----------
   //  ✅ Load Menus and build hierarchy
   loadMenuPermissions(): void {
+
     this.roleService.getMenus().subscribe({
       next: (menus: any[]) => {
+        menus.forEach(m => {
+          console.log('MENU:', m.menuName, {
+            canView: m.canView,
+            canAdd: m.canAdd,
+            canEdit: m.canEdit,
+            canDelete: m.canDelete,
+            canApprove: m.canApprove
+          });
+        });
+
         const menuMap = new Map<number, MenuItem>();
 
         // Step 1: initialize all menu items
