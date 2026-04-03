@@ -10,7 +10,9 @@ export class EmployeeDocumentsComponent {
 canViewLetters :boolean= false;
 canViewForms :boolean= false;
 canViewDocuments :boolean= false;
-ngOninit(){
+selectedTab: string = '';
+ngOnInit(){
+  
     this.loadTabPermissions();
   }
 loadTabPermissions() {
@@ -21,14 +23,18 @@ loadTabPermissions() {
       m.menuName?.trim().toLowerCase() === "hr letters");
 
   const forms = menus.find((m:any) => 
-      m.menuName?.trim().toLowerCase() === "documents");
+      m.menuName?.trim().toLowerCase() === "forms");
 
   const documents = menus.find((m:any) => 
-      m.menuName?.trim().toLowerCase() === "employee Documents");
+      m.menuName?.trim().toLowerCase() === "employee documents");
 
   this.canViewLetters = letters?.canView ?? false;
   this.canViewForms = forms?.canView ?? false;
   this.canViewDocuments = documents?.canView ?? false;
+
+    if (this.canViewLetters) this.selectedTab = 'tab1';
+  else if (this.canViewForms) this.selectedTab = 'tab2';
+  else if (this.canViewDocuments) this.selectedTab = 'tab3';
 
 }
 }

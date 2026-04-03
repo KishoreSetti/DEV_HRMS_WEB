@@ -14,9 +14,9 @@
 
   <!-- Radios for 6 tabs -->
 
-  <input  type="radio" id="tab1" name="tab" checked>
-  <input  type="radio" id="tab2" name="tab">
-  <input  type="radio" id="tab3" name="tab">
+  <input  type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input  type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+  <input  type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
 
   <!-- Tab Header -->
   <div class="tab-header">
@@ -28,17 +28,17 @@
 
 
     <!-- TAB 1: BANK DETAILS -->
-<div id="content1" class="tab-content">
+<div id="content1" class="tab-content" *ngIf="canViewBank">
   <app-employee-bank-details></app-employee-bank-details>
 </div>
 
 <!-- TAB 2: DD -->
 
-   <div id="content2" class="tab-content">
+   <div id="content2" class="tab-content" *ngIf="canViewDD">
   <app-employee-dd-details></app-employee-dd-details>
 </div>
 
    <!-- TAB 3: W4(USA) -->
-<div id="content3" class="tab-content">
+<div id="content3" class="tab-content" *ngIf="canViewW4">
   <app-employee-w4-details></app-employee-w4-details>
 </div>

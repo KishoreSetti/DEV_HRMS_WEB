@@ -11,6 +11,7 @@ canViewPersonal = false;
 canViewFamily = false;
 canViewEmergency = false;
 canViewReference = false;
+selectedTab: string = '';
 ngOnInit(): void {
 
   this.loadTabPermissions();   }
@@ -39,6 +40,11 @@ loadTabPermissions() {
   this.canViewFamily = family?.canView ?? false;
   this.canViewEmergency = emergency?.canView ?? false;
   this.canViewReference = reference?.canView ?? false;
+
+  if (this.canViewPersonal) this.selectedTab = 'tab1';
+  else if (this.canViewFamily) this.selectedTab = 'tab2';
+  else if (this.canViewEmergency) this.selectedTab = 'tab3';
+  else if (this.canViewReference) this.selectedTab = 'tab4';
 
 }
 }
