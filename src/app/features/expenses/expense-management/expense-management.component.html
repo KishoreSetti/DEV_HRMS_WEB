@@ -12,15 +12,15 @@
 
 <div class="tab-container">
   <!-- Radios for tabs -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
-  <input type="radio" id="tab3" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+  <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
 
   <!-- Tab Header -->
   <div class="tab-header">
-    <label class="tab-label"  for="tab1">Create Expense</label>
-    <label class="tab-label" for="tab2">All Expenses</label>
-    <label class="tab-label" for="tab3">Approve Expenses</label>
+    <label class="tab-label"  for="tab1" *ngIf="canCreateExpense">Create Expense</label>
+    <label class="tab-label" for="tab2" *ngIf="canViewAllExpense">All Expenses</label>
+    <label class="tab-label" for="tab3" *ngIf="canApproveExpense">Approve Expenses</label>
   </div>
   <!-- <div class="tab-header">
   <label *ngIf="canCreateExpense" for="tab1">Create Expense</label>
@@ -29,20 +29,20 @@
 </div> -->
 
   <!-- TAB 1: CREATE EXPENSE -->
-  <div id="content1" class="tab-content">
+  <div id="content1" class="tab-content" *ngIf="canCreateExpense">
     <app-create-expenses></app-create-expenses>
   </div>
 
 
  <!-- TAB 2: MY EXPENSES WITH FILTERS -->
-<div id="content2" class="tab-content">
+<div id="content2" class="tab-content" *ngIf="canViewAllExpense">
   <app-all-expenses></app-all-expenses>
 </div>
 
 
 
  <!-- TAB 3: APPROVE EXPENSES WITH FILTERS -->
-<div id="content3" class="tab-content">
+<div id="content3" class="tab-content" *ngIf="canApproveExpense">
 
   <app-approve-expenses></app-approve-expenses>
 </div>

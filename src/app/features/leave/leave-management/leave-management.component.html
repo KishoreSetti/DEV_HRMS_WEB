@@ -13,9 +13,9 @@
 <div class="tab-container mt-4">
 
   <!-- TAB RADIO BUTTONS -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
-  <input type="radio" id="tab3" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+  <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
 
   <!-- TAB HEADERS -->
   <div class="tab-header">
@@ -25,17 +25,17 @@
   </div>
 
   <!-- ========================= APPLY LEAVE TAB ========================= -->
-  <div class="tab-content" id="content1">
+  <div class="tab-content" id="content1" *ngIf="canApplyLeave">
     <app-apply-leave></app-apply-leave>
   </div>
 
   <!-- ========================= LEAVE APPROVALS TAB ========================= -->
-  <div class="tab-content" id="content2">
+  <div class="tab-content" id="content2" *ngIf="canViewApproval">
     <app-leave-approvals></app-leave-approvals>
   </div>
 
   <!-- ========================= LEAVE CALENDAR TAB ========================= -->
-  <div class="tab-content" id="content3">
+  <div class="tab-content" id="content3" *ngIf="canViewCalendar">
     <app-leave-calendar></app-leave-calendar>
   </div>
 </div>

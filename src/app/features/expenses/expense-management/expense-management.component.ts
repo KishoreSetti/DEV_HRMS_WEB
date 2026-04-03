@@ -8,14 +8,44 @@ import { AdminService } from '../../../admin/servies/admin.service';
   styleUrl: './expense-management.component.css'
 })
 export class ExpenseManagementComponent {
-// canCreateExpense: boolean = false;
-// canViewAllExpense: boolean = false;
-// canApproveExpense: boolean = false;
+canCreateExpense: boolean = false;
+canViewAllExpense: boolean = false;
+canApproveExpense: boolean = false;
+selectedTab: string = '';
 
 //  constructor(private adminService: AdminService) { }
-// ngOnInit() {
-//   this.loadExpensePermissions();
-// }
+ngOnInit() {
+  //this.loadExpensePermissions();
+  this.loadTabPermissions();
+}
+loadTabPermissions() {
+
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const createMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "create expense"
+  );
+
+    const allMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "all expense"
+  );
+
+  // ✅ Approve Expenses
+  const approveMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "approve expense"
+  );
+
+
+  this.canCreateExpense = createMenu?.canAdd ?? false;
+  this.canViewAllExpense = allMenu?.canView ?? false;
+  this.canApproveExpense = approveMenu?.canEdit ?? false;
+
+  if (this.canCreateExpense) this.selectedTab = 'tab1';
+  else if (this.canViewAllExpense) this.selectedTab = 'tab2';
+  else if (this.canApproveExpense) this.selectedTab = 'tab3';
+  
+
+}
 // loadPermission() {
 //   const userId = Number(sessionStorage.getItem("UserId"));
 //   const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
