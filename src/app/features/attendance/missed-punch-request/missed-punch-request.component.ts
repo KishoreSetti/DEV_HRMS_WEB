@@ -19,7 +19,7 @@ missedPunchForm!: FormGroup;
   regionId =Number(sessionStorage.getItem('RegionId')) || 1;    // get from login/session
   userId =Number(sessionStorage.getItem('UserId')) || 1;    // logged-in user
   managerId =Number(sessionStorage.getItem("reportingManagerId")) || 0; // logged-in manager
-
+selectedTab: string = '';
   constructor(
     private fb: FormBuilder,
     private missedPunchService: MissedPunchService
@@ -29,7 +29,7 @@ missedPunchForm!: FormGroup;
     this.initializeForm();
     this.loadMyRequests();
     this.loadApprovalRequests();
-    
+    this.loadPermissions();
   }
 
   /* ================= FORM ================= */
@@ -198,6 +198,36 @@ debugger;
   selectAll(event: any) {
     const checked = event.target.checked;
     this.approvalRequests.forEach(x => x.selected = checked);
+  }
+
+  canViewPersonal = false;
+  canViewManager = false;
+  loadPermissions() {
+    const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+    const personal = menus.find(
+      (m: any) => m.menuName?.trim().toLowerCase() === "my request"
+    );
+
+    const managerapproval = menus.find((m: any) =>
+      m.menuName?.trim().toLowerCase() === "manager approval"
+    );
+
+
+    this.canViewPersonal = personal?.canView ?? false;
+    this.canViewManager = managerapproval?.canView ?? false;
+
+
+    if (this.canViewPersonal) this.selectedTab = 'tab1';
+    else if (this.canViewManager) this.selectedTab = 'tab2';
+
+    console.log("Menus:", menus);
+    console.log("Manager Approval:", managerapproval);
+
+    menus.forEach((m: any) => {
+      console.log("Menu Name:", m.menuName);
+    });
+
   }
   
 }
