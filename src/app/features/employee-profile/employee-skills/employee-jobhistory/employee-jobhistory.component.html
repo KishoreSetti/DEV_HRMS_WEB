@@ -85,7 +85,7 @@
 
     <!-- Save Button -->
     <div class="form-group" style="flex: 1 1 100%; text-align: right;">
-      <button type="submit">{{ editMode ? 'Update Job History' : 'Add Job History' }}</button>
+      <!-- <button type="submit">{{ editMode ? 'Update Job History' : 'Add Job History' }}</button> -->
        <button 
         type="submit"
         *ngIf="(editMode && canEdit) || (!editMode && canCreate)">

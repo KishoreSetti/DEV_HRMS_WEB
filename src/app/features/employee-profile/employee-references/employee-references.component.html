@@ -4,7 +4,9 @@
       ? "You don't have permission to update details"
       : "You don't have permission to add details" }}
 </div> -->
-
+<div *ngIf="!canCreate" style="color:red;">
+  You don't have permission to add references
+</div>
   <!-- Form Section -->
   <form [formGroup]="referenceForm" (ngSubmit)="onSubmit()">
 
@@ -40,7 +42,7 @@
       <div class="form-group"></div>
     </div>
 
-  <button type="submit" class="submit-btn"  >
+  <button type="submit" class="submit-btn" *ngIf="canCreate || isEdit">
       {{ isEdit ? 'Update Reference' : 'Add Reference' }}
     </button>
 

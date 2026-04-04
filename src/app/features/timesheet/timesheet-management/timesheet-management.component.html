@@ -12,22 +12,22 @@
 
 <div class="tab-container">
   <!-- Radios for tabs -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
 
   <!-- Tab Header -->
   <div class="tab-header">
-    <label class="tab-label" for="tab1">Submit Timesheet</label>
-    <label class="tab-label" for="tab2">Approve Timesheet</label>
+    <label class="tab-label" for="tab1" *ngIf="canViewSubmitTimesheet">Submit Timesheet</label>
+    <label class="tab-label" for="tab2" *ngIf="canViewApproveTimesheet">Approve Timesheet</label>
   </div>
 
   <!-- TAB 1: SUBMIT TIMESHEET -->
-  <div id="content1" class="tab-content">
+  <div id="content1" class="tab-content" *ngIf="canViewSubmitTimesheet">
     <app-timesheet-application></app-timesheet-application>
   </div>
 
   <!-- TAB 2: APPROVE TIMESHEET -->
-  <div id="content2" class="tab-content">
+  <div id="content2" class="tab-content" *ngIf="canViewApproveTimesheet">
     <app-timesheet-approval></app-timesheet-approval>
   </div>
 

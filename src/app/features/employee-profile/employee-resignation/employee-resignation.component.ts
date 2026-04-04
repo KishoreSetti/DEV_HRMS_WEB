@@ -67,7 +67,12 @@ loadPermissions() {
   const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
 
   const resignation = menus.find((m:any) =>
-      m.menuName?.trim().toLowerCase() === "resignation/exit");
+    m.menuName?.trim().toLowerCase() === "resignation/exit"
+  );
+
+  const approval = menus.find((m:any) =>
+    m.menuName?.trim().toLowerCase() === "manager approval"
+  );
 
   const managerapproval = menus.find((m:any) =>
   m.menuName?.trim().toLowerCase() === "manager approrval"
@@ -86,6 +91,8 @@ menus.forEach((m:any) => {
   console.log("Menu Name:", m.menuName);
 });
 
+  console.log("Resignation Permission:", this.canViewResignation);
+  console.log("Manager Approval Permission:", this.canViewApproval);
 }
   // ---------------- FILTER --------------------
   applyFilter() {

@@ -36,7 +36,7 @@ canViewCalendar :Boolean= false;
       { date: '2025-10-20', type: 'Sick Leave' }
     ]
   };
-
+selectedTab: string = '';
   ngOnInit(): void {
     this.loadLeavePermissions();
     this.generateMonthDates(this.currentYear, this.currentMonth);
@@ -77,6 +77,10 @@ canViewCalendar :Boolean= false;
   this.canApplyLeave = getPermission("Leave Apply");
   this.canViewApproval = getPermission("Leave Approve");
   this.canViewCalendar = getPermission("Leave Calendar");
+
+   if (this.canApplyLeave) this.selectedTab = 'tab1';
+  else if (this.canViewApproval) this.selectedTab = 'tab2';
+  else if (this.canViewCalendar) this.selectedTab = 'tab3';
 }
 
 //   loadLeavePermissions() {

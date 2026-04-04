@@ -51,6 +51,8 @@ changePageSize(size: number): void {
   this.currentPage = 1;
 }
   ngOnInit(): void {
+      this.loadPermission();   // ✅ ADD THIS LINE
+
     this.userId = Number(sessionStorage.getItem("UserId"));
     if (!this.userId) {
       console.error("UserId missing in sessionStorage");
@@ -439,5 +441,23 @@ private markFormGroupTouched(form: NgForm) {
     const control = form.controls[key];
     control.markAsTouched();
   });
+}
+ canCreate: boolean = false;
+   canEdit: boolean = false;
+  canDelete: boolean = false;
+  loadPermission() {
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const immigrationMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "immigration"
+  );
+
+  if (immigrationMenu) {
+    this.canCreate = immigrationMenu.canAdd;
+    this.canEdit   = immigrationMenu.canEdit;
+    this.canDelete = immigrationMenu.canDelete;
+  }
+
+  console.log("Immigration Permissions 👉", immigrationMenu);
 }
 }
