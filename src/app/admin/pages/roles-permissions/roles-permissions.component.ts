@@ -492,6 +492,8 @@ export class RolesPermissionsComponent {
         // Step 1: Create menu items and merge with role permissions
         menus.forEach(m => {
 
+          const perm = rolePerms.find((p: any) => p.menuId === m.menuID);
+
           const allowedActions: PermissionAction[] = [];
 
           if (m.canView) allowedActions.push('view');
@@ -504,20 +506,20 @@ export class RolesPermissionsComponent {
             menuID: m.menuID,
             parentMenuID: m.parentMenuID,
             name: m.menuName,
-            selected: false,
+
+            // ✅ IMPORTANT
+            selected: perm ? perm.isActive : false,
             expanded: false,
 
             permissions: {
-              view: false,
-              create: false,
-              edit: false,
-              delete: false,
-              approve: false
+              view: perm ? perm.canView : false,
+              create: perm ? perm.canAdd : false,
+              edit: perm ? perm.canEdit : false,
+              delete: perm ? perm.canDelete : false,
+              approve: perm ? perm.canApprove : false
             },
 
-            // ✅ IMPORTANT
             allowedActions: allowedActions,
-
             children: []
           });
         });
