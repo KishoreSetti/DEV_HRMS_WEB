@@ -11,29 +11,29 @@
  <div class="tab-container">
 
     <!-- Radios -->
-    <input type="radio" id="tab1" name="tab" checked>
-    <input type="radio" id="tab2" name="tab">
-    <input type="radio" id="tab3" name="tab">
-  
+    <input type="radio" id="tab1" name="tab"  [checked]="selectedTab === 'tab1'">
+    <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+    <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
+
     <!-- Tab Header -->
     <div class="tab-header">
-      <label class="tab-label" *ngIf="canJobHistory"  for="tab1">Job History</label>
+      <label class="tab-label" *ngIf="canJobHistory" for="tab1">Job History</label>
       <label class="tab-label" *ngIf="canEducation" for="tab2">Education</label>
       <label class="tab-label" *ngIf="canCertification" for="tab3">Certification</label>  
     </div>
 <!-- Job History Tab -->
-<div id="content1" class="tab-content">
+<div id="content1" class="tab-content" *ngIf="canJobHistory">
   <app-employee-jobhistory></app-employee-jobhistory>
 </div>
 
 <!-- Education Tab -->
-<div id="content2" class="tab-content">
+<div id="content2" class="tab-content" *ngIf="canEducation">
   <app-employee-education></app-employee-education>
 </div>
 
 
 <!-- Certification Tab -->
-<div id="content3" class="tab-content">
+<div id="content3" class="tab-content" *ngIf="canCertification">
 <app-employee-certifications></app-employee-certifications>
 
 </div>

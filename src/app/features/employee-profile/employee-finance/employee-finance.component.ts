@@ -10,6 +10,7 @@ export class EmployeeFinanceComponent {
  canViewBank :boolean= false;
   canViewDD :boolean= false;
   canViewW4 :boolean= false;
+selectedTab:string = '';
 
   ngOnInit() {
     this.loadTabPermissions();
@@ -31,5 +32,10 @@ export class EmployeeFinanceComponent {
     this.canViewBank = bank?.canView ?? false;
     this.canViewDD = dd?.canView ?? false;
     this.canViewW4 = w4?.canView ?? false;
+
+     if (this.canViewBank) this.selectedTab = 'tab1';
+  else if (this.canViewDD) this.selectedTab = 'tab2';
+  else if (this.canViewW4) this.selectedTab = 'tab3';
+ 
   }
 }

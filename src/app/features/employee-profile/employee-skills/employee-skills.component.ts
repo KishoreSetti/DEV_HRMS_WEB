@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class EmployeeSkillsComponent {
 activeTab = 'skills';
-
+selectedTab: string = '';
   // Skills & Job History
   skillsJobHistory = [
     { label: 'Employer', type: 'text', required: true, placeholder: 'Enter employer name' },
@@ -66,6 +66,10 @@ loadTabPermissions() {
   this.canJobHistory = jobHistory?.canView ?? false;
   this.canEducation = education?.canView ?? false;
   this.canCertification = certification?.canView ?? false;
+
+    if (this.canJobHistory) this.selectedTab = 'tab1';
+  else if (this.canEducation) this.selectedTab = 'tab2';
+  else if (this.canCertification) this.selectedTab = 'tab3';
 
 }
 }

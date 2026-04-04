@@ -43,6 +43,8 @@ export class EmployeeResignationComponent {
   // employeeCode = sessionStorage.getItem("EmployeeCode") || "";
   roleId = Number(sessionStorage.getItem("roleId"));
  activeTab: 'list' | 'manager' | 'hr' = 'list'; // default tab
+
+ selectedTab: string = '';
   constructor(private resignationService: EmployeeResignationService) {}
 
   ngOnInit(): void {
@@ -72,8 +74,22 @@ loadPermissions() {
     m.menuName?.trim().toLowerCase() === "manager approval"
   );
 
+  const managerapproval = menus.find((m:any) =>
+  m.menuName?.trim().toLowerCase() === "manager approrval"
+);
+
   this.canViewResignation = resignation?.canView ?? false;
-  this.canViewApproval = approval?.canView ?? false;
+  this.canViewApproval=managerapproval?.canView ?? false;
+
+     if (this.canViewResignation) this.selectedTab = 'tab1';
+  else if (this.canViewApproval) this.selectedTab = 'tab2';
+ 
+
+  console.log("Menus:", menus);
+console.log("Manager Approval:", managerapproval);
+menus.forEach((m:any) => {
+  console.log("Menu Name:", m.menuName);
+});
 
   console.log("Resignation Permission:", this.canViewResignation);
   console.log("Manager Approval Permission:", this.canViewApproval);
