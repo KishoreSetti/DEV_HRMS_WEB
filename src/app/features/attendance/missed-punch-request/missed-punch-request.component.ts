@@ -40,7 +40,8 @@ selectedTab: string = '';
       missedType: [null, Validators.required],
        correctClockIn: [{ value: null, disabled: true }],
     correctClockOut: [{ value: null, disabled: true }],
-      reason: [null, Validators.required]
+      reason: [null, Validators.required],
+      hrEmail: [null] 
     });
     this.handleMissedTypeChanges();
   }
@@ -71,13 +72,12 @@ handleMissedTypeChanges() {
 }
   submitMissedPunch() {
    // if (this.missedPunchForm.invalid) return;
-debugger;
     const payload = {
       ...this.missedPunchForm.value,
       companyId: this.companyId,
       regionId: this.regionId,
       userId: this.userId,employeeId: this.userId,
-      reportingTo:sessionStorage.getItem('reportingManagerId'),
+      reportingTo: Number(sessionStorage.getItem('reportingManagerId'))
     };
 
     if (this.isEditMode && this.editId) {
@@ -118,14 +118,14 @@ debugger;
 
   /* ================= LOAD DATA ================= */
 
-  loadMyRequests() {
-    this.missedPunchService
-      .getMissedPunchRequest(this.companyId, this.regionId)
-      .subscribe(res => this.myRequests = res);
-  }
+loadMyRequests() {
+  this.missedPunchService
+    .getMissedPunchRequest(this.companyId, this.regionId, this.userId) // ✅ PASS USERID
+    .subscribe(res => this.myRequests = res);
+}
 
   loadApprovalRequests() {
-    debugger;
+
     this.missedPunchService
       .getApprovalMissedPunchRequest(this.companyId, this.regionId,Number(sessionStorage.getItem('UserId')))
       .subscribe(res => {
@@ -148,9 +148,10 @@ debugger;
       managerRemarks: item.managerRemarks,
       managerId: this.managerId,
       companyId: this.companyId,
-      regionId: this.regionId
+      regionId: this.regionId, 
+       hrEmail: item.hrEmail
     };
-    debugger;
+
 
     this.missedPunchService.bulkApproveRejectPunch(payload)
       .subscribe(() => this.loadApprovalRequests());
@@ -164,7 +165,8 @@ debugger;
      
          managerId: this.managerId,
       companyId: this.companyId,
-      regionId: this.regionId
+      regionId: this.regionId,
+      hrEmail: item.hrEmail 
     };
 
     this.missedPunchService.bulkApproveRejectPunch(payload)
@@ -183,7 +185,8 @@ debugger;
         managerRemarks: x.managerRemarks,
           managerId: this.managerId,
       companyId: this.companyId,
-      regionId: this.regionId
+      regionId: this.regionId,
+      hrEmail: x.hrEmail 
       }));
 
     if (selectedItems.length === 0) return;
