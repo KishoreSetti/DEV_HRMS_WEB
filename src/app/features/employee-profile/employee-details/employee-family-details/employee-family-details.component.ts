@@ -203,11 +203,11 @@ loadPermission() {
   const menuId = familyMenu ? familyMenu.menuId : 0;
     if (familyMenu) {
     this.canCreate = familyMenu.canAdd;
-  //   this.canEdit = familyMenu.canEdit;
-  //   this.canDelete = familyMenu.canDelete;
-  //   this.canView = familyMenu.canView;
-   this.canEdit = familyMenu.canEdit;
+    this.canEdit = familyMenu.canEdit;
      this.canDelete = familyMenu.canDelete;
+  //   this.canView = familyMenu.canView;
+   //this.canEdit = familyMenu.canEdit;
+    // this.canDelete = familyMenu.canDelete;
    }
 
   console.log("UserId:", userId);
