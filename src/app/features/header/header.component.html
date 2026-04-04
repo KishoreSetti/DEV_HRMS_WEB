@@ -92,3 +92,77 @@
 
   </div>
 </div>
+<div class="chatbot-container">
+
+  <!-- Floating Icon -->
+  <div class="chatbot-toggle" (click)="toggleChat()">
+    <i class="fa fa-comments"></i>
+  </div>
+
+  <!-- Chat Window -->
+ <div class="chatbot-container">
+
+  <!-- Toggle Button -->
+  <div class="chatbot-toggle" (click)="toggleChat()">
+    <i class="fa fa-comments"></i>
+  </div>
+
+  <!-- Chat Window -->
+  <div class="chatbot" *ngIf="isOpen">
+
+    <div class="chatbot-header">
+      HRMS Chatbot
+      <span class="close-btn" (click)="toggleChat()">×</span>
+    </div>
+
+    <div class="chatbot-messages" id="chatContainer">
+
+      <div *ngFor="let msg of messages"
+           class="message-wrapper"
+           [ngClass]="msg.type">
+
+        <!-- Bot Avatar -->
+        <div class="avatar" *ngIf="msg.type === 'bot'">🤖</div>
+
+        <!-- Message -->
+        <div class="message-bubble">
+          <div class="text">{{ msg.text }}</div>
+          <div class="time">{{ msg.time }}</div>
+
+          <!-- ✅ Buttons -->
+          <div *ngIf="msg.buttons?.length" class="chat-buttons">
+            <button *ngFor="let btn of msg.buttons"
+                    (click)="handleAction(btn)">
+              {{ btn.label }}
+            </button>
+          </div>
+
+        </div>
+
+        <!-- User Avatar -->
+        <div class="avatar user-avatar" *ngIf="msg.type === 'user'">👤</div>
+
+      </div>
+
+      <!-- Typing Indicator -->
+      <div *ngIf="isTyping" class="message-wrapper bot">
+        <div class="avatar">🤖</div>
+        <div class="message-bubble typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Input -->
+    <div class="chatbot-input">
+      <input [(ngModel)]="userInput"
+             (keyup.enter)="sendMessage()"
+             placeholder="Ask like: Leave, Attendance..." />
+      <button (click)="sendMessage()">
+        <i class="fa fa-paper-plane"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

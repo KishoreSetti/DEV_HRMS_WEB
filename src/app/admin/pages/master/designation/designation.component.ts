@@ -380,6 +380,10 @@ editDesignation(d: any): void {
     const start = (this.currentPage - 1) * this.pageSize;
     return sorted.slice(start, start + this.pageSize);
   }
+      onCancel(): void {
+  this.resetForm();
+
+}
 }
 
 

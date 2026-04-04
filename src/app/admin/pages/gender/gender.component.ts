@@ -708,4 +708,8 @@ loadRegions(): void {
     error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
   });
 }
+ onCancel(): void {
+  this.resetForm();
+
+}
 }

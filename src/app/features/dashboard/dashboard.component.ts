@@ -199,4 +199,5 @@ export class DashboardComponent {
       ? parts[0][0] + parts[1][0]
       : parts[0][0];
   }
+  
 }

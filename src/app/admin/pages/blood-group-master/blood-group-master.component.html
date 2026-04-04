@@ -10,7 +10,7 @@
 
       <div class="d-flex gap-2">
         <!-- Export Dropdown -->
-        <div class="dropdown">
+        <!-- <div class="dropdown">
           <button
             class="btn btn-outline-dark dropdown-toggle"
             type="button"
@@ -23,12 +23,12 @@
             <li><a class="dropdown-item" (click)="exportAs('pdf')">Download PDF</a></li>
             <li><a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a></li>
           </ul>
-        </div>
+        </div> -->
 
         <!-- Bulk Upload -->
-        <button class="btn btn-danger" (click)="openUploadPopup()">
+        <!-- <button class="btn btn-danger" (click)="openUploadPopup()">
           <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-        </button>
+        </button> -->
       </div>
     </div>
 
@@ -86,7 +86,15 @@
             </div>
 
             <!-- Submit -->
-            <div class="col-md-3 d-flex align-items-end">
+            <div class="col-md-6 d-flex align-items-end gap-4">
+               <button
+                type="button"
+                class="btn btn-danger px-6 w-100"
+                (click)="onCancel()"
+              >
+                <i class="fa-solid fa-xmark me-2"></i>
+                Cancel
+              </button>
               <button type="submit" class="btn btn-dark w-100" [disabled]="!bloodForm.valid">
                 <i class="fa-solid fa-save me-2"></i>
                 {{ isEditMode ? 'Update Blood Group' : 'Save Blood Group' }}

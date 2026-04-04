@@ -70,7 +70,19 @@ userId: number = Number(sessionStorage.getItem('UserId'));
         this.profilePicture = 'assets/images/default-profile.png';
       }
     });
+      this.loadMenus();
+
+    this.messages.push({
+      type: 'bot',
+      text: 'Hi 👋 Ask me anything like "leave", "attendance", "profile"'
+    });
+     this.scrollToBottom();
 }
+ loadMenus() {
+    this.adminService.getMenus().subscribe(res => {
+      this.menus = res;
+    });
+  }
    logout() {
     // Optional: clear localStorage/sessionStorage or token
     localStorage.clear();
@@ -389,5 +401,128 @@ syncClockStateWithAPI() {
     sessionStorage.removeItem('clockInTime');
   }
 }
+  isOpen: boolean = false;
 
+ 
+// ================= CHATBOT =================
+
+// ================= CHATBOT =================
+
+
+userInput = '';
+messages: any[] = [];
+menus: any[] = [];
+isTyping = false;
+
+// Toggle Chat
+toggleChat() {
+  this.isOpen = !this.isOpen;
+}
+
+// Add message
+addMessage(type: string, text: string, buttons: any[] = []) {
+  const time = new Date().toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  this.messages.push({ type, text, time, buttons });
+  this.scrollToBottom();
+}
+
+// Send message
+sendMessage() {
+  if (!this.userInput.trim()) return;
+
+  const input = this.userInput.trim();
+
+  // Show user message
+  this.addMessage('user', input);
+  this.userInput = '';
+
+  // Show typing
+  this.isTyping = true;
+  this.scrollToBottom();
+
+  setTimeout(() => {
+    this.isTyping = false;
+    this.handleUserQuery(input.toLowerCase());
+  }, 1200);
+}
+
+// Handle user query
+handleUserQuery(input: string) {
+
+  let match = this.menus.find(m =>
+    m.menuName.toLowerCase().includes(input)
+  );
+
+  if (match) {
+    this.addMessage(
+      'bot',
+      `I found "${match.menuName}". What would you like to do?`,
+      [
+        { label: 'Open Page', action: 'navigate', url: match.url },
+        { label: 'Cancel', action: 'cancel' }
+      ]
+    );
+  } else {
+
+    const suggestions = this.menus
+      .filter(m => m.menuName.toLowerCase().includes(input.substring(0, 3)))
+      .slice(0, 5);
+
+    if (suggestions.length > 0) {
+      this.addMessage(
+        'bot',
+        'Did you mean one of these?',
+        suggestions.map(s => ({
+          label: s.menuName,
+          action: 'navigate',
+          url: s.url
+        }))
+      );
+    } else {
+      this.addMessage(
+        'bot',
+        'Try keywords like "leave", "attendance", "profile"'
+      );
+    }
+  }
+}
+
+// Handle button click
+handleAction(btn: any) {
+
+  if (btn.action === 'navigate') {
+
+    this.addMessage('user', btn.label);
+
+    this.isTyping = true;
+
+    setTimeout(() => {
+      this.isTyping = false;
+
+      this.addMessage('bot', `Opening ${btn.label}...`);
+
+      setTimeout(() => {
+        this.router.navigate([btn.url]);
+      }, 500);
+
+    }, 800);
+
+  } else {
+    this.addMessage('bot', 'Okay 👍');
+  }
+}
+
+// Auto scroll
+scrollToBottom() {
+  setTimeout(() => {
+    const container = document.getElementById('chatContainer');
+    if (container) {
+      container.scrollTop = container.scrollHeight + 500;
+    }
+  }, 100);
+}
 }

@@ -339,4 +339,8 @@ goToPage(page: number): void {
 }
   Math = Math; // <-- Add this line
 
+  onCancel(): void {
+  this.resetForm();
+
+}
 }

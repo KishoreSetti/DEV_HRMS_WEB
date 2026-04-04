@@ -307,4 +307,8 @@ regionMap: Record<number, string> = {};
   closeUploadPopup() {
     this.showUploadPopup = false;
   }
+   onCancel(): void {
+  this.resetForm();
+
+}
 }

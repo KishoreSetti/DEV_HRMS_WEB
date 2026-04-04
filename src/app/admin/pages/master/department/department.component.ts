@@ -309,4 +309,8 @@ userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getIte
     this.loadDepartments();
     this.showUploadPopup = false;
   }
+    onCancel(): void {
+  this.resetForm();
+
+}
 }
