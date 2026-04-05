@@ -25,7 +25,8 @@ export class WfoRemoteRequestComponent {
     managerID: this.managerId,
     companyID: this.companyId,
     regionID: this.regionId,
-    userId: this.userId
+    userId: this.userId,
+     hrEmail: '' // ✅ ADD THIS
   };
 
   /* ========= LISTS ========= */

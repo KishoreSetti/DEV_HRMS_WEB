@@ -81,6 +81,10 @@
                     name="reason"
                     required></textarea>
         </div>
+         <div class="mb-3">
+          <label class="form-label">HR Email (CC)</label>
+          <input type="email" class="form-control" [(ngModel)]="wfhForm.hrEmail" name="hrEmail">
+        </div>
 
         <button type="submit" class="btn btn-primary">
           Submit Request
