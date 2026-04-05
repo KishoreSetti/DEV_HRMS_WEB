@@ -94,7 +94,8 @@ expenseForm!: FormGroup;
           Validators.maxLength(500)
         ]
       ],
-      receipt: ['', Validators.required]
+      receipt: ['', Validators.required],
+      hrEmail: ['']
     });
   }
   onCompanyOrRegionChange(): void {

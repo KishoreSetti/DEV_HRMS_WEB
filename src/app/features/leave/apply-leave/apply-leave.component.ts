@@ -644,7 +644,7 @@ canCreate: boolean = false;
   usedLeaves: number = 0;
   canApprove: any;
   canReject: any;
-
+hrEmail: string = '';
 
   ngOnInit(): void {
     this.today = this.formatDate(new Date());
@@ -1103,6 +1103,7 @@ canCreate: boolean = false;
     formData.append("TotalDays", this.totalDays.toString());
     formData.append("Reason", this.reason);
     formData.append("ReportingManagerId", this.reportingManagerId.toString());
+    formData.append("HrEmail", this.hrEmail);
 
     if (this.selectedFile) {
       formData.append("SupportingDocument", this.selectedFile);
