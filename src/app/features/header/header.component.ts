@@ -33,6 +33,7 @@ private timerRef: any;
 profilePicture: string = '';
 //profilePicture: string = 'assets/images/default-profile.png';
 userId: number = Number(sessionStorage.getItem('UserId'));
+companyLogo: string = '/assets/images/cor-logo.png';
  constructor(private router: Router, private employeeResignationService: EmployeeResignationService, private adminService: AdminService, private ngZone: NgZone) {}
   ngOnInit() {
     this.loadProfilePicture();
@@ -40,9 +41,12 @@ userId: number = Number(sessionStorage.getItem('UserId'));
     this.role = currentUser.role;
     sessionStorage.setItem('role', this.role);
     this.roleName= sessionStorage.getItem('roleName');
-    if(this.roleName==='Super Admin'){
-      this.superadmin=true;
-    }
+    if(this.roleName === 'Super Admin') {
+    this.superadmin = true;
+    this.companyLogo = '/assets/images/cor-logo.png';
+  } else {
+    this.loadEmployeeCompanyLogo();
+  }
     this.userName= sessionStorage.getItem('Name');
     const savedClockIn = sessionStorage.getItem('clockInTime');
 
@@ -55,6 +59,36 @@ userId: number = Number(sessionStorage.getItem('UserId'));
   }
     this.loadAttendance();
   }
+  loadEmployeeCompanyLogo() {
+  const companyId = Number(sessionStorage.getItem('CompanyId'));
+  if (!companyId) return;
+
+  this.adminService.getCompanyById(companyId).subscribe({
+    next: (company: any) => {
+      console.log('Company Response:', company); // ✅ Debug check
+
+      // check exact property name from API
+      const logo = company?.companyLogo;
+
+      if (logo && logo.trim() !== '') {
+        if (logo.startsWith('data:')) {
+          this.companyLogo = logo; // base64 directly
+        } else {
+          const logoPath = logo.replace(/\\/g, '/');
+          this.companyLogo = environment.baseurl
+            ? `${environment.baseurl}/${logoPath}`
+            : `/${logoPath}`;
+        }
+      } else {
+        this.companyLogo = '/assets/images/cor-logo.png';
+      }
+    },
+    error: (err) => {
+      console.error('Failed to load company logo:', err);
+      this.companyLogo = '/assets/images/cor-logo.png';
+    }
+  });
+}
   loadProfilePicture() {
   this.employeeResignationService.getProfilePicture(this.userId)
     .subscribe({
