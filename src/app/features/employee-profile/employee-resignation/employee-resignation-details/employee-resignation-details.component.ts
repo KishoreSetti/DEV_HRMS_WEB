@@ -22,7 +22,7 @@ export class EmployeeResignationDetailsComponent {
  resignationTypes: ResignationModel[] = []; // fetched from master table
   resignations: EmployeeResignation[] = [];
   filteredResignations: EmployeeResignation[] = [];
-  resignationModel: EmployeeResignation = { resignationType: '' };
+  resignationModel: EmployeeResignation = { resignationType: '', hrEmail: ''  };
 
   employeeCode = commonConstants.employeeCode;
   employeeName = commonConstants.employeeName;
@@ -256,7 +256,7 @@ deleteResignation(id: number) {
 
   resetForm(form: NgForm) {
     form.resetForm();
-    this.resignationModel = { resignationType: '' };
+    this.resignationModel = { resignationType: '' , hrEmail: '' };
     this.isEditMode = false;
     this.dateError = '';
     this.formSubmitted = false;
