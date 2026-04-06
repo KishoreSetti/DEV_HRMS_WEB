@@ -173,9 +173,14 @@
     <label class="form-label">Description<span class="text-danger">*</span></label>
     <textarea class="form-control" [(ngModel)]="interviewForm.feedback" rows="2"></textarea>
   </div>
+  <div class="mb-3">
+    <label class="form-label">HR Email (CC)</label>
+    <input type="email" class="form-control" name="hrEmail" [(ngModel)]="interviewForm.hrEmail">
+  </div>
 
   <div class="col-md-1 d-flex align-items-end gap-2">
-    <button class="btn flex-fill" [ngClass]="isEditMode ? 'btn-warning' : 'btn-success'" (click)="isEditMode ? updateInterview() : scheduleInterview()">
+    <button class="btn flex-fill" [ngClass]="isEditMode ? 'btn-warning' : 'btn-success'"
+      (click)="isEditMode ? updateInterview() : scheduleInterview()">
       {{ isEditMode ? 'Update Interview' : 'Schedule Interview' }}
     </button>
 

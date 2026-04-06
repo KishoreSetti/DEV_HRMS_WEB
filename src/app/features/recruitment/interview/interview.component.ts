@@ -200,7 +200,8 @@ export class InterviewComponent {
       location: this.interviewForm.location,
       meetingLink: this.interviewForm.meetingLink,
       description: this.interviewForm.feedback,
-      result: 'Pending'
+      result: 'Pending',
+      hrEmail: this.interviewForm.hrEmail   // ✅ ADD THIS
     };
 
     this.recruitmentService.saveCandidateInterview(payload).subscribe({
