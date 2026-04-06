@@ -57,7 +57,7 @@
                     <th>Employee Name</th>
                     <th>Shit Timings</th>
                     <th>Clock In</th>
-                    <th>Late ClockIn</th>
+                    <th>Late Arrivals</th>
                     <th>Clock Out</th>
                     <th>Gross Time</th>
                     <th>Status</th>
@@ -81,7 +81,7 @@
                     </td>
                     <td>
                         <span class="text-danger fw-bold" *ngIf="emp.lateMinutes && emp.lateMinutes > 0">
-                            Late by {{ emp.lateMinutes }} mins
+                            Late by {{ formatLateMinutes(emp.lateMinutes) }}
                         </span>
                     </td>
 
@@ -92,9 +92,11 @@
                         {{ emp.grossTime ? emp.grossTime : '--:--' }}
                     </td>
 
-                    <td>
-                        {{ emp.status }}
-                    </td>
+<td>
+  <span class="status-badge" [ngClass]="getStatusClass(emp.status)">
+    {{ emp.status }}
+  </span>
+</td>
 
                 </tr>
 
@@ -169,7 +171,7 @@
                     <th>Shift Timings</th>
                     <th>Date</th>
                     <th>Clock In</th>
-                    <th>Late ClockIn</th>
+                    <th>Late Arrivals</th>
                     <th>Clock Out</th>
                     <th>Gross Time</th>
                     <th>Status</th>
@@ -194,15 +196,17 @@
                     <td>{{ r.clockIn }}</td>
                     <td>
                         <span class="text-danger fw-bold" *ngIf="r.lateMinutes && r.lateMinutes > 0">
-                            Late by {{ r.lateMinutes }} mins
+                            Late by {{ formatLateMinutes(r.lateMinutes) }}
                         </span>
                     </td>
                     <td>{{ r.clockOut }}</td>
                     <td>{{ r.grossTime }}</td>
 
-                    <td>
-                        {{ r.status }}
-                    </td>
+<td>
+  <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+    {{ r.status }}
+  </span>
+</td>
 
                 </tr>
 

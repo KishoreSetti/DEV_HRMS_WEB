@@ -426,53 +426,97 @@ export class AttendanceListComponent {
     }
   }
 
-  generatePDF() {
+async generatePDF() {
 
-    const now = new Date();
-    const today = now.toLocaleDateString();
-    const time = now.toLocaleTimeString();
+  const now = new Date();
+  const today = now.toLocaleDateString();
+  const time = now.toLocaleTimeString();
 
-    const monthText = this.getMonthYearText();
+  const monthText = this.getMonthYearText();
 
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    // ✅ Title
-    doc.setFontSize(14);
-    doc.text(`Attendance Report ${monthText}`, 14, 10);
+  const logoBase64 = await this.getBase64ImageFromURL('/assets/images/cor-logo.png');
 
-    // ✅ Date range
-    doc.setFontSize(10);
-    doc.text(`From: ${this.fromDate}  To: ${this.toDate}`, 14, 16);
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-    // ✅ Downloaded date + time (TOP RIGHT)
-    doc.text(`Downloaded: ${today} ${time}`, 130, 10);
+  // ================= LOGO =================
+  doc.addImage(logoBase64, 'PNG', pageWidth / 2 - 20, 5, 40, 15);
 
-    const tableData = this.reports.map((r: any) => [
-      r.employeeCode,
-      r.employeeName,
-      `${r.shiftName} (${r.shiftStartTime} - ${r.shiftEndTime})`,
-      new Date(r.attendanceDate).toLocaleDateString(),
-      r.clockIn,
-      r.lateMinutes ? `Late by ${r.lateMinutes} mins` : '',
-      r.clockOut,
-      r.grossTime,
-      r.status
-    ]);
+  // ================= DOWNLOADED TEXT (RIGHT SIDE) =================
+  doc.setFontSize(9);
+  doc.text(`Downloaded: ${today} ${time}`, pageWidth - 60, 12);
 
-    autoTable(doc, {
-      startY: 22,
-      head: [[
-        'Emp Code', 'Emp Name', 'Shift', 'Date', 'Clock In', 'Late', 'Clock Out', 'Gross Time', 'Status'
-      ]],
-      body: tableData
-    });
+  // ================= TITLE =================
+  doc.setFontSize(14);
+  doc.text(
+    `Attendance Report ${monthText}`,
+    pageWidth / 2,
+    28,
+    { align: 'center' }   // ✅ center align
+  );
 
-    // ✅ Footer
-    const finalY = (doc as any).lastAutoTable.finalY || 30;
-    doc.text(`Generated on: ${today} at ${time}`, 14, finalY + 10);
+  // ================= DATE RANGE =================
+  doc.setFontSize(10);
+  doc.text(
+    `From: ${this.fromDate}   To: ${this.toDate}`,
+    pageWidth / 2,
+    35,
+    { align: 'center' }   // ✅ center align
+  );
 
-    doc.save(`Attendance_Report_${this.fromDate}_to_${this.toDate}_${today}.pdf`);
+  // ================= TABLE =================
+  const tableData = this.reports.map((r: any) => [
+    r.employeeCode,
+    r.employeeName,
+    `${r.shiftName} (${r.shiftStartTime} - ${r.shiftEndTime})`,
+    new Date(r.attendanceDate).toLocaleDateString(),
+    r.clockIn,
+    r.lateMinutes ? `Late by ${this.formatLateMinutes(r.lateMinutes)}` : '',
+    r.clockOut,
+    r.grossTime,
+    r.status
+  ]);
+
+autoTable(doc, {
+  startY: 45,
+  head: [[
+    'Emp Code', 'Emp Name', 'Shift', 'Date', 'Clock In', 'Late Arrivals', 'Clock Out', 'Gross Time', 'Status'
+  ]],
+  body: tableData,
+
+  // ✅ HEADER STYLE
+  headStyles: {
+    fillColor: [200, 0, 0],   // 🔴 Red background (RGB)
+    textColor: [255, 255, 255], // ⚪ White text
+    halign: 'center',
+    valign: 'middle',
+    fontStyle: 'bold'
+  },
+
+  // ✅ BODY STYLE (optional but looks clean)
+  bodyStyles: {
+    textColor: [0, 0, 0]
+  },
+
+  // ✅ ALTERNATE ROW COLOR (optional nice UI)
+  alternateRowStyles: {
+    fillColor: [245, 245, 245] // light gray
   }
+});
+
+  // ================= FOOTER =================
+  const finalY = (doc as any).lastAutoTable.finalY || 30;
+
+  doc.setFontSize(9);
+  doc.text(
+    `Generated on: ${today} at ${time}`,
+    14,
+    finalY + 10
+  );
+
+  doc.save(`Attendance_Report_${this.fromDate}_to_${this.toDate}_${today}.pdf`);
+}
 
   downloadExcel() {
 
@@ -523,7 +567,7 @@ export class AttendanceListComponent {
       'Shift': `${r.shiftName} (${r.shiftStartTime} - ${r.shiftEndTime})`,
       'Date': new Date(r.attendanceDate).toLocaleDateString(),
       'Clock In': r.clockIn,
-      'Late': r.lateMinutes ? `Late by ${r.lateMinutes} mins` : '',
+      'Late': r.lateMinutes ? `Late by ${this.formatLateMinutes(r.lateMinutes)}` : '',
       'Clock Out': r.clockOut,
       'Gross Time': r.grossTime,
       'Status': r.status
@@ -552,6 +596,28 @@ export class AttendanceListComponent {
     saveAs(blob, `Attendance_Report_${this.fromDate}_to_${this.toDate}_${today}.xlsx`);
   }
 
+  getBase64ImageFromURL(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = url;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+
+      const dataURL = canvas.toDataURL('image/png');
+      resolve(dataURL);
+    };
+
+    img.onerror = error => reject(error);
+  });
+}
+
 
   canView: boolean = false;
   canCreate: boolean = false;
@@ -570,5 +636,40 @@ export class AttendanceListComponent {
     }
   }
 
+formatLateMinutes(minutes: number): string {
+  if (!minutes || minutes <= 0) return '';
+
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  if (hours > 0 && mins > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ${mins} minute${mins > 1 ? 's' : ''}`;
+  }
+
+  if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''}`;
+  }
+
+  return `${mins} minute${mins > 1 ? 's' : ''}`;
+}
+
+getStatusClass(status: string): string {
+
+  if (!status) return '';
+
+  status = status.toLowerCase();
+
+  if (status === 'present') return 'badge-present';
+
+  if (status === 'absent') return 'badge-absent';
+
+  if (status === 'Halfday' || status === 'Half day') return 'badge-Halfday';
+
+  if (status.includes('leave')) return 'badge-leave'; // casual, sick, LOP etc.
+
+  if (status === 'weekoff') return 'badge-weekoff';
+
+  return 'badge-default';
+}
 
 }
