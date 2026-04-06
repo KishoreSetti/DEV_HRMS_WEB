@@ -480,29 +480,71 @@ async generatePDF() {
 
 autoTable(doc, {
   startY: 45,
+
   head: [[
-    'Emp Code', 'Emp Name', 'Shift', 'Date', 'Clock In', 'Late Arrivals', 'Clock Out', 'Gross Time', 'Status'
+    'Emp Code', 'Emp Name', 'Shift', 'Date',
+    'Clock In', 'Late Arrivals', 'Clock Out', 'Gross Time', 'Status'
   ]],
+
   body: tableData,
 
-  // ✅ HEADER STYLE
+  // ✅ IMPORTANT: Add full grid (borders)
+  theme: 'plain',
+
+  // ✅ Global styles (applies to all cells)
+  styles: {
+    fontSize: 9,
+    cellPadding: 3,
+    halign: 'center',     // horizontal align
+    valign: 'middle',     // vertical align
+    lineWidth: 0.2,       // border thickness
+    lineColor: [0, 0, 0]  // border color (black)
+  },
+
+  // ✅ Header styling
   headStyles: {
-    fillColor: [200, 0, 0],   // 🔴 Red background (RGB)
-    textColor: [255, 255, 255], // ⚪ White text
+    fillColor: [200, 0, 0],       // red
+    textColor: [255, 255, 255],   // white
     halign: 'center',
     valign: 'middle',
-    fontStyle: 'bold'
+    fontStyle: 'bold',
+    lineWidth: 0.3
   },
 
-  // ✅ BODY STYLE (optional but looks clean)
-  bodyStyles: {
-    textColor: [0, 0, 0]
+  // ✅ Column specific alignment (VERY IMPORTANT)
+  columnStyles: {
+    0: { halign: 'center' }, // Emp Code
+    1: { halign: 'left' },   // Emp Name
+    2: { halign: 'center' },   // Shift
+    3: { halign: 'center' }, // Date
+    4: { halign: 'center' }, // Clock In
+    5: { halign: 'center' }, // Late
+    6: { halign: 'center' }, // Clock Out
+    7: { halign: 'center' }, // Gross Time
+    8: { halign: 'center' }  // Status
   },
 
-  // ✅ ALTERNATE ROW COLOR (optional nice UI)
-  alternateRowStyles: {
-    fillColor: [245, 245, 245] // light gray
+
+  didParseCell: function (data: any) {
+  // Body only (skip header)
+  if (data.section === 'body') {
+
+    // 👉 Make Employee Name bold (column index 1)
+    if (data.column.index === 1) {
+      data.cell.styles.fontStyle = 'bold';
+    }
+
+    // 👉 Make Status bold (column index 8)
+    if (data.column.index === 8) {
+      data.cell.styles.fontStyle = 'bold';
+    }
   }
+}
+
+  // ✅ Alternate row color (optional but nice)
+  // alternateRowStyles: {
+  //   fillColor: [245, 245, 245]
+  // }
 });
 
   // ================= FOOTER =================
@@ -616,7 +658,7 @@ autoTable(doc, {
 
     img.onerror = error => reject(error);
   });
-}
+ }
 
 
   canView: boolean = false;
