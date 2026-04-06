@@ -365,6 +365,10 @@ export interface Company {
   CreatedDate?: Date;
   ModifiedBy?: string;
   ModifiedAt?: Date;
+  companyEmail?: string;
+  companyContact?: string;
+  companyAddress?: string;
+  CompanyLogo?: File | string;
 }
 export interface MenuRoleDto {
   menuRoleId: number;
@@ -832,7 +836,7 @@ export class AdminService {
   }
 
   getCompanyById(id: number): Observable<Company> {
-    return this.getById<Company>('UserManagement/GetCompanyById', id);
+    return this.http.get<Company>(`${this.baseUrl}/UserManagement/GetCompanyById?id=${id}`);
   }
 
   createCompany(model: Company): Observable<Company> {

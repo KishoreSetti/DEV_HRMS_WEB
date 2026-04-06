@@ -31,6 +31,8 @@ sortDirection: 'asc' | 'desc' = 'desc'; // default: latest first
   isEditMode = false;
   searchText = '';
   statusFilter: boolean | '' = '';
+  selectedLogoFile!: File;
+  logoPreview: string | ArrayBuffer | null = null;
 
   constructor(private adminservice: AdminService,private spinner: NgxSpinnerService) {}
 
@@ -83,6 +85,9 @@ closeUploadPopup() {
       companyCode: '',
       industryType: '',
       headquarters: '',
+      companyAddress: '',
+      companyContact: '',
+      companyEmail: '',
       isActive: true,
       userId: sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0
     };
@@ -104,6 +109,18 @@ closeUploadPopup() {
       }
     });
   }
+ onLogoSelected(event: any) {
+  const file = event.target.files[0];
+  if (file) {
+    this.selectedLogoFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.logoPreview = reader.result;
+      this.company.CompanyLogo = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
   // ------------------------------------------------------------
   // 🔹 Submit form - Add or Update
@@ -111,6 +128,9 @@ closeUploadPopup() {
   onSubmit(): void {
     debugger;
      this.spinner.show();
+  //    if (this.selectedLogoFile) {
+  //   (this.company as any).companyLogo = this.selectedLogoFile;
+  // }
     if (this.isEditMode) {
       // Update existing company
       this.adminservice.updateCompany(this.company.companyId, this.company).subscribe({
