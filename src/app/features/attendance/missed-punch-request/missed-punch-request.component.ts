@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MissedPunchService } from './service/missed-punch.service';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-missed-punch-request',
   standalone: false,
@@ -70,32 +72,80 @@ handleMissedTypeChanges() {
     }
   });
 }
-  submitMissedPunch() {
-   // if (this.missedPunchForm.invalid) return;
-    const payload = {
-      ...this.missedPunchForm.value,
-      companyId: this.companyId,
-      regionId: this.regionId,
-      userId: this.userId,employeeId: this.userId,
-      reportingTo: Number(sessionStorage.getItem('reportingManagerId'))
-    };
+  // submitMissedPunch() {
+  //  // if (this.missedPunchForm.invalid) return;
+  //   const payload = {
+  //     ...this.missedPunchForm.value,
+  //     companyId: this.companyId,
+  //     regionId: this.regionId,
+  //     userId: this.userId,employeeId: this.userId,
+  //     reportingTo: Number(sessionStorage.getItem('reportingManagerId'))
+  //   };
 
-    if (this.isEditMode && this.editId) {
-      this.missedPunchService
-        .updateMissedPunch( payload)
-        .subscribe(() => {
-          this.resetForm();
-          this.loadMyRequests();
+  //   if (this.isEditMode && this.editId) {
+  //     this.missedPunchService
+  //       .updateMissedPunch( payload)
+  //       .subscribe(() => {
+  //         this.resetForm();
+  //         this.loadMyRequests();
+  //       });
+  //   } else {
+  //     this.missedPunchService
+  //       .createMissedPunchRequest(payload)
+  //       .subscribe(() => {
+  //         this.resetForm();
+  //         this.loadMyRequests();
+  //       });
+  //   }
+  // }
+  submitMissedPunch() {
+  const payload = {
+    ...this.missedPunchForm.value,
+    companyId: this.companyId,
+    regionId: this.regionId,
+    userId: this.userId,
+    employeeId: this.userId,
+    reportingTo: Number(sessionStorage.getItem('reportingManagerId'))
+  };
+
+  if (this.isEditMode && this.editId) {
+    this.missedPunchService.updateMissedPunch(payload).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated!',
+          text: 'Missed punch request updated successfully',
+          timer: 2000,
+          showConfirmButton: false
         });
-    } else {
-      this.missedPunchService
-        .createMissedPunchRequest(payload)
-        .subscribe(() => {
-          this.resetForm();
-          this.loadMyRequests();
+
+        this.resetForm();
+        this.loadMyRequests();
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to update request', 'error');
+      }
+    });
+  } else {
+    this.missedPunchService.createMissedPunchRequest(payload).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Submitted!',
+          text: 'Missed punch request submitted successfully',
+          timer: 2000,
+          showConfirmButton: false
         });
-    }
+
+        this.resetForm();
+        this.loadMyRequests();
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to submit request', 'error');
+      }
+    });
   }
+}
 
   editMissedPunch(item: any) {
     this.isEditMode = true;
@@ -129,6 +179,7 @@ loadMyRequests() {
     this.missedPunchService
       .getApprovalMissedPunchRequest(this.companyId, this.regionId,Number(sessionStorage.getItem('UserId')))
       .subscribe(res => {
+        console.log('Approval Rquests', res);
         this.approvalRequests = res.map((x: any) => ({
           ...x,
           
@@ -140,61 +191,182 @@ loadMyRequests() {
 
   /* ================= APPROVAL ACTIONS ================= */
 
+  // approve(item: any) {
+
+  //   const payload = {
+  //     missedPunchRequestIds: [item.missedPunchRequestId],
+  //     status: 'Approved',
+  //     managerRemarks: item.managerRemarks,
+  //     managerId: this.managerId,
+  //     companyId: this.companyId,
+  //     regionId: this.regionId, 
+  //      hrEmail: item.hrEmail
+  //   };
+
+
+  //   this.missedPunchService.bulkApproveRejectPunch(payload)
+  //     .subscribe(() => this.loadApprovalRequests());
+  // }
+
   approve(item: any) {
 
-    const payload = {
-      missedPunchRequestIds: [item.missedPunchRequestId],
-      status: 'Approved',
-      managerRemarks: item.managerRemarks,
-      managerId: this.managerId,
-      companyId: this.companyId,
-      regionId: this.regionId, 
-       hrEmail: item.hrEmail
-    };
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to approve this request?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Approve'
+  }).then((result) => {
+    if (result.isConfirmed) {
 
+      const payload = {
+        missedPunchRequestIds: [item.missedPunchRequestId],
+        status: 'Approved',
+        managerRemarks: item.managerRemarks,
+        managerId: this.managerId,
+        companyId: this.companyId,
+        regionId: this.regionId,
+        hrEmail: item.hrEmail
+      };
 
-    this.missedPunchService.bulkApproveRejectPunch(payload)
-      .subscribe(() => this.loadApprovalRequests());
-  }
+      this.missedPunchService.bulkApproveRejectPunch(payload)
+        .subscribe(() => {
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Approved!',
+            text: 'Request approved successfully',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          this.loadApprovalRequests();
+        });
+    }
+  });
+}
+
+  // reject(item: any) {
+  //   const payload = {
+  //     missedPunchRequestIds: [item.missedPunchRequestId],
+  //     status: 'Rejected',
+  //     managerRemarks: item.managerRemarks,
+     
+  //        managerId: this.managerId,
+  //     companyId: this.companyId,
+  //     regionId: this.regionId,
+  //     hrEmail: item.hrEmail 
+  //   };
+
+  //   this.missedPunchService.bulkApproveRejectPunch(payload)
+  //     .subscribe(() => this.loadApprovalRequests());
+  // }
 
   reject(item: any) {
-    const payload = {
-      missedPunchRequestIds: [item.missedPunchRequestId],
-      status: 'Rejected',
-      managerRemarks: item.managerRemarks,
-     
-         managerId: this.managerId,
-      companyId: this.companyId,
-      regionId: this.regionId,
-      hrEmail: item.hrEmail 
-    };
 
-    this.missedPunchService.bulkApproveRejectPunch(payload)
-      .subscribe(() => this.loadApprovalRequests());
-  }
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to reject this request?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Reject'
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      const payload = {
+        missedPunchRequestIds: [item.missedPunchRequestId],
+        status: 'Rejected',
+        managerRemarks: item.managerRemarks,
+        managerId: this.managerId,
+        companyId: this.companyId,
+        regionId: this.regionId,
+        hrEmail: item.hrEmail
+      };
+
+      this.missedPunchService.bulkApproveRejectPunch(payload)
+        .subscribe(() => {
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Rejected!',
+            text: 'Request rejected successfully',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          this.loadApprovalRequests();
+        });
+    }
+  });
+}
 
   /* ================= BULK APPROVE / REJECT ================= */
 
+  // bulkApproveReject(status: 'Approved' | 'Rejected') {
+
+  //   const selectedItems = this.approvalRequests
+  //     .filter(x => x.selected)
+  //     .map(x => ({
+  //       missedPunchRequestIds: x.missedPunchRequestId,
+  //       status: status,
+  //       managerRemarks: x.managerRemarks,
+  //         managerId: this.managerId,
+  //     companyId: this.companyId,
+  //     regionId: this.regionId,
+  //     hrEmail: x.hrEmail 
+  //     }));
+
+  //   if (selectedItems.length === 0) return;
+
+  //   this.missedPunchService
+  //     .bulkApproveRejectPunch(selectedItems)
+  //     .subscribe(() => this.loadApprovalRequests());
+  // }
   bulkApproveReject(status: 'Approved' | 'Rejected') {
 
-    const selectedItems = this.approvalRequests
-      .filter(x => x.selected)
-      .map(x => ({
-        missedPunchRequestIds: x.missedPunchRequestId,
-        status: status,
-        managerRemarks: x.managerRemarks,
-          managerId: this.managerId,
-      companyId: this.companyId,
-      regionId: this.regionId,
-      hrEmail: x.hrEmail 
-      }));
+  const selectedIds = this.approvalRequests
+    .filter(x => x.selected)
+    .map(x => x.missedPunchRequestId);
 
-    if (selectedItems.length === 0) return;
-
-    this.missedPunchService
-      .bulkApproveRejectPunch(selectedItems)
-      .subscribe(() => this.loadApprovalRequests());
+  if (selectedIds.length === 0) {
+    Swal.fire('Warning', 'Please select at least one record', 'warning');
+    return;
   }
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `Do you want to ${status.toLowerCase()} selected requests?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: `Yes, ${status}`
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      const payload = {
+        missedPunchRequestIds: selectedIds,
+        status: status,
+        managerRemarks: '',
+        managerId: this.managerId,
+        companyId: this.companyId,
+        regionId: this.regionId
+      };
+
+      this.missedPunchService.bulkApproveRejectPunch(payload)
+        .subscribe(() => {
+
+          Swal.fire({
+            icon: 'success',
+            title: `${status}!`,
+            text: `Selected requests ${status.toLowerCase()} successfully`,
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          this.loadApprovalRequests();
+        });
+    }
+  });
+}
 
   /* ================= SELECT ALL ================= */
 
