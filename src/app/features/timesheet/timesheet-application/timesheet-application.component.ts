@@ -24,6 +24,7 @@ export interface TimesheetModel {
   attachment?: File | null;
   projects: TimesheetProject[];
   status: string;
+   hrEmail?: string;
 }
 @Component({
   selector: 'app-timesheet-application',
@@ -154,6 +155,7 @@ model: TimesheetModel = {
     formData.append('TimesheetDate', this.model.date);
     formData.append('Comments', this.model.comments ?? '');
     formData.append('Status', 'Pending');
+    formData.append('HrEmail', this.model.hrEmail || '');
 
     if (this.model.attachment) {
       formData.append('Attachment', this.model.attachment);
