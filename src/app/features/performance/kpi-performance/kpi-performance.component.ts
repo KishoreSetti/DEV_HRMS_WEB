@@ -98,7 +98,7 @@ export class KpiPerformanceComponent {
       appraisalYear: [currentYear.toString()],  // ✅ Auto current year
       selfReviewSummary: [''],
       reportingManagerName: '',
-
+ hrEmail: [''],
       kpis: this.fb.array([])
     });
 
