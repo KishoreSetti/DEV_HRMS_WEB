@@ -44,7 +44,8 @@ export class AssetRequestComponent {
       requiredDate: ['', Validators.required],
       priority: [''],
       reason: ['', Validators.required],
-      file: [null]
+      file: [null],
+      hrEmail: [''] 
     });
     this.loadRequests();
 
@@ -146,7 +147,8 @@ export class AssetRequestComponent {
       fileName: v.file?.name || '',
       filePath: '',
 
-      reportingTo: Number(sessionStorage.getItem("reportingManagerId"))
+      reportingTo: Number(sessionStorage.getItem("reportingManagerId")),
+       hrEmail: v.hrEmail
     };
 
     // ✅ LOADING ALERT
