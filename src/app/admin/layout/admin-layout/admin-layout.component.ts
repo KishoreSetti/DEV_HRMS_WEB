@@ -81,12 +81,12 @@ export class AdminLayoutComponent {
     //   { title: 'SMTP Settings', route: '/admin/smtp-settings' },
     //   { title: 'Notification Logs', route: '/admin/notification-log' },
     // ],
-    // 'Payroll': [
-    //   { title: 'Earnings & Deductions', route: '/admin/earning-deductions' },
-    //     { title: 'Salary Structures', route: '/admin/tax-settings' },
-    //   { title: 'Assign Salary', route: '/admin/pay-groups' }
-    //   // { title: 'Payrolls', route: '/admin/payslip-template' },
-    // ],
+    'Payroll': [
+      { title: 'Earnings & Deductions', route: '/admin/earning-deductions' },
+        { title: 'Salary Structures', route: '/admin/tax-settings' },
+      { title: 'Assign Salary', route: '/admin/pay-groups' },
+       { title: 'Payrolls', route: '/admin/payslip-template' },
+    ],
     'System & Security': [
       // { title: 'Audit Logs', route: '/admin/audit-log' },
       // { title: 'System Logs', route: '/admin/system-log' },
