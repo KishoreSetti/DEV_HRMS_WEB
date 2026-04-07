@@ -2183,6 +2183,13 @@ updateAssetType(data: any) {
 deleteAssetType(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetType?id=${id}`, {});
 }
+// getAssetCategoriestype() {
+//   return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype`);
+// }
+
+getAssetCategoriestype(userId: number) {    
+  return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype?userId=${userId}`);
+}
 getAssetTypesByCompanyRegion(companyId: number, regionId: number) {
   return this.http.get(
     `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}`

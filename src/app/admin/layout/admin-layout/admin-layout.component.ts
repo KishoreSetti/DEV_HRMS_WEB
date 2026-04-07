@@ -43,7 +43,7 @@ export class AdminLayoutComponent {
       { title: 'Expense Category Type', route: '/admin/expense-category' },
     //  { title: 'Expense Status', route: '/admin/expense-status' },
       { title: 'Leave Type', route: '/admin/leave-type' },
-       { title: 'Leave Status', route: '/admin/leave-status' },
+      // { title: 'Leave Status', route: '/admin/leave-status' },
       { title: 'Attendance Status', route: '/admin/attendance-status' },
         { title: 'Ticket priority', route: '/admin/priority' },
          { title: 'Holiday List', route: '/admin/holiday-list' },
