@@ -296,4 +296,12 @@ getOfferCandidatesTable(
   );
 }
  
+
+parseResume(formData: FormData): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/Recruitment/ParseResumeCandidate`,
+    formData
+  );
+}
+
 }
