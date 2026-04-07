@@ -156,6 +156,49 @@
       </div>
     </div>
 
+    <div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="mb-3 fw-semibold">Filters</h5>
+
+    <div class="row g-3">
+
+      <!-- Employee Name -->
+      <div class="col-md-4">
+        <input type="text"
+               class="form-control"
+               placeholder="Search by Employee Name"
+               [(ngModel)]="filter.employeeName"
+               (input)="applyFilters()" />
+      </div>
+
+      <!-- Company -->
+      <div class="col-md-4">
+        <select class="form-select"
+                [(ngModel)]="filter.companyId"
+                (change)="onFilterCompanyChange()">
+          <option value="0">All Companies</option>
+          <option *ngFor="let c of companies" [ngValue]="c.companyId">
+            {{ c.companyName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Region -->
+      <div class="col-md-4">
+        <select class="form-select"
+                [(ngModel)]="filter.regionId"
+                (change)="applyFilters()">
+          <option value="0">All Regions</option>
+          <option *ngFor="let r of filterRegions" [ngValue]="r.regionID">
+            {{ r.regionName }}
+          </option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+</div>
+
     <!-- User List -->
     <div class="card shadow-sm">
       <div class="card-body">
@@ -176,7 +219,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let u of users; let i = index">
+              <tr *ngFor="let u of filteredUsers; let i = index">
                 <td>{{ i + 1 }}</td>
                 <td>{{ u.employeeCode }}</td>
                 <td>{{ u.fullName }}</td>
