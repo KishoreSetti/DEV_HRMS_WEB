@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { EmployeeResignationService,ShiftAllocationDto,ShiftMasterDto,UserReadDto } from '../../employee-profile/employee-services/employee-resignation.service';
 import { formatDate } from '@angular/common';
 import Swal from 'sweetalert2';
@@ -26,6 +26,18 @@ export class ShiftAllocationComponent {
   currentUserId: number = 0;
   currentUserCompanyId: number = 0;
   currentUserRegionId: number = 0;
+  startDateValidator(control: AbstractControl): ValidationErrors | null {
+    return null;
+  }
+
+  // Validator for End Date
+  endDateValidator(control: AbstractControl): ValidationErrors | null {
+  const startDate = this.shiftForm?.get('startDate')?.value;
+  if (!control.value || !startDate) return null;
+  const start = new Date(startDate);
+  const end = new Date(control.value);
+  return end < start ? { endDateInvalid: true } : null;
+}
 
   constructor(private fb: FormBuilder,private adminSvc: AdminService, private svc: EmployeeResignationService) {
     this.todayStr = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
@@ -39,6 +51,12 @@ export class ShiftAllocationComponent {
        this.currentUserCompanyId = Number(sessionStorage.getItem('CompanyId') || 0);
     this.currentUserRegionId = Number(sessionStorage.getItem('RegionId') || 0);
     this.initForm();
+    this.shiftForm.get('startDate')?.valueChanges.subscribe(val => {
+    const endInput = document.querySelector<HTMLInputElement>('input[formControlName="endDate"]');
+    if (endInput) {
+      endInput.min = val; // End Date cannot be before Start Date
+    }
+  });
     this.loadLookups();
     //this.getallShifts();
     this.loadShifts();
@@ -49,10 +67,10 @@ export class ShiftAllocationComponent {
   initForm() {
     this.shiftForm = this.fb.group({
       userId: ['', Validators.required],
-      employeeCode: [{ value: '', disabled: true }, [Validators.required, Validators.maxLength(20)]],
+      employeeCode: [{ value: '', disabled: true }, Validators.required],
       shiftID: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: [''],
+      startDate: ['', [Validators.required, this.startDateValidator.bind(this)]],
+      endDate: ['', this.endDateValidator.bind(this)],
       isActive: [true]
     });
   }
@@ -131,23 +149,20 @@ export class ShiftAllocationComponent {
   }
 
   onEmployeeChange(event: Event) {
-   debugger;
-    this.shiftForm.get('userId')?.valueChanges.subscribe(userId => {
-    if (!userId) return;
-
-    const user = this.employees.find(e => e.userId === +userId);
-    if (!user) return;
-
-    this.shiftForm.patchValue({
-      employeeCode: user.employeeCode,
-      fullName: user.fullName,
-      companyID: user.companyID,
-      regionID: user.regionID
-    });
-
-    console.log('Selected user:', user);
-  });
+  const select = event.target as HTMLSelectElement;
+  const userId = Number(select.value);
+  if (!userId) {
+    this.shiftForm.patchValue({ employeeCode: '' });
+    return;
   }
+
+  const user = this.employees.find(e => e.userId === userId);
+  if (user) {
+    this.shiftForm.patchValue({
+      employeeCode: user.employeeCode
+    });
+  }
+}
 
   validateDatesAndOverlap(dtoCandidate: ShiftAllocationDto): { ok: boolean; message?: string } {
     const start = dtoCandidate.startDate ? new Date(dtoCandidate.startDate) : null;
