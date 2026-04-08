@@ -67,38 +67,37 @@ filteredUsers: User[] = [];
       password: '',
       status: 'Active',
       userCompanyId:sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0
-     , loginType: '' 
+     , loginType: ''
     };
-  }
-  applyFilters(): void {
+  }applyFilters(): void {
 
-  // If all filters are empty → show all users
   if (
     !this.filter.employeeName &&
     !this.filter.companyId &&
     !this.filter.regionId
   ) {
     this.filteredUsers = [...this.users];
-    return;
+  } else {
+    this.filteredUsers = this.users.filter(u => {
+
+      const matchesName =
+        !this.filter.employeeName ||
+        u.fullName.toLowerCase().includes(this.filter.employeeName.toLowerCase());
+
+      const matchesCompany =
+        !this.filter.companyId ||
+        Number(u.companyId) === Number(this.filter.companyId);
+
+      const matchesRegion =
+        !this.filter.regionId ||
+        Number(u.regionId) === Number(this.filter.regionId);
+
+      return matchesName && matchesCompany && matchesRegion;
+    });
   }
 
-  this.filteredUsers = this.users.filter(u => {
-
-    const matchesName =
-      !this.filter.employeeName ||
-      u.fullName.toLowerCase().includes(this.filter.employeeName.toLowerCase());
-
-    const matchesCompany =
-      !this.filter.companyId ||
-      Number(u.companyId) === Number(this.filter.companyId);
-
-    const matchesRegion =
-      !this.filter.regionId ||
-      Number(u.regionId) === Number(this.filter.regionId);
-
-    return matchesName && matchesCompany && matchesRegion;
-  });
-
+  this.currentPage = 1;      // ✅ RESET PAGE
+  this.setPagination();     // ✅ APPLY PAGINATION
 }
 onFilterCompanyChange(): void {
   this.filter.regionId = 0;
@@ -124,13 +123,13 @@ onStatusChange(event: Event): void {
         ...u,
         password: u.passwordHash || '',
         roleId: u.roleId,
-        reportingTo: Number(u.reportingTo) || 0 
+        reportingTo: Number(u.reportingTo) || 0
       }));
       this.reportingManagers = [...this.users];
       this.filteredUsers = [...this.users];
 
       this.generateNextEmployeeCode();
-       this.setPagination(); // ✅ ADD THIS LINE
+       this.setPagination(); // ✅ IMPORTANT
     },
     error: () => this.showError('Failed to load users.')
   });
@@ -183,7 +182,7 @@ filterDepartments(): void {
         error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
       });
     }
-  
+ 
     loadRegions(): void {
       this.userService.getRegions(null, this.userId).subscribe({
       next: (res: any) => {
@@ -203,7 +202,7 @@ filterDepartments(): void {
 
   this.userService.getroles(this.userId).subscribe({
     next: (roles: RoleMaster[]) => {
-      
+     
       this.roles = roles;
       this.totalCount = roles.length;
     },
@@ -264,8 +263,7 @@ filterDepartments(): void {
     Swal.fire('Validation', 'Please enter full name', 'warning');
     return;
   }
-
-  if (!this.user.email || this.user.email.trim() === '') {
+ if (!this.user.email || this.user.email.trim() === '') {
     Swal.fire('Validation', 'Please enter email', 'warning');
     return;
   }
@@ -280,7 +278,7 @@ filterDepartments(): void {
     return;
   }
 
-  
+ 
 
   if (!this.user.loginType || this.user.loginType.trim() === '') {
     Swal.fire('Validation', 'Please select login type', 'warning');
@@ -319,11 +317,11 @@ filterDepartments(): void {
     roleId: Number(u.roleId)   // 🔥 important
   };
     this.isEditMode = true;
-    
+   
   this.filteredRegions = this.regions.filter(r =>
     Number(r.companyID) === Number(this.user.companyId)
   );
-  
+ 
   if (this.user.regionId) {
     this.filteredRoles = this.roles.filter(r =>
       Number(r.companyId) === Number(this.user.companyId) &&
@@ -338,7 +336,7 @@ filterDepartments(): void {
   this.user.roleId = u.roleId;
 
   this.user.departmentId = u.departmentId;
-  
+ 
   // const manager = this.reportingManagers.find(m => m.userId === this.user.reportingTo);
   // this.user.reportingTo = manager?.userId ?? 0;
 
@@ -416,21 +414,21 @@ filterDepartments(): void {
       showConfirmButton: false
     });
   }
-  currentPage: number = 1;
+  // 🔹 Pagination
+currentPage: number = 1;
 pageSize: number = 5;
 totalPages: number = 0;
 paginatedUsers: User[] = [];
 setPagination(): void {
-  this.totalPages = Math.ceil(this.users.length / this.pageSize) || 1;
+  this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize) || 1;
 
   const start = (this.currentPage - 1) * this.pageSize;
   const end = start + this.pageSize;
 
-  this.paginatedUsers = this.users.slice(start, end);
+  this.paginatedUsers = this.filteredUsers.slice(start, end);
 }
 changePage(page: number): void {
   if (page < 1 || page > this.totalPages) return;
-
   this.currentPage = page;
   this.setPagination();
 }

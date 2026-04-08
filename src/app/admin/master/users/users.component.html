@@ -219,7 +219,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let u of users; let i = index">
+             <tr *ngFor="let u of paginatedUsers; let i = index">
                 <td>{{ i + 1 }}</td>
                 <td>{{ u.employeeCode }}</td>
                 <td>{{ u.fullName }}</td>
@@ -256,11 +256,12 @@
   <div>
     Showing {{ (currentPage - 1) * pageSize + 1 }}
     to {{ (currentPage - 1) * pageSize + paginatedUsers.length }}
-    of {{ users.length }} entries
+    of {{ filteredUsers.length }} entries
   </div>
 
   <nav>
     <ul class="pagination mb-0">
+
       <li class="page-item" [class.disabled]="currentPage === 1">
         <button class="page-link" (click)="prevPage()">Previous</button>
       </li>
@@ -278,6 +279,7 @@
       <li class="page-item" [class.disabled]="currentPage === totalPages">
         <button class="page-link" (click)="nextPage()">Next</button>
       </li>
+
     </ul>
   </nav>
 </div>
