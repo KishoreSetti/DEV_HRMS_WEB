@@ -29,6 +29,13 @@
         <input type="file" class="form-control" (change)="onFileSelect($event)">
       </div>
 
+
+      <div class="mb-3">
+        <label class="form-label">HR Email (CC)</label>
+        <input type="email" class="form-control" [(ngModel)]="model.hrEmail" name="hrEmail">
+      </div>
+
+
     </div>
 
     <h6 class="mt-2">Projects</h6>
@@ -42,18 +49,14 @@
 
       <div class="col-md-2">
         <label>Start Time</label>
-        <input type="time" class="form-control"
-               [(ngModel)]="p.startTime"
-               name="start{{i}}"
-               (change)="calculateProjectHours(p)">
+        <input type="time" class="form-control" [(ngModel)]="p.startTime" name="start{{i}}"
+          (change)="calculateProjectHours(p)">
       </div>
 
       <div class="col-md-2">
         <label>End Time</label>
-        <input type="time" class="form-control"
-               [(ngModel)]="p.endTime"
-               name="end{{i}}"
-               (change)="calculateProjectHours(p)">
+        <input type="time" class="form-control" [(ngModel)]="p.endTime" name="end{{i}}"
+          (change)="calculateProjectHours(p)">
       </div>
 
       <div class="col-md-2">
@@ -63,11 +66,8 @@
 
       <div class="col-md-2">
         <label>OT Hours</label>
-        <input class="form-control"
-               [(ngModel)]="p.overtimeHours"
-               name="ot{{i}}"
-               placeholder="HH:MM or 1.5"
-               (change)="calculateProjectHours(p)">
+        <input class="form-control" [(ngModel)]="p.overtimeHours" name="ot{{i}}" placeholder="HH:MM or 1.5"
+          (change)="calculateProjectHours(p)">
       </div>
 
       <div class="col-md-1 text-center">
@@ -178,9 +178,11 @@
         </label>
       </div>
       <div>
-        <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage-1)" [disabled]="currentPage===1">Previous</button>
+        <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage-1)"
+          [disabled]="currentPage===1">Previous</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage+1)" [disabled]="currentPage===totalPages">Next</button>
+        <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage+1)"
+          [disabled]="currentPage===totalPages">Next</button>
       </div>
     </div>
   </div>

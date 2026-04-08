@@ -13,12 +13,12 @@
 <div class="tab-container mt-4">
 
   <!-- Tabs -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
 
   <div class="tab-header">
-    <label class="tab-label" for="tab1">My Requests</label>
-    <label class="tab-label" for="tab2">Manager Approval</label>
+    <label class="tab-label" for="tab1" *ngIf="canViewPersonal">My Requests</label>
+    <label class="tab-label" for="tab2" *ngIf="canViewManager">Manager Approval</label>
   </div>
 
   <!-- ================= MY REQUESTS ================= -->
@@ -64,6 +64,11 @@
           <textarea rows="3" class="form-control" formControlName="reason"></textarea>
         </div>
 
+        <div class="mb-3">
+          <label class="form-label">HR Email (CC)</label>
+          <input type="email" class="form-control" formControlName="hrEmail">
+        </div>
+
         <button class="btn btn-primary">
           {{ isEditMode ? 'Update' : 'Submit' }}
         </button>
@@ -82,7 +87,7 @@
             <th>In</th>
             <th>Out</th>
             <th>Reason</th>
-             <th>Manager Remarks</th>
+            <th>Manager Remarks</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
@@ -97,8 +102,7 @@
             <td>{{ item.reason }}</td>
             <td>{{ item.managerRemarks }}</td>
             <td>
-              <span class="badge"
-                [ngClass]="{
+              <span class="badge" [ngClass]="{
                   'bg-warning text-dark': item.status === 'Pending',
                   'bg-success': item.status === 'Approved',
                   'bg-danger': item.status === 'Rejected'
@@ -107,9 +111,7 @@
               </span>
             </td>
             <td>
-              <i class="fa fa-edit text-primary"
-                 (click)="editMissedPunch(item)"
-                 *ngIf="item.status === 'Pending'"></i>
+              <i class="fa fa-edit text-primary" (click)="editMissedPunch(item)" *ngIf="item.status === 'Pending'"></i>
             </td>
           </tr>
 
@@ -155,14 +157,16 @@
             <td>{{ item.correctClockOut }}</td>
             <td>{{ item.reason }}</td>
             <td>
-              <input class="form-control form-control-sm"
-                     [(ngModel)]="item.managerRemarks">
+              <input class="form-control form-control-sm" [(ngModel)]="item.managerRemarks">
             </td>
             <td>
-              <i class="fa fa-check text-success me-2"
-                 (click)="approve(item)"></i>
-              <i class="fa fa-times text-danger"
-                 (click)="reject(item)"></i>
+              <button class="btn btn-sm btn-outline-success me-2" (click)="approve(item)">
+                <i class="fa fa-check"></i>
+              </button>
+
+              <button class="btn btn-sm btn-outline-danger" (click)="reject(item)">
+                <i class="fa fa-times"></i>
+              </button>
             </td>
           </tr>
 
@@ -175,12 +179,10 @@
       </table>
 
       <div class="text-end mt-3">
-        <button class="btn btn-success btn-sm me-2"
-                (click)="bulkApproveReject('Approved')">
+        <button class="btn btn-success btn-sm me-2" (click)="bulkApproveReject('Approved')">
           Approve Selected
         </button>
-        <button class="btn btn-danger btn-sm"
-                (click)="bulkApproveReject('Rejected')">
+        <button class="btn btn-danger btn-sm" (click)="bulkApproveReject('Rejected')">
           Reject Selected
         </button>
       </div>

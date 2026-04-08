@@ -18,6 +18,9 @@ export class KpiPerformanceComponent {
   departmentId!: number;
   designation!: any;
   roleName!: string;
+  canViewEmployeeSubmission = false;
+  canViewManagerReviewApproval = false;
+  selectedTab: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -28,7 +31,7 @@ export class KpiPerformanceComponent {
   // ✅ ngOnInit FIX
   // =========================
   ngOnInit(): void {
-
+  this.LoadTabPermissions();
     // 🔥 ALWAYS read sessionStorage here (NOT outside)
     this.userId = Number(sessionStorage.getItem('UserId') || 0);
     this.roleId = Number(sessionStorage.getItem('roleId') || 0);
@@ -46,6 +49,28 @@ export class KpiPerformanceComponent {
     this.initializeForm();
     this.patchUserValues();
     this.loadManagerReviews();
+  }
+  LoadTabPermissions() {
+    const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const employeesubmission = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "employee submission"
+  );
+
+  const managerreview = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "manager review & approval"
+  );
+
+ 
+
+ 
+
+  this.canViewEmployeeSubmission = employeesubmission?.canView ?? false;
+  this.canViewManagerReviewApproval = managerreview?.canView ?? false;
+
+  if (this.canViewEmployeeSubmission) this.selectedTab = 'tab1';
+  else if (this.canViewManagerReviewApproval) this.selectedTab = 'tab2';
+  
   }
 
   // =========================
@@ -73,7 +98,7 @@ export class KpiPerformanceComponent {
       appraisalYear: [currentYear.toString()],  // ✅ Auto current year
       selfReviewSummary: [''],
       reportingManagerName: '',
-
+ hrEmail: [''],
       kpis: this.fb.array([])
     });
 

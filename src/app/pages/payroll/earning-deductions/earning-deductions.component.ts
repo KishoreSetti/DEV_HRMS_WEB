@@ -68,6 +68,7 @@ loadComponents() {
     .subscribe({
       next: (res:any) => {
         this.components = res || [];
+         this.currentPage = 1;
       },
       error: (err:any) => {
         console.error('Load error:', err);
@@ -116,11 +117,9 @@ loadRegions() {
 
   if (this.isEditMode && this.component.componentId) {
 
-    this.payrollService.updateComponent(
-      this.component.componentId,
-      this.userId,
-      this.component
-    ).subscribe({
+this.component.userId = this.userId;
+
+this.payrollService.updateComponent(this.component).subscribe({
       next: () => {
         Swal.close();
         Swal.fire('Updated!', 'Component updated successfully.', 'success');
@@ -221,22 +220,26 @@ deleteComponent(c: SalaryComponent) {
     );
   }
 
-  paginatedComponents() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredComponents().slice(start, start + this.pageSize);
-  }
+paginatedComponents() {
+  const filtered = this.filteredComponents();
 
-  totalPages() {
-    return Math.ceil(this.filteredComponents().length / this.pageSize);
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
+
+  return filtered.slice(start, end);
+}
+
+totalPages() {
+  return Math.ceil(this.filteredComponents().length / this.pageSize) || 1;
+}
+
+changePage(page: number) {
+  if (page >= 1 && page <= this.totalPages()) {
+    this.currentPage = page;
   }
+}
 
   pagesArray() {
     return Array(this.totalPages()).fill(0).map((_, i) => i + 1);
-  }
-
-  changePage(page: number) {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.currentPage = page;
-    }
   }
 }

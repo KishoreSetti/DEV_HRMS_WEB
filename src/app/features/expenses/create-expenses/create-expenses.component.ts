@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ExpensesService } from '../expenses.service';
+
 import { environment } from '../../../../environments/environment.prod';
 import Swal from 'sweetalert2';
+import { ExpensesService } from '../expenses.service';
 
 @Component({
   selector: 'app-create-expenses',
@@ -93,7 +94,8 @@ expenseForm!: FormGroup;
           Validators.maxLength(500)
         ]
       ],
-      receipt: ['', Validators.required]
+      receipt: ['', Validators.required],
+      hrEmail: ['']
     });
   }
   onCompanyOrRegionChange(): void {
@@ -110,16 +112,27 @@ expenseForm!: FormGroup;
   }
 
   loadCategories(): void {
-  this.expenseService.getExpenseCategories().subscribe(res => {
-    if (res.success && res.data) {
-      this.categories = res.data.filter(
-        (cat: any) =>
-          Number(cat.companyId) === this.companyId &&
-          Number(cat.regionId) === this.regionId
-      );
-    }
-  });
+  this.expenseService
+    .getExpenseCategories(this.companyId, this.regionId)
+    .subscribe(res => {
+      if (res.success && res.data) {
+        this.categories = res.data;
+      }
+    });
 }
+
+//   loadCategories(): void {
+//     debugger;
+//   this.expenseService.getExpenseCategories().subscribe(res => {
+//     if (res.success && res.data) {
+//       this.categories = res.data.filter(
+//         (cat: any) =>
+//           Number(cat.companyId) === this.companyId &&
+//           Number(cat.regionId) === this.regionId
+//       );
+//     }
+//   });
+// }
 
   onCategoryChange(event: any): void {
     const categoryId = +event.target.value;

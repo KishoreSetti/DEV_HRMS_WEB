@@ -15,6 +15,7 @@ export interface CreateWorkFromHomeRequest {
   companyID: number;
   regionID?: number;
   userId: number;
+   hrEmail?: string; 
 }
 export interface UpdateWorkFromHomeRequest {
   wfhRequestID: number;

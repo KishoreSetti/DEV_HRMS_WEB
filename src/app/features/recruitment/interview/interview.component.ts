@@ -200,7 +200,8 @@ export class InterviewComponent {
       location: this.interviewForm.location,
       meetingLink: this.interviewForm.meetingLink,
       description: this.interviewForm.feedback,
-      result: 'Pending'
+      result: 'Pending',
+      hrEmail: this.interviewForm.hrEmail   // ✅ ADD THIS
     };
 
     this.recruitmentService.saveCandidateInterview(payload).subscribe({
@@ -297,10 +298,11 @@ export class InterviewComponent {
 
     this.recruitmentService
       .getScreeningCandidatesTopTableInterview(
-        this.companyId,
-        this.regionId,
-        this.interviewForm.department,
-        this.interviewForm.designation
+        // this.companyId,
+        // this.regionId,
+        // this.interviewForm.department,
+        // this.interviewForm.designation
+        this.userId
       )
       .subscribe({
         next: (res: any) => {

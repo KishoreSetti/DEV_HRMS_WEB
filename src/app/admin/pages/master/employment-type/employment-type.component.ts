@@ -18,7 +18,7 @@ export interface EmploymentType {
   styleUrl: './employment-type.component.css'
 })
 export class EmploymentTypeComponent {
-searchText = '';
+  searchText = '';
   employmentList: EmploymentType[] = [];
   employment!: EmploymentType;
 
@@ -37,7 +37,7 @@ searchText = '';
   constructor(
     private adminService: AdminService,
     private spinner: NgxSpinnerService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
 
@@ -58,31 +58,31 @@ searchText = '';
     this.loadEmploymentTypes();
   }
 
- loadEmploymentTypes() {
-  this.spinner.show();
+  loadEmploymentTypes() {
+    this.spinner.show();
 
-  this.adminService.getEmploymentTypes(this.userId).subscribe({
-    next: (res: any) => {
+    this.adminService.getEmploymentTypes(this.userId).subscribe({
+      next: (res: any) => {
 
-      const data = res.data || [];
+        const data = res.data || [];
 
-      this.employmentList = data.map((e: any) => ({
-        EmploymenttypeID: e.employmenttypeID,
-        CompanyID: e.companyID,
-        RegionID: e.regionID,
-        EmploymenttypeName: e.employmenttypeName,
-        Description: e.description,
-        IsActive: e.isActive
-      }));
+        this.employmentList = data.map((e: any) => ({
+          EmploymenttypeID: e.employmenttypeID,
+          CompanyID: e.companyID,
+          RegionID: e.regionID,
+          EmploymenttypeName: e.employmenttypeName,
+          Description: e.description,
+          IsActive: e.isActive
+        }));
 
-      this.spinner.hide();
-    },
-    error: () => {
-      this.spinner.hide();
-      Swal.fire('Error', 'Failed to load Employment Types', 'error');
-    }
-  });
-}
+        this.spinner.hide();
+      },
+      error: () => {
+        this.spinner.hide();
+        Swal.fire('Error', 'Failed to load Employment Types', 'error');
+      }
+    });
+  }
 
   onSubmit() {
 
@@ -97,21 +97,37 @@ searchText = '';
       : this.adminService.createEmploymentType(this.employment);
 
     obs.subscribe({
-      next: () => {
+      next: (res: any) => {
+
         this.spinner.hide();
+
+        // ✅ HANDLE DUPLICATE / FAILURE
+        if (!res.success) {
+          Swal.fire(
+            'Warning',
+            'Record is exist with the same name',
+            'warning'
+          );
+          return;
+        }
+
+        // ✅ SUCCESS
         Swal.fire(
           this.isEditMode ? 'Updated!' : 'Added!',
-          'Employment Type saved successfully.',
+          res.message,
           'success'
         );
+
         this.loadEmploymentTypes();
         this.clearForm();
       },
+
       error: () => {
         this.spinner.hide();
         Swal.fire('Error', 'Operation failed', 'error');
       }
     });
+
   }
 
   editEmployment(e: EmploymentType) {

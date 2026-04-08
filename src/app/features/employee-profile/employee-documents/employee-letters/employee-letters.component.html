@@ -53,25 +53,6 @@
   <!-- Employee Code -->
   <div class="col-md-4">
     <label class="form-label">
-      Employee Code / ID <span class="text-danger">*</span>
-    </label>
-
-    <input type="text"
-           class="form-control"
-           [(ngModel)]="form.empCode"
-           name="empCode"
-           readonly>
-  </div>
-
-</div>
-
-
-<!-- ROW 2 -->
-<div class="row mb-3">
-
-  <!-- Employee Dropdown -->
-  <div class="col-md-4">
-    <label class="form-label">
       Employee Name <span class="text-danger">*</span>
     </label>
 
@@ -85,7 +66,7 @@
       <option value="">Select Employee</option>
 
       <option *ngFor="let emp of employees" [value]="emp.employeeCode">
-        {{ emp.fullName }} ({{ emp.employeeCode }})
+        {{ emp.employeeName }}
       </option>
 
     </select>
@@ -95,6 +76,24 @@
     </div>
   </div>
 
+</div>
+
+
+<!-- ROW 2 -->
+<div class="row mb-3">
+
+  <!-- Employee Dropdown -->
+  <div class="col-md-4">
+    <label class="form-label">
+      Employee Code / ID <span class="text-danger">*</span>
+    </label>
+
+    <input type="text"
+           class="form-control"
+           [(ngModel)]="form.empCode"
+           name="empCode"
+           readonly>
+  </div>
 
   <!-- Issued Date -->
   <div class="col-md-4">
@@ -257,7 +256,7 @@
       <tbody>
         <tr *ngFor="let l of filteredLetters(); let i = index">
           <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-          <td>{{ l.documentType }}</td>
+          <td>{{  getDocumentTypeName(l.documentType) }}</td>
           <td>{{ l.title }}</td>
           <td>{{ l.empCode }} - {{ l.empName }}</td>
           <td>{{ l.issuedDate }}</td>

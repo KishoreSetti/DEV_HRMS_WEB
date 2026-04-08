@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { AssetService, AssetStatus } from '../asset.service';
+import { AdminService } from '../../../admin/servies/admin.service';
 @Component({
   selector: 'app-asset-approval',
   standalone: false,
@@ -10,13 +11,15 @@ import { AssetService, AssetStatus } from '../asset.service';
 })
 export class AssetApprovalComponent {
 filtersForm!: FormGroup;
-
+companyId!: number;
+  regionId!: number;
   assets: any[] = [];
   statuses: AssetStatus[] = [];
+   assetStatuses: AssetStatus[] = [];
   currencies: string[] = [];
-
+  
   managerId!: number;
-
+  assetTypes: any[] = [];
   // UI flags
   noRecordsFound = false;
 
@@ -31,7 +34,8 @@ filtersForm!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
-    private assetService: AssetService
+    private assetService: AssetService,
+    private service: AdminService
   ) {}
 
   // ============================================================
@@ -47,89 +51,123 @@ filtersForm!: FormGroup;
   }
 
   const user = JSON.parse(currentUser);
-
+this.companyId = Number(sessionStorage.getItem('CompanyId'));
+  this.regionId = Number(sessionStorage.getItem('RegionId'));
   // 🔹 Correct managerId
   this.managerId = Number(user.userId);
-
+ 
   this.buildForm();
   this.loadStatuses();
+   this.loadAssetTypes();
   this.loadAssetsForApproval();
 }
+ loadAssetTypes() {
+    this.service.getAssetTypesByCompanyRegion(
+      this.companyId,
+      this.regionId
+    ).subscribe((res: any) => {
+      this.assetTypes = res.data || res;
+    });
+  }
+  
+
 
   // ============================================================
   // 🔹 BUILD FILTER FORM
   // ============================================================
   buildForm(): void {
     this.filtersForm = this.fb.group({
-      assetName: [''],
-      location: [''],
-      assetStatusId: [''],
-      currencyCode: ['']
-    });
+    assetType: [''],
+    assetStatusId: [''],
+    employeeName: [''],   // ✅ NEW
+    fromDate: [''],       // ✅ NEW
+    toDate: ['']          // ✅ NEW
+  });
   }
 
   // ============================================================
   // 🔹 LOAD ASSETS
   // ============================================================
-  loadAssetsForApproval(): void {
+loadAssetsForApproval(): void {
 
   this.assetService
     .getPendingApprovals$(this.managerId)
     .subscribe(res => {
 
-      this.assets = res.map((a: any) => ({
-        ...a,
+      this.assets = res.map((r: any) => ({
+        ...r,
         checked: false,
         visible: true,
-        assetNameNorm: a.assetName?.toLowerCase().trim() || '',
-        locationNorm: a.assetLocation?.toLowerCase().trim() || '',
-        currencyNorm: a.currencyCode?.toLowerCase().trim() || ''
-      }));
 
-      this.currencies = [
-        ...new Set(this.assets.map(x => x.currencyNorm))
-      ];
+        // ✅ normalize fields for filter
+        employeeNameNorm: r.employeeName?.toLowerCase() || '',
+        assetTypeNameNorm: r.assetTypeName?.toLowerCase() || '',
+        
+  assetTypeId: r.assetType,
+  requiredDateObj: new Date(r.requiredDate)
+      }));
 
       this.noRecordsFound = false;
       this.currentPage = 1;
     });
 }
 
+
   // ============================================================
   // 🔹 LOAD STATUSES
   // ============================================================
   loadStatuses(): void {
-    this.assetService.getAssetStatuses$().subscribe(res => {
-      this.statuses = res;
+    this.assetService.getAssetStatuses$(this.companyId, this.regionId).subscribe(res => {
+      this.assetStatuses = res;
     });
   }
 
   // ============================================================
   // 🔹 APPLY FILTERS (AND logic)
   // ============================================================
-  applyFilters(): void {
-    const f = this.filtersForm.value;
+ applyFilters(): void {
+  const f = this.filtersForm.value;
 
-    const assetName = f.assetName?.trim().toLowerCase();
-    const location = f.location?.trim().toLowerCase();
-    const statusId = f.assetStatusId ? Number(f.assetStatusId) : null;
-    const currency = f.currencyCode?.toLowerCase();
+  const empName = f.employeeName?.trim().toLowerCase();
+  const assetType = f.assetType ? Number(f.assetType) : null;
+  const statusId = f.assetStatusId ? Number(f.assetStatusId) : null;
 
-    let visibleCount = 0;
+  const fromDate = f.fromDate ? new Date(f.fromDate) : null;
+  const toDate = f.toDate ? new Date(f.toDate) : null;
 
-    this.assets.forEach(a => {
-      a.visible =
-        (!assetName || a.assetNameNorm.includes(assetName)) &&
-        (!location || a.locationNorm.includes(location)) &&
-        (!statusId || a.assetStatusID === statusId) &&
-        (!currency || a.currencyNorm === currency);
+  let visibleCount = 0;
 
-      if (a.visible) visibleCount++;
-    });
+  this.assets.forEach(a => {
 
-    this.noRecordsFound = visibleCount === 0;
-    this.currentPage = 1;
-  }
+    const matchesEmployee =
+      !empName || a.employeeNameNorm.includes(empName);
+
+    const matchesAssetType =
+      !assetType || a.assetTypeId === assetType;
+
+    const matchesStatus =
+      !statusId || a.assetStatusID === statusId;
+
+    const matchesFromDate =
+      !fromDate || a.requiredDateObj >= fromDate;
+
+    const matchesToDate =
+      !toDate || a.requiredDateObj <= toDate;
+
+    a.visible =
+      matchesEmployee &&
+      matchesAssetType &&
+      matchesStatus &&
+      matchesFromDate &&
+      matchesToDate;
+
+    if (a.visible) visibleCount++;
+  });
+
+  this.noRecordsFound = visibleCount === 0;
+  this.currentPage = 1;
+}
+
 
   // ============================================================
   // 🔹 SORT
@@ -250,6 +288,8 @@ approveRejectAssets(action: 'Approved' | 'Rejected'): void {
 
   });
 }
+
+
 
   // ============================================================
   // 🔹 TEMPLATE HELPER

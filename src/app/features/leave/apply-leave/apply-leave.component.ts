@@ -614,7 +614,7 @@ startDate: string = "";
 
   leaveTypes: any[] = [];
 
-
+canCreate: boolean = false;
   userId!: number;
   companyId!: number;
   regionId!: number;
@@ -642,7 +642,9 @@ startDate: string = "";
   selectedLeaveType: any = null;
   availableLeaves: number = 0;
   usedLeaves: number = 0;
-
+  canApprove: any;
+  canReject: any;
+hrEmail: string = '';
 
   ngOnInit(): void {
     this.today = this.formatDate(new Date());
@@ -665,10 +667,11 @@ startDate: string = "";
     this.loadMyLeaves();
     this.loadReportingManager();
     this.loadWeekoffs();
+    this.loadPermission();
 
   }
 
-  constructor(private leaveService: EmployeeResignationService, private userService: AdminService) { }
+  constructor(private leaveService: EmployeeResignationService, private userService: AdminService,private adminService: AdminService) { }
 
   validateLeaveLimit() {
     let available = 0;
@@ -1100,6 +1103,7 @@ startDate: string = "";
     formData.append("TotalDays", this.totalDays.toString());
     formData.append("Reason", this.reason);
     formData.append("ReportingManagerId", this.reportingManagerId.toString());
+    formData.append("HrEmail", this.hrEmail);
 
     if (this.selectedFile) {
       formData.append("SupportingDocument", this.selectedFile);
@@ -1203,4 +1207,44 @@ startDate: string = "";
     this.pageSize = size;
     this.currentPage = 1;
   }
+loadPermission() {
+  const userId = Number(sessionStorage.getItem("UserId"));
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  // ✅ Get "Leave Approve" menu (child menu)
+  const approvalMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "leave approve"
+  );
+
+  const menuId = approvalMenu?.menuId || 0;
+
+  // ✅ Set from session
+  this.canApprove = approvalMenu?.canEdit ?? false;   // Approve action
+  this.canReject = approvalMenu?.canDelete ?? false;  // Reject action
+
+  console.log("Approval Menu:", approvalMenu);
+  console.log("canApprove:", this.canApprove);
+  console.log("canReject:", this.canReject);
+
+  // ✅ OPTIONAL API (combine, don’t override)
+  this.adminService.getPermission(userId, menuId, 'edit').subscribe({
+    next: (res: boolean) => {
+      console.log("API Approve Permission:", res);
+      this.canApprove = this.canApprove && res;
+    },
+    error: () => {
+      this.canApprove = false;
+    }
+  });
+
+  this.adminService.getPermission(userId, menuId, 'delete').subscribe({
+    next: (res: boolean) => {
+      console.log("API Reject Permission:", res);
+      this.canReject = this.canReject && res;
+    },
+    error: () => {
+      this.canReject = false;
+    }
+  });
+}
 }

@@ -17,10 +17,34 @@
             Employees Attendance - {{ todayDate | date:'dd MMM yyyy' }}
         </div>
 
+        <!-- ✅ SHOW ONLY IF UNSAVED DATES EXIST -->
+        <div *ngIf="unsavedDates.length > 0">
+
+            <!-- DATE FILTER -->
+            <div class="date-filter">
+                <label>Select Date To Save Missed Attendance:</label>
+
+                <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="date-input">
+
+                <button class="btn-search" (click)="loadEmployeesByDate()">
+                    Load Attendance
+                </button>
+            </div>
+
+            <!-- UNSAVED WARNING -->
+            <div class="unsaved-warning">
+                ⚠️ You have not saved attendance for:
+                <span *ngFor="let d of unsavedDates">
+                    {{ d | date:'dd MMM yyyy' }},
+                </span>
+            </div>
+
+        </div>
+
         <div class="card-header">
             <h3>Employee Attendance</h3>
 
-            <button class="btn-save" (click)="saveAllAttendance()">
+            <button class="btn-save" *ngIf="canCreate" (click)="saveAllAttendance()">
                 Save All Attendance
             </button>
         </div>
@@ -31,7 +55,9 @@
                 <tr>
                     <th>Employee Code</th>
                     <th>Employee Name</th>
+                    <th>Shit Timings</th>
                     <th>Clock In</th>
+                    <th>Late Arrivals</th>
                     <th>Clock Out</th>
                     <th>Gross Time</th>
                     <th>Status</th>
@@ -46,9 +72,17 @@
                     <td>{{ emp.employeeCode }}</td>
 
                     <td>{{ emp.employeeName }}</td>
+                    <td>
+                        {{ emp.shiftName }} ({{ emp.shiftStartTime }} - {{ emp.shiftEndTime }})
+                    </td>
 
                     <td>
                         {{ emp.clockIn ? emp.clockIn : '--:--' }}
+                    </td>
+                    <td>
+                        <span class="text-danger fw-bold" *ngIf="emp.lateMinutes && emp.lateMinutes > 0">
+                            Late by {{ formatLateMinutes(emp.lateMinutes) }}
+                        </span>
                     </td>
 
                     <td>
@@ -59,7 +93,9 @@
                     </td>
 
                     <td>
-                        {{ emp.status }}
+                        <span class="status-badge" [ngClass]="getStatusClass(emp.status)">
+                            {{ emp.status }}
+                        </span>
                     </td>
 
                 </tr>
@@ -100,12 +136,20 @@
                 Search
             </button>
 
+            <button class="btn-report pdf" (click)="downloadPDF()">
+                Download PDF
+            </button>
+
+            <button class="btn-report excel" (click)="downloadExcel()">
+                Download Excel
+            </button>
+
             <button class="btn-report weekly" (click)="weekly()">
-                Weekly Report
+                View Weekly Report
             </button>
 
             <button class="btn-report monthly" (click)="monthly()">
-                Monthly Report
+                View Monthly Report
             </button>
 
         </div>
@@ -124,8 +168,10 @@
                 <tr>
                     <th>Employee Code</th>
                     <th>Employee Name</th>
+                    <th>Shift Timings</th>
                     <th>Date</th>
                     <th>Clock In</th>
+                    <th>Late Arrivals</th>
                     <th>Clock Out</th>
                     <th>Gross Time</th>
                     <th>Status</th>
@@ -140,14 +186,26 @@
                     <td>{{ r.employeeCode }}</td>
 
                     <td>{{ r.employeeName }}</td>
+                    <td>
+                        {{ r.shiftName }}
+                        ({{ r.shiftStartTime }} - {{ r.shiftEndTime }})
+                    </td>
+
 
                     <td>{{ r.attendanceDate | date:'dd-MM-yyyy' }}</td>
                     <td>{{ r.clockIn }}</td>
+                    <td>
+                        <span class="text-danger fw-bold" *ngIf="r.lateMinutes && r.lateMinutes > 0">
+                            Late by {{ formatLateMinutes(r.lateMinutes) }}
+                        </span>
+                    </td>
                     <td>{{ r.clockOut }}</td>
                     <td>{{ r.grossTime }}</td>
 
                     <td>
-                        {{ r.status }}
+                        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+                            {{ r.status }}
+                        </span>
                     </td>
 
                 </tr>
@@ -157,23 +215,33 @@
         </table>
 
 
+      
         <!-- REPORT TABLE PAGINATION -->
-        <div class="pagination-container" *ngIf="reportTotalPages > 1">
+        <div class="pagination-container" *ngIf="reportTotalPages > 0">
 
-            <button class="page-btn" (click)="previousPage()" [disabled]="reportPage === 1">
+            <!-- FIRST -->
+            <button (click)="goToReportFirst()" [disabled]="reportPage === 1">
+                << </button>
 
-                << Previous </button>
-
-                    <button class="page-btn" *ngFor="let page of [].constructor(reportTotalPages); let i = index"
-                        (click)="changeReportPage(i+1)" [class.active]="reportPage === (i+1)">
-
-                        {{i+1}}
-
+                    <!-- PREVIOUS -->
+                    <button (click)="previousPage()" [disabled]="reportPage === 1">
+                        Prev
                     </button>
 
-                    <button class="page-btn" (click)="nextPage()" [disabled]="reportPage === reportTotalPages">
+                    <!-- PAGE NUMBERS (ONLY 5) -->
+                    <button *ngFor="let page of visibleReportPages" (click)="changeReportPage(page)"
+                        [class.active]="reportPage === page">
+                        {{ page }}
+                    </button>
 
-                        Next >>
+                    <!-- NEXT -->
+                    <button (click)="nextPage()" [disabled]="reportPage === reportTotalPages">
+                        Next
+                    </button>
+
+                    <!-- LAST -->
+                    <button (click)="goToReportLast()" [disabled]="reportPage === reportTotalPages">
+                        >>
                     </button>
 
         </div>

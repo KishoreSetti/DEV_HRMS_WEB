@@ -11,6 +11,9 @@
 </div>
 
 <div class="tab-container">
+   <div *ngIf="!canCreate" style="color:red;">
+        You don't have permission to add immigration details
+      </div>
 
   <!-- ==========================
        FORM START
@@ -302,7 +305,7 @@
     <!-- ========= BUTTONS ========= -->
     <div class="row mb-3">
       <div class="col-md-12 text-first">
-        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting" *ngIf="canCreate || isEditMode">
           {{ isEditMode ? 'Update Visa / Work Permit' : 'Save Visa / Work Permit' }}
         </button>
         <button type="button" class="btn btn-secondary ms-2" (click)="resetForm(immigrationForm)">
@@ -351,8 +354,8 @@
             <td>{{ item.statusName }}</td>
 
             <td class="action-icons">
-              <i class="fa-solid fa-pen" (click)="editImmigration(item)" title="Edit"></i>
-              <i class="fa-solid fa-trash" (click)="confirmDelete(item.immigrationId!)" title="Delete"></i>
+              <i class="fa-solid fa-pen" (click)="editImmigration(item)" title="Edit" *ngIf="canEdit"></i>
+              <i class="fa-solid fa-trash" (click)="confirmDelete(item.immigrationId!)" title="Delete" *ngIf="canDelete"></i>
 
               <!-- Download Buttons -->
               <div class="dropdown d-inline-block ms-2">

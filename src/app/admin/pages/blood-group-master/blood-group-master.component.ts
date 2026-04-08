@@ -255,4 +255,8 @@ onBloodGroupInput() {
   closeUploadPopup() {
     this.showUploadPopup = false;
   }
+  onCancel(): void {
+  this.resetForm();
+
+}
 }

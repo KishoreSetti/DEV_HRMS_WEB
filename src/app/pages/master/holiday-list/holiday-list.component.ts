@@ -327,23 +327,35 @@ export class HolidayListComponent {
       : this.adminService.createHoliday(this.holiday);
 
     obs.subscribe({
-      next: () => {
-        this.spinner.hide();
+  next: (res: any) => {
 
-        Swal.fire(
-          this.isEditMode ? 'Updated!' : 'Added!',
-          `Holiday ${this.isEditMode ? 'updated' : 'created'} successfully.`,
-          'success'
-        );
+    this.spinner.hide();   // ✅ keep this
 
-        this.loadHolidays();
-        this.clearForm();
-      },
-      error: () => {
-        this.spinner.hide();
-        Swal.fire('Error', 'Operation failed. Please try again.', 'error');
-      }
-    });
+    if (!res.success) {
+      Swal.fire('Warning', res.message, 'warning');
+      return;
+    }
+
+    Swal.fire(
+      this.isEditMode ? 'Updated!' : 'Added!',
+      res.message,
+      'success'
+    );
+
+    this.loadHolidays();
+    this.clearForm();
+  },
+  error: (err) => {
+
+    this.spinner.hide();   // ✅ important
+
+    Swal.fire(
+      'Error',
+      err.error?.message || 'Operation failed',
+      'error'
+    );
+  }
+});
   }
   resetForm() {
 

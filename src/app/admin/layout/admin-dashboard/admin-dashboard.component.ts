@@ -9,7 +9,6 @@ import { EmployeePayRollService } from '../../../employee-pay-roll.service';
   styleUrl: './admin-dashboard.component.css'
 })
 export class AdminDashboardComponent {
-   
   userId!: number;
 
   employees: any[] = [];
@@ -23,9 +22,11 @@ export class AdminDashboardComponent {
   performanceChart: any;
   deptChart: any;
 
-  constructor(private payrollService: EmployeePayRollService) {}
+  // ✅ PAGINATION
+  page = 1;
+  pageSize = 5;
 
-  /* ================= INIT ================= */
+  constructor(private payrollService: EmployeePayRollService) {}
 
   ngOnInit(): void {
     this.userId = Number(sessionStorage.getItem('UserId'));
@@ -39,189 +40,114 @@ export class AdminDashboardComponent {
     }, 500);
   }
 
-  /* ================= LOAD DEPARTMENTS ================= */
+  /* ================= PAGINATION ================= */
+
+  get paginatedEmployees() {
+    const start = (this.page - 1) * this.pageSize;
+    return this.employees.slice(start, start + this.pageSize);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.employees.length / this.pageSize) || 1;
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) this.page++;
+  }
+
+  prevPage() {
+    if (this.page > 1) this.page--;
+  }
+
+  /* ================= DATA ================= */
 
   loadDepartments() {
     this.payrollService.getDepartments(this.userId)
       .subscribe((res: any) => {
-
-        // Handles both API types
-        if (res?.success) {
-          this.departments = res.data || [];
-        } else {
-          this.departments = res || [];
-        }
-
+        this.departments = res?.success ? res.data : res || [];
         this.prepareStats();
       });
   }
-
-  /* ================= LOAD EMPLOYEES ================= */
 
   loadEmployees() {
     this.payrollService.getEmployees(this.userId)
       .subscribe(res => {
-
         this.employees = res || [];
-
-        // Load payroll AFTER employees loaded
         this.loadPayroll();
-
         this.prepareStats();
-        this.initDeptChart(); // Chart depends on employees
+        this.initDeptChart();
       });
   }
 
-  /* ================= LOAD PAYROLL ================= */
+  loadPayroll() {
+    const month = new Date().getMonth() + 1;
+    const year = new Date().getFullYear();
 
-  getMonthName(monthNumber: number): string {
-  const months = [
-    'January', 'February', 'March', 'April',
-    'May', 'June', 'July', 'August',
-    'September', 'October', 'November', 'December'
-  ];
-  return months[monthNumber - 1] || '';
-}
+    this.payrollService
+      .getPayrollByMonth(month, year, this.userId)
+      .subscribe(res => {
 
-loadPayroll() {
+        const empMap: any = {};
+        this.employees.forEach(e => empMap[e.userId] = e);
 
-  const month = new Date().getMonth() + 1;
-  const year = new Date().getFullYear();
-
-  this.payrollService
-    .getPayrollByMonth(month, year, this.userId)
-    .subscribe(res => {
-
-      // 🔥 Create employee lookup map
-      const employeeMap: any = {};
-
-      this.employees.forEach(emp => {
-        employeeMap[Number(emp.userId)] = emp;
-      });
-
-      // 🔥 Map payroll data
-      this.payrollList = (res || []).map(p => {
-
-        const payrollUserId = Number(p.userId ?? p.employeeId);
-
-        const emp = employeeMap[payrollUserId];
-
-        return {
+        this.payrollList = (res || []).map((p: any) => ({
           ...p,
-          fullName: emp?.fullName || '-',
-          employeeCode: emp?.employeeCode || '-',
-          monthName: this.getMonthName(p.month)
-        };
+          fullName: empMap[p.userId]?.fullName || '-',
+          employeeCode: empMap[p.userId]?.employeeCode || '-'
+        }));
+
+        this.totalPayrollAmount = this.payrollList
+          .reduce((sum, p) => sum + (p.netSalary || 0), 0);
+
+        this.prepareStats();
       });
-
-      this.totalPayrollAmount = this.payrollList
-        .reduce((sum, p) => sum + (p.netSalary || 0), 0);
-
-      this.prepareStats();
-    });
-}
-
-  /* ================= PREPARE STATS ================= */
+  }
 
   prepareStats() {
-
     this.stats = [
-      {
-        title: 'Employees',
-        value: this.employees.length || 0,
-        icon: 'fa-users',
-        color: '#922b21'
-      },
-      {
-        title: 'Departments',
-        value: this.departments.length || 0,
-        icon: 'fa-building',
-        color: '#1e88e5'
-      },
-      {
-        title: 'Payroll (This Month)',
-        value: '₹' + (this.totalPayrollAmount || 0).toLocaleString(),
-        icon: 'fa-indian-rupee-sign',
-        color: '#43a047'
-      },
-      {
-        title: 'Pending Payroll',
-        value: this.payrollList.filter(p => p.status !== 'Processed').length,
-        icon: 'fa-clock',
-        color: '#f39c12'
-      }
+      { title: 'Employees', value: this.employees.length, icon: 'fa-users', color: '#922b21' },
+      { title: 'Departments', value: this.departments.length, icon: 'fa-building', color: '#1e88e5' },
+      { title: 'Payroll', value: '₹' + this.totalPayrollAmount.toLocaleString(), icon: 'fa-rupee-sign', color: '#43a047' },
+      { title: 'Pending', value: this.payrollList.filter(p => p.status !== 'Processed').length, icon: 'fa-clock', color: '#f39c12' }
     ];
   }
 
-  /* ================= PERFORMANCE CHART ================= */
+  /* ================= CHARTS ================= */
 
   initPerformanceChart() {
-
-    if (this.performanceChart) {
-      this.performanceChart.destroy();
-    }
+    if (this.performanceChart) this.performanceChart.destroy();
 
     this.performanceChart = new Chart('performanceChart', {
       type: 'line',
       data: {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        datasets: [
-          {
-            label: 'Attendance %',
-            data: [94, 96, 92, 97],
-            borderColor: '#922b21',
-            fill: false,
-            tension: 0.4
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' }
-        }
+        labels: ['Week1', 'Week2', 'Week3', 'Week4'],
+        datasets: [{
+          label: 'Attendance %',
+          data: [94, 96, 92, 97],
+          borderColor: '#922b21',
+          tension: 0.4
+        }]
       }
     });
   }
 
-  /* ================= DEPARTMENT CHART ================= */
-
   initDeptChart() {
+    if (this.deptChart) this.deptChart.destroy();
 
-    if (this.deptChart) {
-      this.deptChart.destroy();
-    }
-
-    const deptCounts: any = {};
-
-    this.employees.forEach(emp => {
-      const dept = emp.departmentName || 'Others';
-      deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+    const counts: any = {};
+    this.employees.forEach(e => {
+      counts[e.departmentName || 'Others'] =
+        (counts[e.departmentName || 'Others'] || 0) + 1;
     });
 
     this.deptChart = new Chart('deptChart', {
       type: 'doughnut',
       data: {
-        labels: Object.keys(deptCounts),
-        datasets: [
-          {
-            data: Object.values(deptCounts),
-            backgroundColor: [
-              '#922b21',
-              '#1e88e5',
-              '#43a047',
-              '#fbc02d',
-              '#8e24aa'
-            ]
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        cutout: '70%',
-        plugins: {
-          legend: { position: 'bottom' }
-        }
+        labels: Object.keys(counts),
+        datasets: [{
+          data: Object.values(counts),
+          backgroundColor: ['#922b21','#1e88e5','#43a047','#f39c12']
+        }]
       }
     });
   }

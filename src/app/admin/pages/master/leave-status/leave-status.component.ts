@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { AdminService,LeaveStatus } from '../../../servies/admin.service';
+import { AdminService,Company,LeaveStatus, Region } from '../../../servies/admin.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 @Component({
   selector: 'app-leave-status',
@@ -32,6 +32,8 @@ export class LeaveStatusComponent {
   companyID = 0;
   regionID = 0;
   userId = 0;
+  companies: any;
+  regions: any;
 
   constructor(
     private adminService: AdminService,
@@ -39,14 +41,21 @@ export class LeaveStatusComponent {
   ) {}
 
   ngOnInit(): void {
-    const user = sessionStorage.getItem('currentUser');
-    if (user) {
-      const currentUser = JSON.parse(user);
-      this.companyID = currentUser.companyId;
-      this.regionID = currentUser.regionId;
-      this.userId = currentUser.userId;
-    }
 
+      const user = sessionStorage.getItem('currentUser');
+
+  if (user) {
+    const currentUser = JSON.parse(user);
+    this.userId = currentUser.userId;
+  
+  }
+
+  this.leave = this.getEmptyLeave();
+
+  // 🔥 Call these
+  this.loadCompanies();
+  this.loadRegions();
+    
     this.leave = this.getEmptyLeave();
     this.loadLeaveStatus();
   }
@@ -72,7 +81,7 @@ export class LeaveStatusComponent {
     this.spinner.show();
 
     this.adminService
-      .getLeaveStatus(this.companyID, this.regionID)
+      .getLeaveStatus(this.userId)
       .subscribe({
         next: (res: any) => {
           if (res.success) {
@@ -85,18 +94,66 @@ export class LeaveStatusComponent {
         },
         error: (err) => {
           this.spinner.hide();
-          Swal.fire('Error', err?.error?.message || 'Failed to load data', 'error');
+          //Swal.fire('Error', err?.error?.message || 'Failed to load data', 'error');
         }
       });
   }
 
+  // loadcompanies
+ loadCompanies(): void {
+  this.spinner.show();
+
+  this.adminService.getCompanies(null, this.userId).subscribe({
+    next: (res: Company[]) => {
+      this.companies = res;
+
+      // 🔥 Set default company (first one or matching user)
+      if (this.companies.length > 0) {
+        this.leave.companyID = this.companies[0].companyId;
+      }
+
+      this.spinner.hide();
+      console.log('Loaded companies:', this.companies);
+    },
+    error: (err) => {
+      console.error('Error loading companies:', err);
+      this.spinner.hide();
+    }
+  });
+}
+loadRegions(): void {
+  this.spinner.show();
+
+  this.adminService.getRegions(null, this.userId).subscribe({
+    next: (data: Region[]) => {
+      this.regions = data.sort((a, b) => b.regionID - a.regionID);
+
+      // 🔥 Set default region
+      if (this.regions.length > 0) {
+        this.leave.regionID = this.regions[0].regionID;
+      }
+
+      this.spinner.hide();
+    },
+    error: (err) => {
+      console.error('Error loading regions:', err);
+      this.spinner.hide();
+    }
+  });
+}
   /* ================= SUBMIT ================= */
 
   onSubmit(form: any): void {
-
-    this.leave.companyID = this.companyID;
-    this.leave.regionID = this.regionID;
-    this.leave.userID = this.userId;
+    // this.leave.companyID = this.companyID;
+    // this.leave.regionID = this.regionID;
+    // this.leave.userID = this.userId;
+    const user = sessionStorage.getItem('currentUser');
+    if (user) {
+      const currentUser = JSON.parse(user);
+      this.companyID = currentUser.companyId;
+      this.regionID = currentUser.regionId;
+      this.userId = currentUser.userId;
+    }
 
     this.spinner.show();
 
@@ -128,6 +185,7 @@ export class LeaveStatusComponent {
 
   editLeave(item: LeaveStatus): void {
     this.leave = { ...item };
+    console.log(this.leave)
     this.isEditMode = true;
   }
 

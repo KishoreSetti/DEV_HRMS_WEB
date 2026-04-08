@@ -72,7 +72,7 @@
 
             <!-- Password -->
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Password</label>
+              <label class="form-label fw-semibold">Password<span class="text-danger">*</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" [(ngModel)]="user.password"
                        name="Password" placeholder="Auto-generated or enter manually" />
@@ -82,23 +82,42 @@
               </div>
             </div>
      <!-- Department -->
-  <div class="col-md-6">
+  <!-- <div class="col-md-6">
             <label class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
             <select class="form-select" name="DepartmentId" [(ngModel)]="user.departmentId" [disabled]="user.regionId == 0" required>
               <option [ngValue]="0">Select Department</option>
               <option *ngFor="let d of departments" [ngValue]="d.departmentId">
-                {{ d.description }}
+                {{ d.departmentName }}
               </option>
             </select>
-          </div>
+          </div> --><div class="col-md-6">
+  <label class="form-label fw-semibold">
+    Department <span class="text-danger">*</span>
+  </label>
+
+  <select class="form-select"
+        name="DepartmentId"
+        [(ngModel)]="user.departmentId"
+        [disabled]="!user.regionId"
+        required>
+
+  <option [ngValue]="0">Select Department</option>
+
+  <!-- 🔥 FIX HERE -->
+  <option *ngFor="let d of filteredDepartments" [ngValue]="d.departmentId">
+    {{ d.departmentName }}
+  </option>
+
+</select>
+</div>
 
 <!-- Reporting To -->
 <div class="col-md-6">
   <label class="form-label fw-semibold">Reporting To <span class="text-danger">*</span></label>
   <select class="form-select" name="reportingTo"  [(ngModel)]="user.reportingTo" required>
     <option value="0">Select Reporting Manager</option>
-    <option *ngFor="let u of users" [value]="u.userId">
-      {{ u.fullName }}
+    <option *ngFor="let manager  of reportingManagers" [ngValue]="manager.userId">
+      {{ manager.fullName }}
     </option>
   </select>
 </div>
@@ -137,6 +156,49 @@
       </div>
     </div>
 
+    <div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="mb-3 fw-semibold">Filters</h5>
+
+    <div class="row g-3">
+
+      <!-- Employee Name -->
+      <div class="col-md-4">
+        <input type="text"
+               class="form-control"
+               placeholder="Search by Employee Name"
+               [(ngModel)]="filter.employeeName"
+               (input)="applyFilters()" />
+      </div>
+
+      <!-- Company -->
+      <div class="col-md-4">
+        <select class="form-select"
+                [(ngModel)]="filter.companyId"
+                (change)="onFilterCompanyChange()">
+          <option value="0">All Companies</option>
+          <option *ngFor="let c of companies" [ngValue]="c.companyId">
+            {{ c.companyName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Region -->
+      <div class="col-md-4">
+        <select class="form-select"
+                [(ngModel)]="filter.regionId"
+                (change)="applyFilters()">
+          <option value="0">All Regions</option>
+          <option *ngFor="let r of filterRegions" [ngValue]="r.regionID">
+            {{ r.regionName }}
+          </option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+</div>
+
     <!-- User List -->
     <div class="card shadow-sm">
       <div class="card-body">
@@ -157,7 +219,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let u of users; let i = index">
+             <tr *ngFor="let u of paginatedUsers; let i = index">
                 <td>{{ i + 1 }}</td>
                 <td>{{ u.employeeCode }}</td>
                 <td>{{ u.fullName }}</td>
@@ -190,6 +252,37 @@
               </tr>
             </tbody>
           </table>
+          <div class="d-flex justify-content-between align-items-center mt-3">
+  <div>
+    Showing {{ (currentPage - 1) * pageSize + 1 }}
+    to {{ (currentPage - 1) * pageSize + paginatedUsers.length }}
+    of {{ filteredUsers.length }} entries
+  </div>
+
+  <nav>
+    <ul class="pagination mb-0">
+
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="prevPage()">Previous</button>
+      </li>
+
+      <li 
+        class="page-item"
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        [class.active]="currentPage === i + 1"
+      >
+        <button class="page-link" (click)="changePage(i + 1)">
+          {{ i + 1 }}
+        </button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="nextPage()">Next</button>
+      </li>
+
+    </ul>
+  </nav>
+</div>
         </div>
       </div>
     </div>

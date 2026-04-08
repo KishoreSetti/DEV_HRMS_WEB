@@ -4,43 +4,30 @@
   <input type="hidden" formControlName="assetID" />
 
   <!-- ================= ROW 1 ================= -->
- <!-- Employee Name -->
-  <div class="row mb-3"> 
-<div class="col-md-4">
-  <label class="form-label">Employee Name</label>
-  <input 
-    type="text" 
-    class="form-control" 
-    [value]="loggedInUserName"
-    readonly
-  />
+  <!-- Employee Name -->
+  <div class="row mb-3">
+    <!-- <div class="col-md-4">
+      <label class="form-label">Employee Name</label>
+      <input type="text" class="form-control" [value]="loggedInUserName" readonly />
 
-  <small class="text-danger"
-    *ngIf="f['userID'].touched && f['userID'].errors?.['required']">
-    Employee is required
-  </small>
-</div>
+      <small class="text-danger" *ngIf="f['userID'].touched && f['userID'].errors?.['required']">
+        Employee is required
+      </small>
+    </div> -->
 
     <!-- Asset Name -->
     <div class="col-md-4">
       <label class="form-label">
         Asset Name <span class="text-danger">*</span>
       </label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="assetName"
-        placeholder="Enter asset name"
-        maxlength="150"
-      />
+      <input type="text" class="form-control" formControlName="assetName" placeholder="Enter asset name"
+        maxlength="150" />
 
-      <small class="text-danger"
-        *ngIf="f['assetName'].touched && f['assetName'].errors?.['required']">
+      <small class="text-danger" *ngIf="f['assetName'].touched && f['assetName'].errors?.['required']">
         Asset Name is required
       </small>
 
-      <small class="text-danger"
-        *ngIf="f['assetName'].touched && f['assetName'].errors?.['pattern']">
+      <small class="text-danger" *ngIf="f['assetName'].touched && f['assetName'].errors?.['pattern']">
         Only letters, numbers, "-" and "/" are allowed
       </small>
     </div>
@@ -50,23 +37,41 @@
       <label class="form-label">
         Asset Code <span class="text-danger">*</span>
       </label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="assetCode"
-        placeholder="Enter asset code"
-        maxlength="50"
-      />
+      <input type="text" class="form-control" formControlName="assetCode" placeholder="Enter asset code"
+        maxlength="50" />
 
-      <small class="text-danger"
-        *ngIf="f['assetCode'].touched && f['assetCode'].errors?.['required']">
+      <small class="text-danger" *ngIf="f['assetCode'].touched && f['assetCode'].errors?.['required']">
         Asset Code is required
       </small>
 
-      <small class="text-danger"
-        *ngIf="f['assetCode'].touched && f['assetCode'].errors?.['pattern']">
+      <small class="text-danger" *ngIf="f['assetCode'].touched && f['assetCode'].errors?.['pattern']">
         Asset Code must be alphanumeric
       </small>
+    </div>
+    <div class="col-md-4">
+      <label>Asset Type <span class="text-danger">*</span></label>
+      <select class="form-select" formControlName="assetType">
+        <option value="">Select Asset Type</option>
+        <option *ngFor="let type of assetTypes" [ngValue]="type.assetTypeId">
+          {{ type.assetTypeName }}
+        </option>
+
+      </select>
+
+      <small class="text-danger" *ngIf="f['assetType'].touched && f['assetType'].errors">
+        Asset Type is required
+      </small>
+    </div>
+
+    <!-- Asset Category -->
+    <div class="col-md-4">
+      <label>Asset Category</label>
+      <select class="form-select" formControlName="assetCategory">
+        <option value="">Select Category</option>
+        <option *ngFor="let cat of assetCategories" [ngValue]="cat.assetCategoryId">
+          {{ cat.assetCategoryName }}
+        </option>
+      </select>
     </div>
 
     <!-- Asset Location -->
@@ -74,16 +79,10 @@
       <label class="form-label">
         Asset Location <span class="text-danger">*</span>
       </label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="assetLocation"
-        placeholder="Enter location"
-        maxlength="100"
-      />
+      <input type="text" class="form-control" formControlName="assetLocation" placeholder="Enter location"
+        maxlength="100" />
 
-      <small class="text-danger"
-        *ngIf="f['assetLocation'].touched && f['assetLocation'].errors?.['required']">
+      <small class="text-danger" *ngIf="f['assetLocation'].touched && f['assetLocation'].errors?.['required']">
         Asset Location is required
       </small>
     </div>
@@ -100,32 +99,22 @@
       </label>
 
       <div class="d-flex">
-        <select
-          class="form-select me-2"
-          style="max-width: 100px"
-          formControlName="currencyCode">
-          <option value="INR">INR</option>
-          <option value="USD">USD</option>
-          <option value="MYR">MYR</option>
-          <option value="EUR">EUR</option>
+        <select class="form-select me-2" style="max-width: 100px" formControlName="currencyCode">
+          <option value="">Select</option>
+          <option *ngFor="let c of currencies" [value]="c.currencyCode">
+            {{ c.currencyCode }}
+          </option>
         </select>
 
-        <input
-          type="number"
-          class="form-control"
-          formControlName="assetCost"
-          min="1"
-          placeholder="Enter amount"
-        />
+
+        <input type="number" class="form-control" formControlName="assetCost" min="1" placeholder="Enter amount" />
       </div>
 
-      <small class="text-danger"
-        *ngIf="f['assetCost'].touched && f['assetCost'].errors?.['required']">
+      <small class="text-danger" *ngIf="f['assetCost'].touched && f['assetCost'].errors?.['required']">
         Asset Cost is required
       </small>
 
-      <small class="text-danger"
-        *ngIf="f['assetCost'].touched && f['assetCost'].errors?.['min']">
+      <small class="text-danger" *ngIf="f['assetCost'].touched && f['assetCost'].errors?.['min']">
         Asset Cost must be greater than 0
       </small>
     </div>
@@ -133,24 +122,15 @@
     <!-- Description -->
     <div class="col-md-4">
       <label class="form-label">Asset Description</label>
-      <textarea
-        class="form-control"
-        formControlName="assetDescription"
-        maxlength="500"
-        placeholder="Enter description">
+      <textarea class="form-control" formControlName="assetDescription" maxlength="500" placeholder="Enter description">
       </textarea>
     </div>
 
     <!-- Model -->
     <div class="col-md-4">
       <label class="form-label">Asset Model / Version</label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="assetModel"
-        maxlength="100"
-        placeholder="Enter model/version"
-      />
+      <input type="text" class="form-control" formControlName="assetModel" maxlength="100"
+        placeholder="Enter model/version" />
     </div>
 
   </div>
@@ -161,13 +141,8 @@
     <!-- Purchase Order -->
     <div class="col-md-4">
       <label class="form-label">Purchase Order</label>
-      <input
-        type="text"
-        class="form-control"
-        formControlName="purchaseOrder"
-        maxlength="100"
-        placeholder="Enter purchase order"
-      />
+      <input type="text" class="form-control" formControlName="purchaseOrder" maxlength="100"
+        placeholder="Enter purchase order" />
     </div>
 
     <!-- Warranty Start -->
@@ -206,18 +181,14 @@
         </option>
       </select>
 
-      <small class="text-danger"
-        *ngIf="f['assetStatusID'].touched && f['assetStatusID'].errors?.['required']">
+      <small class="text-danger" *ngIf="f['assetStatusID'].touched && f['assetStatusID'].errors?.['required']">
         Status is required
       </small>
     </div>
 
     <!-- Submit -->
     <div class="col-md-4 d-flex align-items-end">
-      <button
-        type="submit"
-        class="btn btn-primary w-100"
-        [disabled]="assetForm.invalid">
+      <button type="submit" class="btn btn-primary w-100" [disabled]="assetForm.invalid">
         {{ isEditMode ? 'Update Asset' : 'Add Asset' }}
       </button>
     </div>
@@ -225,13 +196,11 @@
   </div>
 
   <!-- ================= FORM LEVEL ERRORS ================= -->
-  <div class="alert alert-danger mt-2"
-    *ngIf="assetForm.errors?.['warrantyDateInvalid']">
+  <div class="alert alert-danger mt-2" *ngIf="assetForm.errors?.['warrantyDateInvalid']">
     Warranty End Date must be after Warranty Start Date.
   </div>
 
-  <div class="alert alert-danger mt-2"
-    *ngIf="assetForm.errors?.['returnDateInvalid']">
+  <div class="alert alert-danger mt-2" *ngIf="assetForm.errors?.['returnDateInvalid']">
     Asset Return Date cannot be before Warranty Start Date.
   </div>
 
@@ -247,7 +216,7 @@
       <table class="table table-bordered table-hover align-middle">
         <thead class="table-light">
           <tr>
-               <th>Employee Name</th> <!-- ✅ NEW -->
+            <!-- <th>Employee Name</th>  -->
             <th (click)="sortBy('assetName')" style="cursor:pointer">
               Asset Name
               <span *ngIf="sortColumn === 'assetName'">
@@ -261,6 +230,9 @@
                 {{ sortDirection === 'asc' ? '▲' : '▼' }}
               </span>
             </th>
+            <th>Asset Type</th>
+            <th>Asset Category</th>
+
 
             <th>Location</th>
 
@@ -284,10 +256,13 @@
 
         <tbody>
           <tr *ngFor="let asset of filteredAssets()">
-               <td>{{ asset.employeeName }}</td>
+            <!-- <td>{{ asset.employeeName }}</td> -->
 
             <td>{{ asset.assetName }}</td>
             <td>{{ asset.assetCode }}</td>
+            <td>{{ getAssetTypeName(asset.assetType) }}</td>
+            <td>{{ getAssetCategoryName(asset.assetCategory) }}</td>
+
             <td>{{ asset.assetLocation }}</td>
             <td>{{ asset.currencyCode }} {{ asset.assetCost }}</td>
             <td>{{ asset.assetDescription }}</td>
@@ -300,8 +275,7 @@
 
             <td class="text-center">
               <i class="fa-solid fa-pen me-3" (click)="edit(asset)"></i>
-              <i class="fa-solid fa-trash text-danger"
-                 (click)="delete(asset.assetID!)"></i>
+              <i class="fa-solid fa-trash text-danger" (click)="delete(asset.assetID!)"></i>
             </td>
           </tr>
 
@@ -319,9 +293,7 @@
       <div>
         <label>
           Show
-          <select class="form-select d-inline w-auto ms-2"
-                  [(ngModel)]="pageSize"
-                  (change)="changePageSize(pageSize)">
+          <select class="form-select d-inline w-auto ms-2" [(ngModel)]="pageSize" (change)="changePageSize(pageSize)">
             <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
               {{ size }}
             </option>
@@ -331,17 +303,15 @@
       </div>
 
       <div>
-        <button class="btn btn-outline-secondary btn-sm me-2"
-                (click)="changePage(currentPage - 1)"
-                [disabled]="currentPage === 1">
+        <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage - 1)"
+          [disabled]="currentPage === 1">
           Previous
         </button>
 
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-        <button class="btn btn-outline-secondary btn-sm ms-2"
-                (click)="changePage(currentPage + 1)"
-                [disabled]="currentPage === totalPages">
+        <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage + 1)"
+          [disabled]="currentPage === totalPages">
           Next
         </button>
       </div>

@@ -11,36 +11,36 @@
 <div class="tab-container">
 
     <!-- Radios -->
-    <input type="radio" id="tab1" name="tab" checked>
-    <input type="radio" id="tab2" name="tab">
-    <input type="radio" id="tab3" name="tab">
-    <input type="radio" id="tab4" name="tab">
+    <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+    <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+    <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
+    <input type="radio" id="tab4" name="tab" [checked]="selectedTab === 'tab4'">
 
     <!-- Tab Header -->
     <div class="tab-header">
-      <label class="tab-label" for="tab1">Personal Details</label>
-      <label class="tab-label" for="tab2">Family Details</label>
-      <label class="tab-label" for="tab3">Emergency Contact</label>
-      <label class="tab-label" for="tab4">References</label>
+    <label class="tab-label" *ngIf="canViewPersonal" for="tab1">Personal Details</label>
+      <label class="tab-label"  *ngIf="canViewFamily" for="tab2">Family Details</label>
+      <label class="tab-label" *ngIf="canViewEmergency" for="tab3">Emergency Contact</label>
+      <label class="tab-label"  *ngIf="canViewReference" for="tab4">References</label>
     </div>
 
     <!-- Content -->
     <div class="content">
-      <div id="content1" class="tab-content">
+      <div id="content1" class="tab-content"  *ngIf="canViewPersonal">
        
        <app-employee-personal-details></app-employee-personal-details>
       </div>
 
-      <div id="content2" class="tab-content">
+      <div id="content2" class="tab-content" *ngIf="canViewFamily">
         
         <app-employee-family-details></app-employee-family-details>
       </div>
 
-      <div id="content3" class="tab-content">
+      <div id="content3" class="tab-content" *ngIf="canViewEmergency">
      <app-employee-emergency-contact></app-employee-emergency-contact>
       </div>
 
-      <div id="content4" class="tab-content">
+      <div id="content4" class="tab-content" *ngIf="canViewReference">
        <app-employee-references></app-employee-references>
       </div>
     </div>

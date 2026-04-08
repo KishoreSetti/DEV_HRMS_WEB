@@ -1,0 +1,72 @@
+<div class="dashboard-tables full-row mt-4">
+  <div class="table-card">
+    <h3>Letters List</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>S.No</th>
+
+          <th (click)="sortBy('documentType')" style="cursor:pointer">
+            Document Type
+            <span *ngIf="sortColumn === 'documentType'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortBy('title')" style="cursor:pointer">
+            Document Title
+            <span *ngIf="sortColumn === 'title'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortBy('empName')" style="cursor:pointer">
+            Employee Code And Name
+            <span *ngIf="sortColumn === 'empName'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortBy('issuedDate')" style="cursor:pointer">
+            Issued Date
+            <span *ngIf="sortColumn === 'issuedDate'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortBy('validityDate')" style="cursor:pointer">
+            Validity
+            <span *ngIf="sortColumn === 'validityDate'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th>File</th>
+          
+        </tr>
+      </thead>
+
+
+      <tbody>
+        <tr *ngFor="let l of filteredLetters(); let i = index">
+          <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+          <td>{{  getDocumentTypeName(l.documentType) }}</td>
+          <td>{{ l.title }}</td>
+          <td>{{ l.empCode }} - {{ l.empName }}</td>
+          <td>{{ l.issuedDate }}</td>
+          <td>{{ l.validityDate || '-' }}</td>
+          <td>
+            <a *ngIf="l.fileName"
+              style="cursor:pointer; color:#0d6efd; font-weight:500;"
+              (click)="viewDocument(l.fileName)">
+              View
+            </a>
+          </td>
+
+         
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div>

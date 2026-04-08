@@ -75,13 +75,18 @@ private baseUrl = environment.apiUrl;
     return this.http.post(`${this.baseUrl}/EmployeePayRoll/components/${userId}`, model);
   }
 
-  updateComponent(id: number, userId: number, model: SalaryComponent): Observable<any> {
-    return this.http.put(`${this.baseUrl}/EmployeePayRoll/components/${id}/${userId}`, model);
-  }
+ // ✅ UPDATE (POST)
+updateComponent(model: SalaryComponent): Observable<any> {
+  return this.http.post(`${this.baseUrl}/EmployeePayRoll/components/update`, model);
+}
 
-  deleteComponent(id: number, userId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/EmployeePayRoll/components/${id}/${userId}`);
-  }
+// ✅ DELETE (POST)
+deleteComponent(componentId: number, userId: number): Observable<any> {
+  return this.http.post(`${this.baseUrl}/EmployeePayRoll/components/delete`, {
+    componentId,
+    userId
+  });
+}
 
   // ================= Company Dropdown =================
 

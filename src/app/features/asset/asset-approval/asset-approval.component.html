@@ -1,34 +1,52 @@
 <form class="row mb-3" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
 
+  <!-- Employee Name -->
   <div class="col-md-3">
-    <label class="form-label">Asset Name</label>
-    <input type="text" class="form-control" formControlName="assetName" placeholder="Enter asset name">
+    <label class="form-label">Employee Name</label>
+    <input type="text" class="form-control" formControlName="employeeName" placeholder="Search employee">
   </div>
 
-  <div class="col-md-3">
-    <label class="form-label">Location</label>
-    <input type="text" class="form-control" formControlName="location" placeholder="Enter location">
+  <!-- From Date -->
+  <div class="col-md-2">
+    <label class="form-label">From Date</label>
+    <input type="date" class="form-control" formControlName="fromDate">
   </div>
+
+  <!-- To Date -->
+  <div class="col-md-2">
+    <label class="form-label">To Date</label>
+    <input type="date" class="form-control" formControlName="toDate" [min]="filtersForm.value.fromDate">
+
+  </div>
+
+  <!-- Asset Type -->
+  <div class="col-md-3">
+    <label>Asset Type <span class="text-danger">*</span></label>
+    <select class="form-select" formControlName="assetType">
+      <option value="">Select Asset Type</option>
+      <option *ngFor="let type of assetTypes" [ngValue]="type.assetTypeId">
+        {{ type.assetTypeName }}
+      </option>
+
+    </select>
+
+
+  </div>
+
+
+
 
   <div class="col-md-2">
     <label class="form-label">Status</label>
-    <select class="form-select" formControlName="assetStatusId">
+    <select class="form-select" formControlName="assetStatusID">
       <option value="">All</option>
-      <option *ngFor="let s of statuses" [value]="s.assetStatusId">
+      <option *ngFor="let s of assetStatuses" [value]="s.assetStatusId">
         {{ s.assetStatusName }}
       </option>
     </select>
   </div>
 
-  <div class="col-md-2">
-    <label class="form-label">Currency</label>
-    <select class="form-select" formControlName="currencyCode">
-      <option value="">All</option>
-      <option *ngFor="let c of currencies" [value]="c">
-        {{ c | uppercase }}
-      </option>
-    </select>
-  </div>
+
 
   <div class="col-md-2 d-flex align-items-end">
     <button class="btn btn-primary w-100" type="submit">
@@ -51,51 +69,58 @@
           <th>
             <input type="checkbox" (change)="toggleAll($event)">
           </th>
-          <th (click)="sortBy('assetName')" class="cursor-pointer">
-            Asset Name
-          </th>
-          <th (click)="sortBy('assetCode')" class="cursor-pointer">
-            Asset Code
-          </th>
-          <th (click)="sortBy('assetLocation')" class="cursor-pointer">
-            Location
-          </th>
-          <th (click)="sortBy('assetCost')" class="cursor-pointer">
-            Cost
-          </th>
+          <th>Request ID</th>
+          <th>Employee Name</th>
+          <th>Asset Type</th>
+          <th>Required Date</th>
+          <th>Priority</th>
           <th>Status</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr *ngFor="let asset of pagedAssets">
+        <tr *ngFor="let r of pagedAssets">
+
+          <!-- SELECT -->
           <td>
-            <input type="checkbox" [(ngModel)]="asset.checked" [disabled]="asset.approvalStatus !== 'Pending'" />
+            <input type="checkbox" [(ngModel)]="r.checked" [disabled]="r.approvalStatus !== 'Pending'" />
           </td>
 
-          <td>{{ asset.assetName }}</td>
-          <td>{{ asset.assetCode }}</td>
-          <td>{{ asset.assetLocation }}</td>
-          <td>{{ asset.currencyCode }} {{ asset.assetCost }}</td>
+          <!-- DATA -->
+          <td>{{ r.assetID }}</td>
+          <td>{{ r.employeeName }}</td>
+          <td>{{ r.assetTypeName }}</td>
 
+          <td>{{ r.requiredDate | date:'dd-MM-yyyy' }}</td>
+
+          <!-- PRIORITY -->
+          <td>
+
+            {{ r.priorityName }}
+
+          </td>
+
+          <!-- STATUS -->
           <td>
             <span class="badge" [ngClass]="{
-  'bg-warning': asset.approvalStatus === 'Pending',
-  'bg-success': asset.approvalStatus === 'Approved',
-  'bg-danger': asset.approvalStatus === 'Rejected'
-}">
-              {{ asset.approvalStatus }}
+            'bg-warning': r.approvalStatus === 'Pending',
+            'bg-success': r.approvalStatus === 'Approved',
+            'bg-danger': r.approvalStatus === 'Rejected'
+          }">
+              {{ r.approvalStatus }}
             </span>
           </td>
+
         </tr>
 
         <tr *ngIf="noVisibleAssets">
-          <td colspan="6" class="text-center text-muted">
+          <td colspan="7" class="text-center text-muted">
             No records found
           </td>
         </tr>
       </tbody>
     </table>
+
 
     <!-- ======================================================= -->
     <!-- ACTION BUTTONS -->

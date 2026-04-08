@@ -14,13 +14,13 @@
 <div class="tab-container mt-4">
 
   <!-- TAB RADIO BUTTONS -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
 
   <!-- TAB HEADERS -->
   <div class="tab-header">
-    <label class="tab-label" for="tab1">My Requests</label>
-    <label class="tab-label" for="tab2">Manager Approval</label>
+    <label class="tab-label" for="tab1" *ngIf="canViewPersonal">My Requests</label>
+    <label class="tab-label" for="tab2" *ngIf="canViewManager">Manager Approval</label>
   </div>
 
   <!-- ================= TAB 1 : MY REQUESTS ================= -->
@@ -80,6 +80,10 @@
                     [(ngModel)]="wfhForm.reason"
                     name="reason"
                     required></textarea>
+        </div>
+         <div class="mb-3">
+          <label class="form-label">HR Email (CC)</label>
+          <input type="email" class="form-control" [(ngModel)]="wfhForm.hrEmail" name="hrEmail">
         </div>
 
         <button type="submit" class="btn btn-primary">

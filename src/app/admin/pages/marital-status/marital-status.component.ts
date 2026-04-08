@@ -551,4 +551,8 @@ updateStatus(): void {
   openUploadPopup(): void { this.showUploadPopup = true; }
   closeUploadPopup(): void { this.showUploadPopup = false; }
   onBulkUploadComplete(event: any): void { this.loadStatuses(); this.closeUploadPopup(); }
+  onCancel(): void {
+  this.resetForm();
+
+}
 }

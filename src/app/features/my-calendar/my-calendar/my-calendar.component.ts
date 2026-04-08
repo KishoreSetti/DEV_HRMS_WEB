@@ -68,7 +68,7 @@ this.leaveService.getUserLeaves(userId).subscribe((res:any)=>{
 
 const leaveItems:any[] = []
 
-res.forEach((x:any)=>{
+res.filter((x:any)=>x.status === 'Approved').forEach((x:any)=>{
 
 const start = new Date(x.startDate)
 const end = new Date(x.endDate)

@@ -70,6 +70,11 @@ import { ScreeningResultComponent } from './pages/master/screening-result/screen
 import { CompanyEventsComponent } from './pages/company-events/company-events.component';
 import { CompanyNewsCategoryComponent } from './company-news-category/company-news-category.component';
 import { EmploymentTypeComponent } from './pages/master/employment-type/employment-type.component';
+import { GradeComponent } from './pages/master/grade/grade.component';
+import { AssetTypeComponent } from './pages/master/asset-type/asset-type.component';
+import { AssetCategoryComponent } from './pages/master/asset-category/asset-category.component';
+import { CurrencyComponent } from './pages/master/currency/currency.component';
+import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 
 @NgModule({
   declarations: [
@@ -141,7 +146,12 @@ import { EmploymentTypeComponent } from './pages/master/employment-type/employme
     ScreeningResultComponent,
     CompanyEventsComponent,
     CompanyNewsCategoryComponent,
-    EmploymentTypeComponent
+    EmploymentTypeComponent,
+    GradeComponent,
+    AssetTypeComponent,
+    AssetCategoryComponent,
+    CurrencyComponent,
+    ModeofstudyComponent
  
   
 

@@ -20,4 +20,8 @@ private totalRequests = 0;
       this.loadingSubject.next(false);
     }
   }
+  forceStop() {
+    this.totalRequests = 0;
+    this.loadingSubject.next(false);
+  }
 }
