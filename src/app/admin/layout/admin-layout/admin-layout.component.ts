@@ -59,7 +59,8 @@ export class AdminLayoutComponent {
      { title: 'Grade', route: '/admin/grade'},
      { title: 'Asset Type', route: '/admin/asset-type'},
      { title: 'Asset Category', route: '/admin/asset-category'},
-     { title: 'Currency', route: '/admin/currency'}
+     { title: 'Currency', route: '/admin/currency'},
+     { title: 'Mode of Study', route: '/admin/modeofstudy'},
     ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },
