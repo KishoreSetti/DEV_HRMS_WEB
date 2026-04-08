@@ -395,6 +395,7 @@ onStatusChange(event: Event): void {
       this.reportingManagers = [...this.users];
 
       this.generateNextEmployeeCode();
+       this.setPagination(); // ✅ ADD THIS LINE
     },
     error: () => this.showError('Failed to load users.')
   });
@@ -668,4 +669,36 @@ filterDepartments(): void {
       showConfirmButton: false
     });
   }
+  currentPage: number = 1;
+pageSize: number = 5;
+totalPages: number = 0;
+paginatedUsers: User[] = [];
+setPagination(): void {
+  this.totalPages = Math.ceil(this.users.length / this.pageSize) || 1;
+
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
+
+  this.paginatedUsers = this.users.slice(start, end);
+}
+changePage(page: number): void {
+  if (page < 1 || page > this.totalPages) return;
+
+  this.currentPage = page;
+  this.setPagination();
+}
+
+nextPage(): void {
+  if (this.currentPage < this.totalPages) {
+    this.currentPage++;
+    this.setPagination();
+  }
+}
+
+prevPage(): void {
+  if (this.currentPage > 1) {
+    this.currentPage--;
+    this.setPagination();
+  }
+}
 }
