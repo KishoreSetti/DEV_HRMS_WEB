@@ -771,6 +771,14 @@ export interface EmployeeMaster {
   updatedBy?: number | null;  // ✅ needed for edit
 
 }
+export interface ModeOfStudy {
+  modeOfStudyId: number;
+  modeName: string;
+  companyId: number;
+  regionId: number;
+  isActive: boolean;
+  userId: number;
+}
 //------------------- Manager Dropdown Interface ------------------ //
 export interface ManagerDropdown {
   userId: number;
@@ -1632,10 +1640,6 @@ deleteEducation(id: number): Observable<any> {
     {}
   );
 }
-  // Mode of Study
-  // getModeOfStudy(): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.baseUrl}/employee/modeofstudy`);
-  // }
 // ================= CERTIFICATION APIs =================
 
 
@@ -2699,6 +2703,26 @@ updateVisaType(data: any) {
 deleteVisaType(id: number) {
   return this.http.post(
     `${this.baseUrl}/MasterData/DeleteVisaType?id=${id}`,
+getAllModeOfStudyList(userId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/GetAllModeOfStudy?userId=${userId}`
+  );
+}
+createModeOfStudy(data: any) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/CreateModeOfStudy`,
+    data
+  );
+}
+updateModeOfStudy(data: any) {
+  return this.http.put(
+    `${this.baseUrl}/MasterData/UpdateModeOfStudy`,
+    data
+  );
+}
+deleteModeOfStudy(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeleteModeOfStudy?id=${id}`,
     {}
   );
 }

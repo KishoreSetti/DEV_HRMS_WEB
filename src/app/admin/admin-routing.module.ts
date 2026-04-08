@@ -71,6 +71,7 @@ import { AssetTypeComponent } from './pages/master/asset-type/asset-type.compone
 import { AssetCategoryComponent } from './pages/master/asset-category/asset-category.component';
 import { CurrencyComponent } from './pages/master/currency/currency.component';
 import { VisatypeComponent } from '../pages/visatype/visatype.component';
+import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 const routes: Routes = [
   {
     path: '',
@@ -149,6 +150,7 @@ const routes: Routes = [
       { path: 'asset-category', component: AssetCategoryComponent },
       { path: 'currency', component: CurrencyComponent },
       { path: 'visatype', component: VisatypeComponent }
+      { path: 'modeofstudy', component: ModeofstudyComponent }
     ]
   }
 ];
