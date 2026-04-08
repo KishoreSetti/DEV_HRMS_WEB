@@ -1542,8 +1542,10 @@ CreateEmployeeImmigration(formData: FormData): Observable<any> {
     return this.http.delete(`${this.baseUrl}/Employee/DeleteImmigration/${id}`)
   }
 // Visa Types Dropdown
-getVisaTypes(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.baseUrl}/Employee/GetVisaTypes`);
+getVisaTypes(companyId: number, regionId: number): Observable<any[]> {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/Employee/GetVisaTypes?companyId=${companyId}&regionId=${regionId}`
+  );
 }
 
 // Status Dropdown
@@ -2676,6 +2678,31 @@ getEmploymentTypesByFilter(companyId: number, regionId: number) {
   );
 }
 
+getVisaTypeList(userId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/visatype-list/${userId}`
+  );
+}
+
+createVisaType(data: any) {
+  debugger;
+  return this.http.post(
+    `${this.baseUrl}/MasterData/CreateVisaType`,
+    data
+  );
+}
+
+updateVisaType(data: any) {
+  debugger;
+  return this.http.post(
+    `${this.baseUrl}/MasterData/UpdateVisaType`,
+    data
+  );
+}
+
+deleteVisaType(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeleteVisaType?id=${id}`,
 getAllModeOfStudyList(userId: number) {
   return this.http.get(
     `${this.baseUrl}/MasterData/GetAllModeOfStudy?userId=${userId}`

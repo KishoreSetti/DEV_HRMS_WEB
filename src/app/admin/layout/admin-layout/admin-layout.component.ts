@@ -60,6 +60,7 @@ export class AdminLayoutComponent {
      { title: 'Asset Type', route: '/admin/asset-type'},
      { title: 'Asset Category', route: '/admin/asset-category'},
      { title: 'Currency', route: '/admin/currency'},
+     { title: 'Visa Type', route: '/admin/visatype'},
      { title: 'Mode of Study', route: '/admin/modeofstudy'},
     ],  
     // 'Configuration': [
