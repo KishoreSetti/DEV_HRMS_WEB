@@ -74,6 +74,7 @@ import { GradeComponent } from './pages/master/grade/grade.component';
 import { AssetTypeComponent } from './pages/master/asset-type/asset-type.component';
 import { AssetCategoryComponent } from './pages/master/asset-category/asset-category.component';
 import { CurrencyComponent } from './pages/master/currency/currency.component';
+import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 
 @NgModule({
   declarations: [
@@ -149,7 +150,8 @@ import { CurrencyComponent } from './pages/master/currency/currency.component';
     GradeComponent,
     AssetTypeComponent,
     AssetCategoryComponent,
-    CurrencyComponent
+    CurrencyComponent,
+    ModeofstudyComponent
  
   
 

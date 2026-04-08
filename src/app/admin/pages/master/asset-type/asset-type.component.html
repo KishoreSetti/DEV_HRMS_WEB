@@ -17,6 +17,22 @@
                 <form #f="ngForm" (ngSubmit)="onSubmit()" novalidate>
                     <div class="row g-3">
 
+                        <!-- Asset Category -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Asset Category *</label>
+
+                            <select class="form-select" name="assetCategory" [(ngModel)]="assetType.assetCategoryId"
+                                required>
+
+                                <option [ngValue]="0">-- Select Category --</option>
+
+                                <option *ngFor="let c of assetCategories" [ngValue]="c.assetCategoryId">
+                                    {{ c.assetCategoryName }}
+                                </option>
+
+                            </select>
+                        </div>
+
                         <!-- Name -->
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Asset Type *</label>
@@ -25,11 +41,11 @@
                         </div>
 
                         <!-- Description -->
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-4">
                             <label class="form-label fw-semibold">Description</label>
                             <input type="text" class="form-control" name="desc" [(ngModel)]="assetType.description"
                                 placeholder="Enter Description">
-                        </div>
+                        </div> -->
 
                         <!-- Company -->
                         <div class="col-md-4">
@@ -94,7 +110,8 @@
                 <table class="table table-bordered table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Name</th>
+                            <th>Asset Category</th>
+                            <th>Asset Type</th>
                             <th>Company</th>
                             <th>Region</th>
                             <th class="text-center">Active</th>
@@ -104,6 +121,7 @@
 
                     <tbody>
                         <tr *ngFor="let x of filtered()">
+                            <td>{{ categoryMap[x.assetCategoryId] || '—' }}</td>
                             <td>{{ x.assetTypeName }}</td>
                             <td>{{ companyMap[x.companyId] || '—' }}</td>
                             <td>{{ regionMap[x.regionId] || '—' }}</td>

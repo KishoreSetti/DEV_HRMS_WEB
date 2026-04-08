@@ -771,6 +771,14 @@ export interface EmployeeMaster {
   updatedBy?: number | null;  // ✅ needed for edit
 
 }
+export interface ModeOfStudy {
+  modeOfStudyId: number;
+  modeName: string;
+  companyId: number;
+  regionId: number;
+  isActive: boolean;
+  userId: number;
+}
 //------------------- Manager Dropdown Interface ------------------ //
 export interface ManagerDropdown {
   userId: number;
@@ -1630,10 +1638,6 @@ deleteEducation(id: number): Observable<any> {
     {}
   );
 }
-  // Mode of Study
-  // getModeOfStudy(): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.baseUrl}/employee/modeofstudy`);
-  // }
 // ================= CERTIFICATION APIs =================
 
 
@@ -2183,6 +2187,13 @@ updateAssetType(data: any) {
 deleteAssetType(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetType?id=${id}`, {});
 }
+// getAssetCategoriestype() {
+//   return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype`);
+// }
+
+getAssetCategoriestype(userId: number) {    
+  return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype?userId=${userId}`);
+}
 getAssetTypesByCompanyRegion(companyId: number, regionId: number) {
   return this.http.get(
     `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}`
@@ -2662,6 +2673,30 @@ getEmploymentTypesByFilter(companyId: number, regionId: number) {
   debugger;
   return this.http.get(
     `${this.baseUrl}/MasterData/employment-type/filter?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
+getAllModeOfStudyList(userId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/GetAllModeOfStudy?userId=${userId}`
+  );
+}
+createModeOfStudy(data: any) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/CreateModeOfStudy`,
+    data
+  );
+}
+updateModeOfStudy(data: any) {
+  return this.http.put(
+    `${this.baseUrl}/MasterData/UpdateModeOfStudy`,
+    data
+  );
+}
+deleteModeOfStudy(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeleteModeOfStudy?id=${id}`,
+    {}
   );
 }
 }

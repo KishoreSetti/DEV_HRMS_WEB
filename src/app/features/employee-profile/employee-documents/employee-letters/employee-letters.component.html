@@ -53,25 +53,6 @@
   <!-- Employee Code -->
   <div class="col-md-4">
     <label class="form-label">
-      Employee Code / ID <span class="text-danger">*</span>
-    </label>
-
-    <input type="text"
-           class="form-control"
-           [(ngModel)]="form.empCode"
-           name="empCode"
-           readonly>
-  </div>
-
-</div>
-
-
-<!-- ROW 2 -->
-<div class="row mb-3">
-
-  <!-- Employee Dropdown -->
-  <div class="col-md-4">
-    <label class="form-label">
       Employee Name <span class="text-danger">*</span>
     </label>
 
@@ -95,6 +76,24 @@
     </div>
   </div>
 
+</div>
+
+
+<!-- ROW 2 -->
+<div class="row mb-3">
+
+  <!-- Employee Dropdown -->
+  <div class="col-md-4">
+    <label class="form-label">
+      Employee Code / ID <span class="text-danger">*</span>
+    </label>
+
+    <input type="text"
+           class="form-control"
+           [(ngModel)]="form.empCode"
+           name="empCode"
+           readonly>
+  </div>
 
   <!-- Issued Date -->
   <div class="col-md-4">

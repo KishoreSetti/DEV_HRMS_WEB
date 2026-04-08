@@ -122,6 +122,7 @@ import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { ErrorHandler } from '@angular/core';
 import { GlobalErrorHandler } from './admin/shared/global-error-handler';
+import { EmployeeMyLettersFormsComponent } from './features/employee-profile/employee-documents/employee-my-letters-forms/employee-my-letters-forms.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -235,6 +236,7 @@ import { GlobalErrorHandler } from './admin/shared/global-error-handler';
           SubscriptionPlansComponent,
           AssetRequestComponent,
           AssignAssetScreenComponent,
+          EmployeeMyLettersFormsComponent,
           
    
     

@@ -70,6 +70,7 @@ import { GradeComponent } from './pages/master/grade/grade.component';
 import { AssetTypeComponent } from './pages/master/asset-type/asset-type.component';
 import { AssetCategoryComponent } from './pages/master/asset-category/asset-category.component';
 import { CurrencyComponent } from './pages/master/currency/currency.component';
+import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 const routes: Routes = [
   {
     path: '',
@@ -147,6 +148,7 @@ const routes: Routes = [
       { path: 'asset-type', component: AssetTypeComponent },
       { path: 'asset-category', component: AssetCategoryComponent },
       { path: 'currency', component: CurrencyComponent },
+      { path: 'modeofstudy', component: ModeofstudyComponent }
     ]
   }
 ];

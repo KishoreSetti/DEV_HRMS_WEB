@@ -92,11 +92,11 @@
                         {{ emp.grossTime ? emp.grossTime : '--:--' }}
                     </td>
 
-<td>
-  <span class="status-badge" [ngClass]="getStatusClass(emp.status)">
-    {{ emp.status }}
-  </span>
-</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(emp.status)">
+                            {{ emp.status }}
+                        </span>
+                    </td>
 
                 </tr>
 
@@ -202,11 +202,11 @@
                     <td>{{ r.clockOut }}</td>
                     <td>{{ r.grossTime }}</td>
 
-<td>
-  <span class="status-badge" [ngClass]="getStatusClass(r.status)">
-    {{ r.status }}
-  </span>
-</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+                            {{ r.status }}
+                        </span>
+                    </td>
 
                 </tr>
 
@@ -215,23 +215,33 @@
         </table>
 
 
+      
         <!-- REPORT TABLE PAGINATION -->
-        <div class="pagination-container" *ngIf="reportTotalPages > 1">
+        <div class="pagination-container" *ngIf="reportTotalPages > 0">
 
-            <button class="page-btn" (click)="previousPage()" [disabled]="reportPage === 1">
+            <!-- FIRST -->
+            <button (click)="goToReportFirst()" [disabled]="reportPage === 1">
+                << </button>
 
-                << Previous </button>
-
-                    <button class="page-btn" *ngFor="let page of [].constructor(reportTotalPages); let i = index"
-                        (click)="changeReportPage(i+1)" [class.active]="reportPage === (i+1)">
-
-                        {{i+1}}
-
+                    <!-- PREVIOUS -->
+                    <button (click)="previousPage()" [disabled]="reportPage === 1">
+                        Prev
                     </button>
 
-                    <button class="page-btn" (click)="nextPage()" [disabled]="reportPage === reportTotalPages">
+                    <!-- PAGE NUMBERS (ONLY 5) -->
+                    <button *ngFor="let page of visibleReportPages" (click)="changeReportPage(page)"
+                        [class.active]="reportPage === page">
+                        {{ page }}
+                    </button>
 
-                        Next >>
+                    <!-- NEXT -->
+                    <button (click)="nextPage()" [disabled]="reportPage === reportTotalPages">
+                        Next
+                    </button>
+
+                    <!-- LAST -->
+                    <button (click)="goToReportLast()" [disabled]="reportPage === reportTotalPages">
+                        >>
                     </button>
 
         </div>
