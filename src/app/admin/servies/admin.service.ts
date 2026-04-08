@@ -2702,7 +2702,10 @@ updateVisaType(data: any) {
 
 deleteVisaType(id: number) {
   return this.http.post(
-    `${this.baseUrl}/MasterData/DeleteVisaType?id=${id}`,
+    `${this.baseUrl}/MasterData/DeleteVisaType?id=${id}`,{}
+  );
+}
+
 getAllModeOfStudyList(userId: number) {
   return this.http.get(
     `${this.baseUrl}/MasterData/GetAllModeOfStudy?userId=${userId}`

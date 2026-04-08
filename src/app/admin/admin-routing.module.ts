@@ -149,7 +149,7 @@ const routes: Routes = [
       { path: 'asset-type', component: AssetTypeComponent },
       { path: 'asset-category', component: AssetCategoryComponent },
       { path: 'currency', component: CurrencyComponent },
-      { path: 'visatype', component: VisatypeComponent }
+      { path: 'visatype', component: VisatypeComponent },
       { path: 'modeofstudy', component: ModeofstudyComponent }
     ]
   }
