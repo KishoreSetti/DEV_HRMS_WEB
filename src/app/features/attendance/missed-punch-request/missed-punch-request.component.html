@@ -65,7 +65,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">HR Email (CC)</label>
+          <label class="form-label">HR Email (CC)<span class="text-danger">*</span></label>
           <input type="email" class="form-control" formControlName="hrEmail">
         </div>
 
@@ -146,7 +146,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let item of approvalRequests">
+          <tr *ngFor="let item of pendingRequests">
             <td>
               <input type="checkbox" [(ngModel)]="item.selected">
             </td>
@@ -170,7 +170,7 @@
             </td>
           </tr>
 
-          <tr *ngIf="approvalRequests.length === 0">
+          <tr *ngIf="pendingRequests.length === 0">
             <td colspan="9" class="text-center text-muted">
               No pending approvals
             </td>
@@ -187,6 +187,76 @@
         </button>
       </div>
     </div>
+    <div class="card p-4 shadow-sm mt-4">
+  <h5 class="mb-3 text-success">Approved Requests</h5>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Employee</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>In</th>
+        <th>Out</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of approvedRequests">
+        <td>{{ item.employeeName }}</td>
+        <td>{{ item.missedDate | date }}</td>
+        <td>{{ item.missedType }}</td>
+        <td>{{ item.correctClockIn }}</td>
+        <td>{{ item.correctClockOut }}</td>
+        <td>{{ item.reason }}</td>
+        <td>{{ item.managerRemarks }}</td>
+        <td><span class="badge bg-success">Approved</span></td>
+      </tr>
+
+      <tr *ngIf="approvedRequests.length === 0">
+        <td colspan="8" class="text-center text-muted">No approved records</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="card p-4 shadow-sm mt-4">
+  <h5 class="mb-3 text-danger">Rejected Requests</h5>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Employee</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>In</th>
+        <th>Out</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of rejectedRequests">
+        <td>{{ item.employeeName }}</td>
+        <td>{{ item.missedDate | date }}</td>
+        <td>{{ item.missedType }}</td>
+        <td>{{ item.correctClockIn }}</td>
+        <td>{{ item.correctClockOut }}</td>
+        <td>{{ item.reason }}</td>
+        <td>{{ item.managerRemarks }}</td>
+        <td><span class="badge bg-danger">Rejected</span></td>
+      </tr>
+
+      <tr *ngIf="rejectedRequests.length === 0">
+        <td colspan="8" class="text-center text-muted">No rejected records</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
   </div>
 </div>
 
