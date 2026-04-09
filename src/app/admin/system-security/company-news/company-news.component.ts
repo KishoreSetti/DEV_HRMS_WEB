@@ -15,6 +15,7 @@ export class CompanyNewsComponent {
   companyId!: number;
   regionId!: number;
   categories: any[] = [];
+  filteredRegions: any[] = [];
 
 
   departments: Department[] = [];
@@ -58,11 +59,17 @@ export class CompanyNewsComponent {
 loadRegions(): void {
   this.adminService.getRegions(null, this.userId).subscribe({
     next: (res: any) => {
-      console.log("Regions API:", res); // debug
       this.regions = res || [];
     },
     error: () => Swal.fire('Error', 'Failed to load regions', 'error')
   });
+}
+onCompanyChange(): void {
+  this.news.RegionId = null;
+
+  this.filteredRegions = this.news.CompanyId
+    ? this.regions.filter(r => Number(r.companyID) === Number(this.news.CompanyId))
+    : [];
 }
 loadCategories(): void {
   this.adminService.getCompanyNewsCategoryList(this.userId).subscribe({
@@ -250,6 +257,9 @@ debugger;
     // ❗ Make sure NewsId exists and PublishedDate is string
     this.news = { ...n };
     this.news.PublishedDate = n.Date ? new Date(n.Date).toISOString().split('T')[0] : '';
+    this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.news.CompanyId)
+  );
   }
 
   // -----------------------------

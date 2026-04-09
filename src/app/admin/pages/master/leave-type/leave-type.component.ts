@@ -35,6 +35,7 @@ companyMap: { [key: number]: string } = {};
   sortDirection: 'asc' | 'desc' = 'asc';
 
   showUploadPopup = false;
+  filteredRegions: Region[] = [];
 
   constructor(
     private admin: AdminService,
@@ -74,6 +75,7 @@ getEmptyLeaveType(): any {
     this.regionId = 0;
     this.regions = [];
     this.leave.CompanyID = this.companyId;
+    this.filteredRegions = this.regions.filter((r: Region) => r.companyID === this.companyId);
 
     this.loadRegions();
   }
@@ -140,6 +142,7 @@ loadLeaveType(): void {
   this.leave = { ...item };
 
   this.companyId = item.CompanyID;
+  this.filteredRegions = this.regions.filter((r: Region) => r.companyID === this.companyId);
   this.admin.getRegions(this.companyId).subscribe({
     next: (res: Region[]) => {
       this.regions = res || [];
@@ -297,16 +300,25 @@ onBulkUploadComplete(event: any) {
   this.loadLeaveType();
 }
 loadCompanies(): void {
-    this.admin.getCompanies(null,this.userId).subscribe({
-      next: (res:any) => (this.companies = res),
-      error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
-    });
-  }
+  this.admin.getCompanies(null, this.userId).subscribe({
+    next: (res: Company[]) => {
+      this.companies = res.filter(c => c.isActive);
+      // build companyMap
+      this.companies.forEach(c => this.companyMap[c.companyId] = c.companyName);
+    },
+    error: () => Swal.fire('Error', 'Failed to load companies.', 'error')
+  });
+}
 
-  loadRegions(): void {
-    this.admin.getRegions(null,this.userId).subscribe({
-      next: (res:any) => (this.regions = res),
-      error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
-    });
-  }
+loadRegions(): void {
+  this.admin.getRegions(null, this.userId).subscribe({
+    next: (res: Region[]) => {
+      this.regions = res.filter(r => r.isActive);
+      this.filteredRegions = this.regions.filter(r => r.companyID === this.companyId);
+      // build regionMap
+      this.regions.forEach(r => this.regionMap[r.regionID] = r.regionName);
+    },
+    error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
+  });
+}
 }

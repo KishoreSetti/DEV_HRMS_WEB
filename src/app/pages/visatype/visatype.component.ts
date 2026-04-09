@@ -15,6 +15,7 @@ export class VisatypeComponent {
 
   visa: any = this.getEmptyVisa();
   isEditMode = false;
+  filteredRegions: any[] = [];
 
   userId = Number(sessionStorage.getItem("UserId"));
 constructor(private service: AdminService) {}
@@ -46,9 +47,25 @@ getEmptyVisa() {
   }
 
   loadRegions() {
-    this.service.getRegions(null,this.userId)
-      .subscribe(res => this.regions = res);
+  this.service.getRegions(null, this.userId)
+    .subscribe((res: any) => {
+      this.regions = res?.data ?? res ?? [];
+    });
+}
+onCompanyChange() {
+
+  // reset region selection
+  this.visa.regionId = '';
+
+  if (this.visa.companyId) {
+    // ✅ filter regions
+    this.filteredRegions = this.regions.filter(r =>
+      Number(r.companyID) === Number(this.visa.companyId)
+    );
+  } else {
+    this.filteredRegions = [];
   }
+}
   onSubmit() {
     this.visa.userId = Number(sessionStorage.getItem("UserId"));
   if (this.isEditMode) {
@@ -69,6 +86,9 @@ getEmptyVisa() {
   editVisa(v:any) {
     this.visa = {...v};
     this.isEditMode = true;
+    this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.visa.companyId)
+  );
   }
 
   deleteVisa(v:any) {

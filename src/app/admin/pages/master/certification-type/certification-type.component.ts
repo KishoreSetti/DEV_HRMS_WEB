@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AdminService,CertificationType } from '../../../servies/admin.service';  
+import { AdminService,CertificationType, Region } from '../../../servies/admin.service';  
 import Swal from 'sweetalert2';
 import { NgxSpinnerService } from 'ngx-spinner';
 import * as XLSX from 'xlsx';
@@ -37,6 +37,7 @@ export class CertificationTypeComponent {
 
   showUploadPopup = false;
   certificationModel!: UploadModel;
+  filteredRegions: any[] = [];
 
   constructor(
     private adminService: AdminService,
@@ -211,10 +212,22 @@ loadRegions(): void {
         : res.data || res.result || [];
 
       this.regions = data.filter((r: any) => r.isActive === true);
+      this.filteredRegions = [];
 
     },
     error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
   });
+}
+onCompanyChange(): void {
+  const companyId = Number(this.certification.companyID);
+  if (companyId) {
+    this.filteredRegions = this.regions.filter((r: Region) => r.companyID === companyId);
+  } else {
+    this.filteredRegions = [];
+  }
+
+  // Reset selected region
+  this.certification.regionId = 0;
 }
   // ================= BULK UPLOAD =================
   openUploadPopup(): void {

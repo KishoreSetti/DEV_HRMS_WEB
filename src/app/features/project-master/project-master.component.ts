@@ -23,6 +23,7 @@ export class ProjectMasterComponent implements OnInit {
   currentPage = 1;
 
   userId = Number(sessionStorage.getItem("UserId"));
+  filteredRegions: any[] = [];
 
   constructor(private service: AdminService) { }
 
@@ -42,6 +43,13 @@ export class ProjectMasterComponent implements OnInit {
       userId: this.userId = Number(sessionStorage.getItem("UserId"))
     };
   }
+  onCompanyChange(): void {
+  this.project.regionId = null;
+
+  this.filteredRegions = this.project.companyId
+    ? this.regions.filter(r => Number(r.companyID) === Number(this.project.companyId))
+    : [];
+}
 
   loadProjects() {
   this.service.getProjects(this.userId).subscribe((res: any) => {
@@ -96,6 +104,9 @@ export class ProjectMasterComponent implements OnInit {
   editProject(p: any) {
     this.project = { ...p };
     this.isEditMode = true;
+    this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.project.companyId)
+  );
   }
 
   deleteProject(p: any) {
@@ -118,6 +129,7 @@ export class ProjectMasterComponent implements OnInit {
   resetForm() {
     this.project = this.getEmptyProject();
     this.isEditMode = false;
+    this.filteredRegions = [];
   }
 
   onCancel() {
