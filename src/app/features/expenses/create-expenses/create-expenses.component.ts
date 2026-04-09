@@ -33,6 +33,7 @@ expenseForm!: FormGroup;
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
   projects: any[] = [];
+  currencies: any[] = [];
   
 
   constructor(
@@ -51,12 +52,21 @@ expenseForm!: FormGroup;
     this.loadCategories();
     this.loadMyExpenses();
     this.loadProjects();
+    this.loadCurrencies();
   }
   loadProjects(): void {
   this.service.getProjectNames(this.companyId, this.regionId)
     .subscribe(res => {
       if (res.success && res.data) {
         this.projects = res.data;
+      }
+    });
+}
+loadCurrencies(): void {
+  this.service.getCurrenciesByCompanyRegion(this.companyId, this.regionId)
+    .subscribe((res: any) => {
+      if (res.success && res.data) {
+        this.currencies = res.data;
       }
     });
 }
@@ -115,6 +125,7 @@ expenseForm!: FormGroup;
   this.loadCategories();
   this.loadProjects();
   this.expenseForm.patchValue({ expenseCategoryId: '' }); 
+  this.loadCurrencies();
 }
 
   noFutureDate(control: AbstractControl) {

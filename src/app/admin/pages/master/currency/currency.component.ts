@@ -61,10 +61,19 @@ export class CurrencyComponent {
     });
 
   }
+  getCompanyName(id: number) {
+  return this.companyMap[id] || '-';
+}
+
+getRegionName(id: number) {
+  return this.regionMap[id] || '-';
+}
 
   onCompanyChange() {
     this.model.regionId = 0;
-    this.regions = this.allRegions.filter(r => r.companyID == this.model.companyId);
+    this.regions = this.allRegions.filter(
+    r => (r.companyID) == this.model.companyId
+  );
   }
 
   onSubmit() {
@@ -125,7 +134,8 @@ export class CurrencyComponent {
       this.allRegions = data.filter((x: any) => x.isActive);
 
       this.allRegions.forEach((r: any) => {
-        this.regionMap[r.regionID] = r.regionName;
+        const regionId = r.regionID ?? r.regionId; 
+      this.regionMap[regionId] = r.regionName;
       });
 
       this.regions = [];
