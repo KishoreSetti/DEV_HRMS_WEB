@@ -2729,4 +2729,24 @@ deleteModeOfStudy(id: number) {
     {}
   );
 }
+getProjects(userId: number) {
+  return this.http.get<any>(`${this.baseUrl}/MasterData/GetAllProjects?userId=${userId}`);
+}
+
+createProject(data: any) {
+  debugger;
+  return this.http.post<any>(`${this.baseUrl}/MasterData/CreateProject`, data);
+}
+
+updateProject(data: any) {
+  return this.http.put<any>(`${this.baseUrl}/MasterData/UpdateProject`, data);
+}
+
+deleteProject(id: number) {
+  return this.http.post<any>(`${this.baseUrl}/MasterData/DeleteProjectMaster/${id}`, {});
+}
+
+getProjectNames(companyId: number, regionId: number) {
+    return this.http.get<any>(`${this.baseUrl}/MasterData/GetProjectsByCompanyRegion?companyId=${companyId}&regionId=${regionId}`);
+  }
 }

@@ -4,6 +4,7 @@ import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/fo
 import { environment } from '../../../../environments/environment.prod';
 import Swal from 'sweetalert2';
 import { ExpensesService } from '../expenses.service';
+import { AdminService } from '../../../admin/servies/admin.service';
 
 @Component({
   selector: 'app-create-expenses',
@@ -31,10 +32,13 @@ expenseForm!: FormGroup;
 
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
+  projects: any[] = [];
+  
 
   constructor(
     private fb: FormBuilder,
-    private expenseService: ExpensesService
+    private expenseService: ExpensesService,
+    private service: AdminService
   ) {}
 
   ngOnInit(): void {
@@ -46,7 +50,16 @@ expenseForm!: FormGroup;
     this.buildForm();
     this.loadCategories();
     this.loadMyExpenses();
+    this.loadProjects();
   }
+  loadProjects(): void {
+  this.service.getProjectNames(this.companyId, this.regionId)
+    .subscribe(res => {
+      if (res.success && res.data) {
+        this.projects = res.data;
+      }
+    });
+}
 
   buildForm(): void {
     this.expenseForm = this.fb.group({
@@ -100,6 +113,7 @@ expenseForm!: FormGroup;
   }
   onCompanyOrRegionChange(): void {
   this.loadCategories();
+  this.loadProjects();
   this.expenseForm.patchValue({ expenseCategoryId: '' }); 
 }
 
