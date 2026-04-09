@@ -75,6 +75,7 @@ import { AssetTypeComponent } from './pages/master/asset-type/asset-type.compone
 import { AssetCategoryComponent } from './pages/master/asset-category/asset-category.component';
 import { CurrencyComponent } from './pages/master/currency/currency.component';
 import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
+import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
 
 @NgModule({
   declarations: [
@@ -151,7 +152,8 @@ import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component'
     AssetTypeComponent,
     AssetCategoryComponent,
     CurrencyComponent,
-    ModeofstudyComponent
+    ModeofstudyComponent,
+    AccounttypeComponent
  
   
 

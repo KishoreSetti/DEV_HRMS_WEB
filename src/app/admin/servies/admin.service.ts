@@ -2729,4 +2729,31 @@ deleteModeOfStudy(id: number) {
     {}
   );
 }
+// 🔹 GET ALL
+getAccountTypeList(userId: number) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/MasterData/GetAllAccountType?userId=${userId}`
+  );
+}
+// 🔹 CREATE
+createAccountType(data: any) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/CreateAccountType`,
+    data
+  );
+}
+// 🔹 UPDATE
+updateAccountType(data: any) {
+  return this.http.put(
+    `${this.baseUrl}/MasterData/UpdateAccountType`,
+    data
+  );
+}
+// 🔹 DELETE
+deleteAccountType(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeleteAccountType/${id}`,
+    {}  
+  );
+}
 }
