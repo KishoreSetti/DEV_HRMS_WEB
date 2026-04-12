@@ -31,7 +31,10 @@ export class WfoRemoteRequestComponent {
 
   /* ========= LISTS ========= */
   myRequests: any[] = [];
-  approvalRequests: any[] = [];
+  // approvalRequests: any[] = [];
+  pendingRequests: any[] = [];
+approvedRequests: any[] = [];
+rejectedRequests: any[] = [];
 
   /* ========= MANAGER ========= */
   selectAll = false;
@@ -50,6 +53,10 @@ export class WfoRemoteRequestComponent {
   /* ================= SUBMIT REQUEST ================= */
 
   submitWfhRequest(): void {
+    if (this.wfhForm.fromDate > this.wfhForm.toDate) {
+  Swal.fire('Error', 'From Date cannot be greater than To Date', 'error');
+  return;
+}
     debugger;
     this.attendanceService.createRequest(this.wfhForm).subscribe({
       next: () => {
@@ -57,7 +64,9 @@ export class WfoRemoteRequestComponent {
         this.resetForm();
         this.loadMyRequests();
       },
-      error: err => console.error(err)
+      error: err => {
+      Swal.fire('Error', err.error?.message || 'Something went wrong', 'error');
+    }
     });
   }
 
@@ -78,30 +87,38 @@ export class WfoRemoteRequestComponent {
 
   /* ================= MANAGER APPROVAL ================= */
 
-  loadApprovalRequests(): void {
-    this.attendanceService
-      .getPendingApprovals(this.companyId, this.userId, this.regionId)
-      .subscribe(res => {
-        this.approvalRequests = res.map(x => ({
-          ...x,
-          selected: false
-        }));
-        this.selectAll = false;
-      });
-  }
+ loadApprovalRequests(): void {
+  this.attendanceService
+    .getPendingApprovals(this.companyId, this.userId, this.regionId)
+    .subscribe(res => {
+
+      // ✅ SPLIT DATA BASED ON STATUS
+      this.pendingRequests = res.filter((x: any) => x.status === 'Pending');
+      this.approvedRequests = res.filter((x: any) => x.status === 'Approved');
+      this.rejectedRequests = res.filter((x: any) => x.status === 'Rejected');
+
+      // ✅ ADD UI FLAGS ONLY FOR PENDING
+      this.pendingRequests = this.pendingRequests.map(x => ({
+        ...x,
+        selected: false
+      }));
+
+      this.selectAll = false;
+    });
+}
 
   toggleSelectAll(): void {
-    this.approvalRequests.forEach(x => x.selected = this.selectAll);
+   this.pendingRequests.forEach((x: any) => x.selected = this.selectAll);
   }
 
   updateSelectAll(): void {
-    this.selectAll = this.approvalRequests.every(x => x.selected);
+   this.selectAll = this.pendingRequests.every((x: any) => x.selected);
   }
 
   getSelectedIds(): number[] {
-    return this.approvalRequests
-      .filter(x => x.selected)
-      .map(x => x.wfhrequestId);
+   return this.pendingRequests
+  .filter((x: any) => x.selected)
+  .map((x: any) => x.wfhrequestId);
   }
 
   bulkAction(status: 'Approved' | 'Rejected'): void {

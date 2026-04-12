@@ -164,7 +164,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let req of approvalRequests">
+          <tr *ngFor="let req of pendingRequests">
             <td>
               <input type="checkbox"
                      [(ngModel)]="req.selected"
@@ -182,7 +182,7 @@
             </td>
           </tr>
 
-          <tr *ngIf="approvalRequests.length === 0">
+          <tr *ngIf="pendingRequests.length === 0">
             <td colspan="7" class="text-center text-muted">
               No pending approvals
             </td>
@@ -212,6 +212,73 @@
       </div>
 
     </div>
+
+    <div class="card p-4 shadow-sm mt-4">
+  <h5 class="text-success">Approved Requests</h5>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Type</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let req of approvedRequests">
+        <td>{{ req.employeeName }}</td>
+        <td>{{ req.fromDate | date }}</td>
+        <td>{{ req.toDate | date }}</td>
+        <td>{{ req.requestType }}</td>
+        <td>{{ req.reason }}</td>
+        <td>{{ req.managerRemarks }}</td>
+        <td><span class="badge bg-success">Approved</span></td>
+      </tr>
+
+      <tr *ngIf="approvedRequests.length === 0">
+        <td colspan="7" class="text-center">No approved records</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="card p-4 shadow-sm mt-4">
+  <h5 class="text-danger">Rejected Requests</h5>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Employee</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Type</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let req of rejectedRequests">
+        <td>{{ req.employeeName }}</td>
+        <td>{{ req.fromDate | date }}</td>
+        <td>{{ req.toDate | date }}</td>
+        <td>{{ req.requestType }}</td>
+        <td>{{ req.reason }}</td>
+        <td>{{ req.managerRemarks }}</td>
+        <td><span class="badge bg-danger">Rejected</span></td>
+      </tr>
+
+      <tr *ngIf="rejectedRequests.length === 0">
+        <td colspan="7" class="text-center">No rejected records</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
   </div>
 
