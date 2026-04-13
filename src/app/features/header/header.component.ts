@@ -34,6 +34,7 @@ profilePicture: string = '';
 //profilePicture: string = 'assets/images/default-profile.png';
 userId: number = Number(sessionStorage.getItem('UserId'));
 companyLogo: string = '/assets/images/cor-logo.png';
+isMobileMenuOpen = false;
  constructor(private router: Router, private employeeResignationService: EmployeeResignationService, private adminService: AdminService, private ngZone: NgZone) {}
   ngOnInit() {
     this.loadProfilePicture();
@@ -89,6 +90,9 @@ companyLogo: string = '/assets/images/cor-logo.png';
     }
   });
 }
+toggleMobileMenu() {
+  this.isMobileMenuOpen = !this.isMobileMenuOpen;
+}
   loadProfilePicture() {
   this.employeeResignationService.getProfilePicture(this.userId)
     .subscribe({
@@ -124,8 +128,7 @@ companyLogo: string = '/assets/images/cor-logo.png';
   }
   isProfileOpen = false;
 
-toggleProfileMenu(event: Event): void {
-  event.stopPropagation();
+toggleProfileMenu(): void {
   this.isProfileOpen = !this.isProfileOpen;
 }
 
@@ -195,9 +198,27 @@ selectRegion(region: string) {
   // localStorage.setItem('region', region);
 }
 
-@HostListener('document:click')
-closeOnOutsideClick() {
-  this.isLocationOpen = false;
+@HostListener('document:click', ['$event'])
+onGlobalClick(event: Event) {
+
+  const target = event.target as HTMLElement;
+
+  // ================= PROFILE DROPDOWN CLOSE =================
+  if (!target.closest('.profile-menu')) {
+    this.isProfileOpen = false;
+  }
+
+  // ================= LOCATION DROPDOWN CLOSE =================
+  if (!target.closest('.location-wrapper')) {
+    this.isLocationOpen = false;
+  }
+
+  // ================= MOBILE MENU CLOSE =================
+  if (!target.closest('.mobile-dropdown') &&
+      !target.closest('.mobile-menu-btn')) {
+    this.isMobileMenuOpen = false;
+  }
+
 }
 
 getSystemTime(): Date {

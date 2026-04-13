@@ -1,25 +1,36 @@
 <div class="topbar">
-  <!-- Left side: Logo -->
+
+  <!-- ================= LEFT ================= -->
   <div class="top-left">
+
     <div class="logo">
       <img [src]="companyLogo" width="150px" height="50px" alt="Company Logo">
     </div>
+
     <div class="clock-status">
       <span>Status: {{ clockStatus }}</span> |
       <span>Clock In: {{ clockInDisplay }}</span> |
       <span>Total Hours: {{ totalHoursDisplay }}</span>
     </div>
+
   </div>
+
+  <!-- ================= CLOCK BUTTON ================= -->
   <button class="btn btn-primary" (click)="toggleClock()">
     {{ isClockedIn ? 'Clock Out' : 'Clock In' }}
   </button>
+
+  <!-- ================= RIGHT SECTION ================= -->
   <div class="right-section">
-    <!-- Quick Links -->
-    <button class="icon-btn" title="Quick Links"><i class="fas fa-link"></i></button>
+
+    <!-- Quick Link (hidden in mobile) -->
+    <button class="icon-btn" title="Quick Links">
+      <i class="fas fa-link"></i>
+    </button>
 
     <!-- Notifications -->
     <div class="top-right-icons">
-      <!-- Notifications -->
+
       <div class="icon-dropdown">
         <i class="fas fa-bell"></i>
         <span class="count">3</span>
@@ -32,7 +43,6 @@
         </div>
       </div>
 
-      <!-- Messages -->
       <div class="icon-dropdown">
         <i class="fas fa-envelope"></i>
         <span class="count">2</span>
@@ -42,127 +52,91 @@
           <a href="#">Project update</a>
         </div>
       </div>
+
     </div>
 
+    <!-- ================= LOCATION ================= -->
+    <div class="profile-menu location-wrapper">
 
-    <!-- Language / Country -->
-    <div class="profile-menu">
-
-      <div class="profile-menu" (click)="toggleLocationMenu($event)">
-
+      <div (click)="toggleLocationMenu($event)">
         <i class="fas fa-globe"></i>
         <i class="fas fa-chevron-down small-chevron"></i>
 
         <div class="profile-dropdown" [class.show]="isLocationOpen">
           <div class="location-container">
 
-            <!-- LEFT: COUNTRY LIST -->
             <div class="country-list">
-              <a *ngFor="let country of (locations | keyvalue)" (click)="selectCountry(country.key)">
+              <a *ngFor="let country of (locations | keyvalue)"
+                 (click)="selectCountry(country.key)">
                 {{ country.key }}
               </a>
             </div>
 
-            <!-- RIGHT: REGION LIST -->
             <div class="region-list">
-              <a *ngFor="let region of regionList" (click)="selectRegion(region)">
+              <a *ngFor="let region of regionList"
+                 (click)="selectRegion(region)">
                 {{ region }}
               </a>
             </div>
 
           </div>
         </div>
+
       </div>
     </div>
 
+    <!-- ================= PROFILE ================= -->
     <div class="profile-menu">
-      <span class="profile-name">Welcome, <b>{{userName}}({{roleName}})</b></span>
-      <img [src]="profilePicture" alt="Profile Picture" width="100" height="100" class="profile-pic"
-        (error)="profilePicture='/assets/images/default-Logo.jpg'" />
+
+      <span class="profile-name">
+        Welcome, <b>{{userName}}({{roleName}})</b>
+      </span>
+
+      <img [src]="profilePicture"
+           class="profile-pic"
+           (click)="toggleProfileMenu()"
+           (error)="profilePicture='/assets/images/default-Logo.jpg'">
+
       <i class="fas fa-chevron-down dropdown-arrow"></i>
 
       <div class="profile-dropdown" [class.show]="isProfileOpen">
+
         <a routerLink="/profile" (click)="closeProfileMenu()">My Profile</a>
         <a *ngIf="superadmin" routerLink="/admin/dashboard" (click)="closeProfileMenu()">Admin Settings</a>
         <a routerLink="/change-password" (click)="closeProfileMenu()">Change Password</a>
-        <a routerLink="">Log Out</a>
+        <a routerLink="" (click)="logout()">Log Out</a>
+
       </div>
+
     </div>
 
+    <!-- ================= MOBILE BUTTON ================= -->
+    <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
 
   </div>
+
 </div>
-<div class="chatbot-container">
 
-  <!-- Floating Icon -->
-  <div class="chatbot-toggle" (click)="toggleChat()">
-    <i class="fa fa-comments"></i>
-  </div>
+<!-- ================= MOBILE DROPDOWN ================= -->
+<div class="mobile-dropdown" [class.open]="isMobileMenuOpen">
 
-  <!-- Chat Window -->
- <div class="chatbot-container">
+  <p><b>Quick Info</b></p>
 
-  <!-- Toggle Button -->
-  <div class="chatbot-toggle" (click)="toggleChat()">
-    <i class="fa fa-comments"></i>
-  </div>
+  <p>Status: {{ clockStatus }}</p>
+  <p>Clock In: {{ clockInDisplay }}</p>
+  <p>Total Hours: {{ totalHoursDisplay }}</p>
 
-  <!-- Chat Window -->
-  <div class="chatbot" *ngIf="isOpen">
+  <hr>
 
-    <div class="chatbot-header">
-      HRMS Chatbot
-      <span class="close-btn" (click)="toggleChat()">×</span>
-    </div>
+  <p><b>Notifications</b></p>
+  <p>New leave request</p>
+  <p>Policy update</p>
 
-    <div class="chatbot-messages" id="chatContainer">
+  <hr>
 
-      <div *ngFor="let msg of messages"
-           class="message-wrapper"
-           [ngClass]="msg.type">
+  <p><b>Messages</b></p>
+  <p>Message from HR</p>
 
-        <!-- Bot Avatar -->
-        <div class="avatar" *ngIf="msg.type === 'bot'">🤖</div>
-
-        <!-- Message -->
-        <div class="message-bubble">
-          <div class="text">{{ msg.text }}</div>
-          <div class="time">{{ msg.time }}</div>
-
-          <!-- ✅ Buttons -->
-          <div *ngIf="msg.buttons?.length" class="chat-buttons">
-            <button *ngFor="let btn of msg.buttons"
-                    (click)="handleAction(btn)">
-              {{ btn.label }}
-            </button>
-          </div>
-
-        </div>
-
-        <!-- User Avatar -->
-        <div class="avatar user-avatar" *ngIf="msg.type === 'user'">👤</div>
-
-      </div>
-
-      <!-- Typing Indicator -->
-      <div *ngIf="isTyping" class="message-wrapper bot">
-        <div class="avatar">🤖</div>
-        <div class="message-bubble typing">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Input -->
-    <div class="chatbot-input">
-      <input [(ngModel)]="userInput"
-             (keyup.enter)="sendMessage()"
-             placeholder="Ask like: Leave, Attendance..." />
-      <button (click)="sendMessage()">
-        <i class="fa fa-paper-plane"></i>
-      </button>
-    </div>
-
-  </div>
 </div>
