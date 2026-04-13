@@ -61,11 +61,11 @@
       </label>
       <div class="d-flex">
         <select class="form-select me-2" formControlName="currencyCode" style="max-width:120px">
-          <option value="INR">INR</option>
-          <option value="USD">USD</option>
-          <option value="MYR">MYR</option>
-          <option value="EUR">EUR</option>
-        </select>
+        <option value="">Select Currency</option>
+        <option *ngFor="let c of currencies" [value]="c.currencyCode">
+          {{ c.currencyCode }} - {{ c.currencyName }}
+        </option>
+      </select>
 
         <input type="number" class="form-control" formControlName="amount" placeholder="Enter amount">
       </div>
