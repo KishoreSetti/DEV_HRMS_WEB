@@ -220,7 +220,7 @@ setLastWorkingDay(noticePeriodStr: string) {
       },
       error: (err) => {
         console.error('Error saving resignation:', err);
-        this.message = err.error?.message || 'Failed to save resignation.';
+        this.message = err.error?.message || 'Resignation already exists for selected Last Working Day';
       },
     });
   }
