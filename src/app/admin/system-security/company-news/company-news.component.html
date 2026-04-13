@@ -20,7 +20,7 @@
     <!-- Company Dropdown -->
     <div class="col-md-6">
       <label class="form-label fw-semibold">Company</label>
-      <select class="form-select" name="CompanyId" [(ngModel)]="news.CompanyId">
+      <select class="form-select" name="CompanyId" (change)="onCompanyChange()" [(ngModel)]="news.CompanyId">
         <option [ngValue]="null">Select Company</option>
         <option *ngFor="let c of companies" [ngValue]="c.companyId">
           {{ c.companyName }}
@@ -33,7 +33,7 @@
       <label class="form-label fw-semibold">Region</label>
       <select class="form-select" name="RegionId" [(ngModel)]="news.RegionId">
         <option [ngValue]="null">Select Region</option>
-        <option *ngFor="let r of regions" [ngValue]="r.regionId">
+        <option *ngFor="let r of filteredRegions" [ngValue]="r.regionId">
           {{ r.regionName }}
         </option>
       </select>

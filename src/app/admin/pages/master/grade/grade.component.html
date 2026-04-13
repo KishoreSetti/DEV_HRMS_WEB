@@ -8,35 +8,32 @@
 
             <div class="row">
                 <!-- Company -->
-                <div class="col">
-                    <label>Company</label>
-
-                    <!-- <input type="text" [value]="companyName" disabled class="readonly-input" /> -->
-             <select class="form-select" formControlName="companyID">
-  <option value="">Select Company</option>
-  <option *ngFor="let company of companies" [value]="company.companyId">
-    {{ company.companyName }}
-  </option>
-</select>
-                    <div class="error" *ngIf="gradeForm.get('companyID')?.touched && gradeForm.get('companyID')?.invalid">
-  Company is required
+<div class="col">
+  <label>Company</label>
+  <select class="form-select" formControlName="companyID" (change)="onCompanyChange()">
+    <option value="">Select Company</option>
+    <option *ngFor="let company of companies" [value]="company.companyId">
+      {{ company.companyName }}
+    </option>
+  </select>
+  <div class="error" *ngIf="gradeForm.get('companyId')?.touched && gradeForm.get('companyId')?.invalid">
+    Company is required
+  </div>
 </div>
-                </div>
 
-                <!-- Region -->
-                <div class="col">
-                    <label>Region</label>
-                    <!-- Region -->
-                    <select formControlName="regionId">
-                        <option value="">---Select Region---</option>
-                        <option *ngFor="let r of regions" [ngValue]="r.regionID">
-                            {{r.regionName}}
-                        </option>
-                    </select>
-                    <div class="error" *ngIf="gradeForm.get('regionId')?.touched && gradeForm.get('regionId')?.invalid">
-                        Region is required
-                    </div>
-                </div>
+<!-- Region -->
+<div class="col">
+  <label>Region</label>
+  <select formControlName="regionId">
+    <option value="">---Select Region---</option>
+    <option *ngFor="let r of filteredRegions" [value]="r.regionID">
+      {{ r.regionName }}
+    </option>
+  </select>
+  <div class="error" *ngIf="gradeForm.get('regionId')?.touched && gradeForm.get('regionId')?.invalid">
+    Region is required
+  </div>
+</div>
 
                 <!-- Grade -->
                 <div class="col">

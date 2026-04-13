@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService, Designation } from '../../../servies/admin.service';
+import { AdminService, Designation, Region } from '../../../servies/admin.service';
 import Swal from 'sweetalert2';
 import { NgxSpinnerService } from 'ngx-spinner';
 import * as XLSX from 'xlsx';
@@ -26,6 +26,7 @@ export class DesignationComponent {
   currentPage = 1;
   Math = Math;
   userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0;
+  filteredRegions: any[] = [];
   constructor(
     private adminservice: AdminService,
     private spinner: NgxSpinnerService
@@ -69,6 +70,15 @@ regions:any;
       error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
     });
   }
+  onCompanyChange(): void {
+  this.designation.regionId = 0;
+
+  this.filteredRegions = this.designation.companyId
+    ? this.regions.filter((r: Region) =>
+        Number(r.companyID) === Number(this.designation.companyId)
+      )
+    : [];
+}
   // getCompanyName(companyId: number): string {
   //   const c = this.companies.find((x:any) => x.companyID === companyId);
   //   return c ? c.companyName : '-';
@@ -220,6 +230,9 @@ editDesignation(d: any): void {
   };
 
   this.isEditMode = true;
+  this.filteredRegions = this.regions.filter((r: Region) =>
+  Number(r.companyID) === Number(this.designation.companyId)
+);
 }
 
   // ------------------------------------------------------------

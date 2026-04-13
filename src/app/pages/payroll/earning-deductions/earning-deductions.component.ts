@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EmployeePayRollService,SalaryComponent } from '../../../employee-pay-roll.service';
 import Swal from 'sweetalert2';
+import { AdminService } from '../../../admin/servies/admin.service';
 
 interface PayrollComponent {
   Name: string;
@@ -14,7 +15,7 @@ interface PayrollComponent {
   styleUrl: './earning-deductions.component.css'
 })
 export class EarningDeductionsComponent {
-userId!: number;
+userId = Number(sessionStorage.getItem('UserId'));
   companyId!: string;
   regionId!: string;
 
@@ -23,6 +24,7 @@ userId!: number;
 
   companies: any[] = [];
   regions: any[] = [];
+  filteredRegions: any[] = [];
 
   isEditMode = false;
   searchText = '';
@@ -32,12 +34,12 @@ userId!: number;
   companyMap: { [key: string]: string } = {};
 regionMap: { [key: string]: string } = {};
 
-  constructor(private payrollService: EmployeePayRollService) { }
+  constructor(private payrollService: EmployeePayRollService, private service: AdminService) { }
 
   ngOnInit(): void {
 
     // ✅ GET FROM SESSION STORAGE
-    this.userId = Number(sessionStorage.getItem('userCompanyId'));
+    this.userId = Number(sessionStorage.getItem('UserId'));
     this.companyId = sessionStorage.getItem('CompanyId') || '';
     this.regionId = sessionStorage.getItem('RegionId') || '';
 
@@ -78,26 +80,41 @@ loadComponents() {
 }
 
 loadCompanies() {
-  this.payrollService.getCompanies(this.userId)
-    .subscribe((res:any) => {
-      this.companies = res || [];
-      this.companyMap = {};
-      this.companies.forEach(c => {
-        this.companyMap[c.companyId] = c.companyName;
+    this.payrollService.getCompanies(this.userId)
+      .subscribe((res: any) => {
+        this.companies = res || [];
+        // map for table display
+        this.companyMap = {};
+        this.companies.forEach(c => {
+          this.companyMap[c.companyId] = c.companyName;
+        });
       });
-    });
-}
+  }
 
-loadRegions() {
-  this.payrollService.getRegions(this.userId)
-    .subscribe((res:any) => {
-      this.regions = res || [];
-      this.regionMap = {};
-      this.regions.forEach(r => {
-        this.regionMap[r.regionId] = r.regionName;
+  // ------------------ Load Regions ------------------
+  loadRegions() {
+    this.payrollService.getRegions(this.userId)
+      .subscribe((res: any) => {
+        this.regions = res?.data ?? res ?? [];
+        // map for table display
+        this.regionMap = {};
+        this.regions.forEach(r => {
+          this.regionMap[r.regionID] = r.regionName;
+        });
       });
-    });
-}
+  }
+
+  // ------------------ Filter Regions on Company Change ------------------
+  onCompanyChange() {
+    this.component.regionId = '';
+    if (this.component.companyId) {
+      this.filteredRegions = this.regions.filter(r =>
+        Number(r.companyID) === Number(this.component.companyId)
+      );
+    } else {
+      this.filteredRegions = [];
+    }
+  }
 
  onSubmit() {
 
@@ -155,6 +172,9 @@ this.payrollService.updateComponent(this.component).subscribe({
   editComponent(c: SalaryComponent) {
     this.component = { ...c };
     this.isEditMode = true;
+    this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.component.companyId)
+  );
   }
 
 deleteComponent(c: SalaryComponent) {
@@ -212,6 +232,7 @@ deleteComponent(c: SalaryComponent) {
   resetForm() {
     this.component = this.getEmptyComponent();
     this.isEditMode = false;
+    this.filteredRegions = [];
   }
 
   filteredComponents() {
