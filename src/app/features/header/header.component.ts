@@ -122,9 +122,10 @@ toggleMobileMenu() {
     });
   }
    logout() {
+    
     // Optional: clear localStorage/sessionStorage or token
     localStorage.clear();
-    this.router.navigate(['/login']); // Navigate to admin login
+    this.router.navigate(['']); // Navigate to admin login
   }
   isProfileOpen = false;
 
