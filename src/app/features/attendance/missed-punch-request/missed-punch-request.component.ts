@@ -16,11 +16,13 @@ missedPunchForm!: FormGroup;
 
   myRequests: any[] = [];
   approvalRequests: any[] = [];
-
+pendingRequests: any[] = [];
+approvedRequests: any[] = [];
+rejectedRequests: any[] = [];
   companyId =Number(sessionStorage.getItem('CompanyId')) || 1;   // get from login/session
   regionId =Number(sessionStorage.getItem('RegionId')) || 1;    // get from login/session
   userId =Number(sessionStorage.getItem('UserId')) || 1;    // logged-in user
-  managerId =Number(sessionStorage.getItem("reportingManagerId")) || 0; // logged-in manager
+  managerId =Number(sessionStorage.getItem("UserId")) || 0; // logged-in manager
 selectedTab: string = '';
   constructor(
     private fb: FormBuilder,
@@ -174,20 +176,23 @@ loadMyRequests() {
     .subscribe(res => this.myRequests = res);
 }
 
-  loadApprovalRequests() {
+loadApprovalRequests() {
+  this.missedPunchService
+    .getApprovalMissedPunchRequest(this.companyId, this.regionId, this.managerId)
+    .subscribe(res => {
 
-    this.missedPunchService
-      .getApprovalMissedPunchRequest(this.companyId, this.regionId,Number(sessionStorage.getItem('UserId')))
-      .subscribe(res => {
-        console.log('Approval Rquests', res);
-        this.approvalRequests = res.map((x: any) => ({
-          ...x,
-          
-          selected: false,
-          managerRemarks: ''
-        }));
-      });
-  }
+      this.pendingRequests = res.filter((x: any) => x.status === 'Pending');
+      this.approvedRequests = res.filter((x: any) => x.status === 'Approved');
+      this.rejectedRequests = res.filter((x: any) => x.status === 'Rejected');
+
+      // add UI properties only for pending
+      this.pendingRequests = this.pendingRequests.map(x => ({
+        ...x,
+        selected: false,
+        managerRemarks: x.managerRemarks || ''
+      }));
+    });
+}
 
   /* ================= APPROVAL ACTIONS ================= */
 
