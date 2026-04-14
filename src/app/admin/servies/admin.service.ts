@@ -2756,4 +2756,9 @@ deleteAccountType(id: number) {
     {}  
   );
 }
+getAccountTypes(companyId: number, regionId: number) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/MasterData/GetAccountTypes?companyId=${companyId}&regionId=${regionId}`
+  );
+}
 }
