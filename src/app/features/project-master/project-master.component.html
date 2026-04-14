@@ -1,0 +1,143 @@
+<div class="card shadow-sm">
+  <div class="container-fluid p-4 project-management">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-semibold mb-0">
+        <i class="fa-solid fa-diagram-project me-2 text-primary"></i>
+        Project Master
+      </h4>
+    </div>
+
+    <hr class="mb-4" />
+
+    <!-- Project Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form (ngSubmit)="onSubmit()" #projectForm="ngForm">
+
+          <div class="row g-3">
+
+            <!-- Project Name -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Project Name</label>
+              <input
+                type="text"
+                class="form-control"
+                name="projectName"
+                [(ngModel)]="project.projectName"
+                required
+                placeholder="Enter Project Name"
+              />
+            </div>
+
+            <!-- Company -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company</label>
+               <select class="form-select" [(ngModel)]="project.companyId" name="companyId" (change)="onCompanyChange()" required>
+                <option [ngValue]="null">Select Company</option>
+                <option *ngFor="let c of companies" [ngValue]="c.companyId">
+                    {{ c.companyName }}
+                </option>
+                </select>
+            </div>
+
+            <!-- Region -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Region</label>
+              <select class="form-select" [(ngModel)]="project.regionId" name="regionId">
+                <option [ngValue]="null">Select Region</option>
+                <option *ngFor="let r of filteredRegions" [ngValue]="r.regionID">
+                    {{ r.regionName }}
+                </option>
+                </select>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="form-check form-switch mt-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="project.isActive"
+                  name="isActive"
+                />
+                <label class="ms-2">
+                  {{ project.isActive ? 'Active' : 'Inactive' }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-6 d-flex gap-2 align-items-end">
+              <button type="button" class="btn btn-danger w-100" (click)="onCancel()">
+                Cancel
+              </button>
+
+              <button type="submit" class="btn btn-dark w-100" [disabled]="!projectForm.valid">
+                {{ isEditMode ? 'Update Project' : 'Save Project' }}
+              </button>
+            </div>
+
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-3 row g-3">
+      <div class="col-md-4">
+        <input class="form-control" [(ngModel)]="searchText"
+          placeholder="Search Project">
+      </div>
+
+      <div class="col-md-4">
+        <select class="form-select" [(ngModel)]="statusFilter">
+          <option value="">All Status</option>
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Project Name</th>
+            <th>Company</th>
+            <th>Region</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let p of pagedProjects; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ p.projectName }}</td>
+            <td>{{ getCompanyName(p.companyId) }}</td>
+            <td>{{ getRegionName(p.regionId) }}</td>
+            <td>
+              <span class="badge"
+                [ngClass]="p.isActive ? 'bg-success' : 'bg-secondary'">
+                {{ p.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2"
+                (click)="editProject(p)">Edit</button>
+
+              <button class="btn btn-sm btn-danger"
+                (click)="deleteProject(p)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

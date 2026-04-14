@@ -552,6 +552,7 @@ userId!: number;
     this.payrollService.previewPayroll(this.userId, payload)
       .subscribe({
         next: (res:any) => {
+          console.log('Privew Payroll Responce', res);
           this.payrollList = res || [];
           this.isPreviewDone = true;
           this.isProcessed = false;
@@ -575,6 +576,7 @@ userId!: number;
     this.payrollService.processPayroll(this.userId, payload)
       .subscribe({
         next: (res: any) => {
+          console.log('Process Payroll Responce', res);
           this.isProcessed = true;
           this.isLoading = false;
 

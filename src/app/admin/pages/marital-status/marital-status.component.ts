@@ -341,7 +341,7 @@ loadRegions(): void {
       this.regions = data.filter((r: any) => r.isActive === true);
 
       // ✅ Important: update filtered list also
-      this.filteredRegions = [...this.regions];
+      this.filteredRegions = [];
 
       console.log('Active Regions 👉', this.regions);
     },
@@ -352,7 +352,11 @@ loadRegions(): void {
   // ---------------- COMPANY CHANGE ----------------
   onCompanyChange(): void {
     const companyId = Number(this.marital.companyID);
-    this.filteredRegions = companyId ? this.regions.filter(r => r.companyID === companyId) : [...this.regions];
+    if (companyId) {
+    this.filteredRegions = this.regions.filter(r => r.companyID === companyId);
+  } else {
+    this.filteredRegions = []; // no company selected, no regions shown
+  }
     this.marital.regionID = 0;
   }
 

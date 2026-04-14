@@ -73,6 +73,7 @@ import { CurrencyComponent } from './pages/master/currency/currency.component';
 import { VisatypeComponent } from '../pages/visatype/visatype.component';
 import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
+import { ProjectMasterComponent } from '../features/project-master/project-master.component';
 const routes: Routes = [
   {
     path: '',
@@ -152,7 +153,8 @@ const routes: Routes = [
       { path: 'currency', component: CurrencyComponent },
       { path: 'visatype', component: VisatypeComponent },
       { path: 'modeofstudy', component: ModeofstudyComponent },
-      { path: 'accounttype', component: AccounttypeComponent }
+      { path: 'accounttype', component: AccounttypeComponent },
+      { path: 'project-master', component: ProjectMasterComponent },
     ]
   }
 ];

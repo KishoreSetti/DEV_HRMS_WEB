@@ -16,6 +16,7 @@ export class ModeofstudyComponent implements OnInit {
   form: any = this.getEmpty();
 
   isEditMode = false;
+  filteredRegions: any[] = [];
 
   userId: number = Number(sessionStorage.getItem("UserId"));
 constructor(private service: AdminService) { }
@@ -53,6 +54,13 @@ loadModes() {
       this.regions = res;
     });
   }
+  onCompanyChange() {
+  this.form.regionId = '';
+
+  this.filteredRegions = this.form.companyId
+    ? this.regions.filter(r => Number(r.companyID) === Number(this.form.companyId))
+    : [];
+}
   onSubmit() {
     this.form.userId = this.userId;
 
@@ -78,6 +86,9 @@ loadModes() {
   edit(m: any) {
     this.form = { ...m };
     this.isEditMode = true;
+    this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.form.companyId)
+  );
   }
 delete(m: any) {
   Swal.fire({
@@ -99,6 +110,7 @@ delete(m: any) {
     this.form = this.getEmpty();
     this.isEditMode = false;
     this.form.userId = this.userId;
+    this.filteredRegions = [];
   }
 
   onCancel() {

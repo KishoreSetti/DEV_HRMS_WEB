@@ -53,6 +53,8 @@ import { SuperAdminLayoutComponent } from './superAdmin/super-admin-layout/super
 import { AttendanceListComponent } from './features/attendance/attendance-list/attendance-list.component';
 import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers/super-admin-demousers.component';
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
+import { EmployeePayslipComponent } from './features/compensation/payroll/employee-payslip/employee-payslip.component';
+import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/hr-payslip.component';
 const routes: Routes = [
   { path: '', component: LoginComponent },
    { path: 'forgot-password', component: ForgotPasswordComponent },
@@ -96,12 +98,10 @@ const routes: Routes = [
   path: 'compensation',
   component: CompensationComponent,
   children: [
-    { path: '', redirectTo: 'earning-deductions', pathMatch: 'full' },
-    { path: 'earning-deductions', component: EarningDeductionsComponent },
-    { path: 'tax-settings', component: TaxSettingsComponent },
-    { path: 'pay-groups', component: PayGroupsComponent },
-    { path: 'payslip-template', component: PayslipTemplateComponent },
-    
+    { path: '', redirectTo: 'employee-payslip', pathMatch: 'full' },
+
+    { path: 'employee-payslip', component: EmployeePayslipComponent },
+    { path: 'hr-payslip', component: HrPayslipComponent }
   ]
 },
  { path: 'superadmin-template', component: SuperAdminLayoutComponent},

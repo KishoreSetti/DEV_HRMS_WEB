@@ -72,6 +72,7 @@
                 class="form-select"
                 name="regionID"
                 [(ngModel)]="marital.regionID"
+                [disabled]="!marital.companyID"
                 required
               >
                 <option [ngValue]="0">Select Region</option>

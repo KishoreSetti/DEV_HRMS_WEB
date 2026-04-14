@@ -63,6 +63,7 @@ export class AdminLayoutComponent {
      { title: 'Visa Type', route: '/admin/visatype'},
      { title: 'Mode of Study', route: '/admin/modeofstudy'},
      { title: 'Account Type', route: '/admin/accounttype' },
+     { title: 'Project Master', route: '/admin/project-master'},
     ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },

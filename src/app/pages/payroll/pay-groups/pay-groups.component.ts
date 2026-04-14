@@ -29,13 +29,14 @@ export class PayGroupsComponent {
 
   currentPage = 1;
   pageSize = 5;
+  filteredRegions: any[] = [];
   constructor(private payrollService: EmployeePayRollService) { }
 
   // ================= Init =================
 
   ngOnInit(): void {
 
-    this.userId = Number(sessionStorage.getItem('userCompanyId'));
+    this.userId = Number(sessionStorage.getItem('UserId'));
     this.companyId = sessionStorage.getItem('CompanyId') || '';
     this.regionId = sessionStorage.getItem('RegionId') || '';
 
@@ -100,14 +101,34 @@ export class PayGroupsComponent {
   }
 
   loadRegions() {
-    this.payrollService.getRegions(this.userId)
-      .subscribe((res:any) => {
-        this.regions = res || [];
-        this.regions.forEach(r => {
-          this.regionMap[r.regionId] = r.regionName;
-        });
-      });
+  this.payrollService.getRegions(this.userId)
+    .subscribe((res: any) => {
+      if (res && Array.isArray(res)) {
+        this.regions = res.map((r: any) => ({
+          regionId: r.regionID,
+          regionName: r.regionName,
+          companyID: r.companyID  
+        }));
+      } else {
+        this.regions = [];
+      }
+
+      // initialize filteredRegions if company already selected
+      this.onCompanyChange();
+    });
+}
+  onCompanyChange() {
+  // Reset region selection
+  this.salary.regionId = null;
+
+  if (this.salary.companyId) {
+    this.filteredRegions = this.regions.filter(r =>
+      Number(r.companyID) === Number(this.salary.companyId)
+    );
+  } else {
+    this.filteredRegions = [];
   }
+}
 
   loadEmployees() {
     this.payrollService.getEmployees(this.userId)

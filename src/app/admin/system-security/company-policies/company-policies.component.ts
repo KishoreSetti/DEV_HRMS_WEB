@@ -28,6 +28,7 @@ export class CompanyPoliciesComponent {
   userId!: number
   companyId!: number
   regionId!: number
+  filteredRegions: any[] = []; 
 
   isEditMode = false
 
@@ -90,13 +91,18 @@ export class CompanyPoliciesComponent {
   }
 
   loadRegions() {
+  this.adminService.getRegions(null, this.userId)
+    .subscribe(res => {
+      this.regions = res;
+    });
+}
+onCompanyChange() {
+  this.policy.RegionId = null;
 
-    this.adminService.getRegions(null, this.userId)
-      .subscribe(res => {
-        this.regions = res
-      })
-
-  }
+  this.filteredRegions = this.policy.CompanyId
+    ? this.regions.filter(r => Number(r.companyID) === Number(this.policy.CompanyId))
+    : [];
+}
 
   loadDepartments() {
 
@@ -218,6 +224,9 @@ onSubmit() {
     this.policy.EffectiveDate = new Date(p.EffectiveDate)
       .toISOString()
       .split('T')[0]
+      this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.policy.CompanyId)
+  );
 
   }
 

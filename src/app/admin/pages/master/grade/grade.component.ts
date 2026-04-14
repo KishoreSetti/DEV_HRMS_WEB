@@ -18,6 +18,7 @@ regionMap: { [key: number]: string } = {};
 
   isEdit = false;
   editId: number = 0;
+  filteredRegions: any[] = [];
 currentUser: any = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 
 userId: number = this.currentUser.userId;
@@ -49,34 +50,50 @@ this.service.getGrades(this.userId)
 loadRegionsByCompany(companyId: number) {
   this.service.getRegions(companyId, this.userId).subscribe({
     next: (res: any[]) => {
-      this.regions = res;
+      this.filteredRegions = res;
+      this.gradeForm.get('regionId')?.enable();
     },
     error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
   });
 }
+onCompanyChange(): void {
+  const companyId = this.gradeForm.get('companyID')?.value;
 
+  this.gradeForm.get('regionId')?.setValue('');
+
+  this.filteredRegions = companyId
+    ? this.regions.filter(r => Number(r.companyID) === Number(companyId))
+    : [];
+}
 ngOnInit(): void {
   this.initForm();
   this.loadCompanies();
-  this.loadGrades(); // ✅ HERE
+  this.loadRegions();
+  this.loadGrades();
 
+  // ✅ Disable Region initially
   this.gradeForm.get('regionId')?.disable();
-  this.gradeForm.get('gradeName')?.disable();
 
-  this.gradeForm.patchValue({
-    companyID: this.companyId
-  });
+  // ✅ Listen for Company change
+  this.gradeForm.get('companyID')?.valueChanges.subscribe(companyId => {
 
-  if (this.companyId) {
-    this.loadRegionsByCompany(this.companyId);
-    this.gradeForm.get('regionId')?.enable();
-  }
+    // reset region
+    this.gradeForm.get('regionId')?.setValue('');
 
-  this.gradeForm.get('regionId')?.valueChanges.subscribe(regionId => {
-    if (regionId) {
-      this.gradeForm.get('gradeName')?.enable();
+    if (companyId) {
+
+      // ✅ Filter regions
+      this.filteredRegions = this.regions.filter(r =>
+        Number(r.companyID) === Number(companyId)
+      );
+
+      // ✅ Enable Region
+      this.gradeForm.get('regionId')?.enable();
+
     } else {
-      this.gradeForm.get('gradeName')?.disable();
+
+      this.filteredRegions = [];
+      this.gradeForm.get('regionId')?.disable();
     }
   });
 }
@@ -132,19 +149,13 @@ ngOnInit(): void {
 // }
 
 loadRegions(): void {
-  this.service.getRegions(null,this.userId).subscribe({
-    next: (res: any[]) => {
-      this.regions = res;
-      this.regionMap = {};
-      this.regions.forEach((r:any) => {
-        this.regionMap[r.regionID] = r.regionName;
-      });
+  this.service.getRegions(null, this.userId).subscribe({
+    next: (res: any) => {
+      this.regions = res?.data ?? res ?? [];
     },
     error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
   });
 }
-
-
 loadGrades() {
 
 

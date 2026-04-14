@@ -1,0 +1,221 @@
+<!-- 🔴 PENDING REQUESTS (TOP) -->
+<div class="card form-card mt-3">
+
+    <h3>HR Payslip Dashboard</h3>
+
+    <div class="mb-2">
+        <button class="btn btn-success btn-sm me-2" (click)="bulkApprove()">
+            Bulk Approve
+        </button>
+
+        <button class="btn btn-danger btn-sm" (click)="bulkReject()">
+            Bulk Reject
+        </button>
+    </div>
+
+    <table class="table custom-table pending-table">
+        <thead>
+            <tr>
+                <!-- 🔥 SELECT ALL -->
+                <th>
+                    <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleAll()" />
+                </th>
+
+                <th>Employee</th>
+                <th>From Month</th>
+                <th>To Month</th>
+                <th>Year</th>
+                <th class="action-col">Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngIf="requests.length === 0">
+                <td colspan="6" class="text-center text-muted">
+                    No pending requests available
+                </td>
+            </tr>
+
+            <tr *ngFor="let r of requests">
+                <td>
+                    <input type="checkbox" [(ngModel)]="r.isSelected" (change)="updateSelectAll()" />
+                </td>
+                <td>{{r.employeeName}}</td>
+                <td>{{ r.fromMonthName }}</td>
+                <td>{{ r.toMonthName }}</td>
+                <td>{{ r.year }}</td>
+                <td class="action-col">
+                    <div class="action-btns">
+                        <button class="btn btn-success btn-sm" (click)="approve(r)">Approve</button>
+                        <button class="btn btn-danger btn-sm" (click)="reject(r)">Reject</button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- 🔴 HR FILTER DASHBOARD -->
+<div class="card form-card mt-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" style="padding-top: 20px;">
+
+        <h3 class="mb-0">All Payrolls</h3>
+
+    </div>
+
+    <div class="row g-3" style="padding-bottom: 20px;">
+
+        <div class="col-md-3">
+            <label>Employees</label>
+            <select [(ngModel)]="selectedEmployee" class="form-control">
+                <option [ngValue]="null">All</option>
+                <option *ngFor="let e of employees" [ngValue]="e.id">
+                    {{e.name}}
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label>From</label>
+            <select [(ngModel)]="fromMonth" class="form-control">
+                <option *ngFor="let m of months" [ngValue]="m.value">
+                    {{m.name}}
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label>To</label>
+            <select [(ngModel)]="toMonth" class="form-control">
+                <option *ngFor="let m of months" [ngValue]="m.value">
+                    {{m.name}}
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label>Year</label>
+            <select [(ngModel)]="year" class="form-control">
+                <option [ngValue]="2026">2026</option>
+                <option [ngValue]="2027">2027</option>
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100" (click)="loadPayrolls()">
+                View Payrolls
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 🔶 FILTER + DOWNLOAD (SAME ROW) -->
+    <div class="filter-summary d-flex justify-content-between align-items-center flex-wrap mb-3">
+
+        <!-- LEFT SIDE (FILTER TEXT) -->
+        <div class="filter-text d-flex align-items-center flex-wrap">
+
+            <span><strong>From:</strong> {{getMonthName(fromMonth)}}</span>
+
+            <span class="divider">|</span>
+
+            <span><strong>To:</strong> {{getMonthName(toMonth)}}</span>
+
+            <span class="divider">|</span>
+
+            <span><strong>Year:</strong> {{year}}</span>
+
+        </div>
+
+        <div>
+            <span>
+                <strong>Download the report for selected Months -></strong>
+            </span>
+        </div>
+
+        <!-- RIGHT SIDE (BUTTON) -->
+        <div>
+            <button class="btn btn-danger btn-sm" (click)="downloadReport()">
+                ⬇ Download Report
+            </button>
+        </div>
+
+    </div>
+
+    <!-- 🔶 TABLE -->
+    <div class="table-responsive">
+
+        <table class="table custom-table">
+
+            <thead>
+                <tr>
+                    <th>Employees</th>
+                    <th>Month</th>
+                    <th>Year</th>
+                    <th>Salary</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <!-- 🔥 If user didn’t search -->
+                <tr *ngIf="!fromMonth || !toMonth || !year">
+                    <td colspan="5" class="text-center text-muted">
+                        Please select Month and Year to view payroll data
+                    </td>
+                </tr>
+
+                <!-- 🔥 No data after search -->
+                <tr *ngIf="fromMonth && toMonth && year && payrollList.length === 0">
+                    <td colspan="5" class="text-center text-danger">
+                        No payroll data found for selected range
+                    </td>
+                </tr>
+
+                <!-- 🔥 Data -->
+                <tr *ngFor="let p of paginatedPayrolls">
+                    <td>{{p.employeeName}}</td>
+                    <td>{{p.monthName}}</td>
+                    <td>{{p.year}}</td>
+                    <td>₹ {{p.salary}}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" (click)="download(p)">
+                            PDF
+                        </button>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+      <div class="pagination-container" *ngIf="totalPages > 1">
+
+    <!-- 🔙 Previous -->
+    <button class="page-btn"
+            (click)="prevPage()"
+            [disabled]="currentPage === 1">
+        << Previous
+    </button>
+
+    <!-- 🔢 Page Numbers -->
+    <button class="page-btn"
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            (click)="changePage(i+1)"
+            [class.active]="currentPage === (i+1)">
+        {{i+1}}
+    </button>
+
+    <!-- 🔜 Next -->
+    <button class="page-btn"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages">
+        Next >>
+    </button>
+
+</div>
+
+    </div>
+
+</div>
