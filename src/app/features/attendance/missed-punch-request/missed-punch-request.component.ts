@@ -329,7 +329,7 @@ loadApprovalRequests() {
   // }
   bulkApproveReject(status: 'Approved' | 'Rejected') {
 
-  const selectedIds = this.approvalRequests
+  const selectedIds = this.pendingRequests
     .filter(x => x.selected)
     .map(x => x.missedPunchRequestId);
 
@@ -353,7 +353,8 @@ loadApprovalRequests() {
         managerRemarks: '',
         managerId: this.managerId,
         companyId: this.companyId,
-        regionId: this.regionId
+        regionId: this.regionId,
+         hrEmail: this.pendingRequests.find(x => x.selected)?.hrEmail  // ✅ add this
       };
 
       this.missedPunchService.bulkApproveRejectPunch(payload)
@@ -377,7 +378,7 @@ loadApprovalRequests() {
 
   selectAll(event: any) {
     const checked = event.target.checked;
-    this.approvalRequests.forEach(x => x.selected = checked);
+    this.pendingRequests.forEach(x => x.selected = checked);
   }
 
   canViewPersonal = false;
