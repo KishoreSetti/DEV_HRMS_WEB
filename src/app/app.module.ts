@@ -122,6 +122,8 @@ import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { ErrorHandler } from '@angular/core';
 import { GlobalErrorHandler } from './admin/shared/global-error-handler';
+import { EmployeePayslipComponent } from './features/compensation/payroll/employee-payslip/employee-payslip.component';
+import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/hr-payslip.component';
 import { VisatypeComponent } from './pages/visatype/visatype.component';
 import { EmployeeMyLettersFormsComponent } from './features/employee-profile/employee-documents/employee-my-letters-forms/employee-my-letters-forms.component';
 import { ProjectMasterComponent } from './features/project-master/project-master.component';
@@ -238,6 +240,8 @@ import { ProjectMasterComponent } from './features/project-master/project-master
           SubscriptionPlansComponent,
           AssetRequestComponent,
           AssignAssetScreenComponent,
+          EmployeePayslipComponent,
+          HrPayslipComponent,
           VisatypeComponent,
           EmployeeMyLettersFormsComponent,
           ProjectMasterComponent,

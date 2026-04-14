@@ -1,0 +1,243 @@
+<!-- 🔴 FILTER CARD -->
+<div class="card payslip-card">
+
+  <h4 class="section-title">Select Payslip Range</h4>
+
+  <div class="row g-3">
+
+    <div class="col-md-3">
+      <label>From Month</label>
+      <select [(ngModel)]="fromMonth" class="form-select custom-input">
+        <option [ngValue]="null">Select</option>
+        <option *ngFor="let m of months" [ngValue]="m.value">
+          {{m.name}}
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label>To Month</label>
+      <select [(ngModel)]="toMonth" class="form-select custom-input">
+        <option [ngValue]="null">Select</option>
+        <option *ngFor="let m of months" [ngValue]="m.value">
+          {{m.name}}
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label>Year</label>
+      <select [(ngModel)]="year" class="form-select custom-input">
+        <option [ngValue]="null">Select</option>
+        <option [ngValue]="2026">2026</option>
+        <option [ngValue]="2027">2027</option>
+      </select>
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end">
+      <button class="btn btn-danger w-100 custom-btn" (click)="loadPayslips()">
+        View Payslips
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- 🔴 TABLE -->
+<div class="card payslip-card mt-3" *ngIf="payslips.length > 0">
+
+  <h4 class="section-title">Payslip List</h4>
+
+  <!-- 🔥 SINGLE BUTTON FOR RANGE -->
+  <!-- <div class="d-flex justify-content-end mb-2">
+    <button class="btn btn-warning" (click)="openRequestPopup()">
+      Request To Download ({{payslips.length}} Months)
+    </button>
+  </div> -->
+  <div class="d-flex justify-content-end mb-3">
+    <button class="btn request-btn" *ngIf="payslips[0]?.requestStatus === 'Not Requested'" (click)="openRequestPopup()">
+      📩 Request Download ({{payslips.length}} Months)
+    </button>
+  </div>
+
+  <div class="table">
+    <table class="table payslip-table">
+
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Year</th>
+          <th>Status</th>
+          <th>HR Request Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let p of payslips">
+          <td>{{p.monthName}}</td>
+          <td>{{p.year}}</td>
+
+          <td>
+            <span class="badge bg-info">{{p.status}}</span>
+          </td>
+
+          <td>
+            <span class="badge" [ngClass]="{
+      'bg-secondary': p.requestStatus === 'Not Requested',
+      'bg-warning text-dark': p.requestStatus === 'Pending',
+      'bg-success': p.requestStatus === 'Approved',
+      'bg-danger': p.requestStatus === 'Rejected'
+    }">
+              {{p.requestStatus}}
+            </span>
+          </td>
+
+          <td>
+
+            <!-- View -->
+            <button class="btn btn-danger btn-sm me-1" (click)="openPopup(p)">
+              View
+            </button>
+
+            <!-- Download only if approved -->
+            <button *ngIf="p.isDownloadApproved === true" class="btn btn-success btn-sm" (click)="downloadPayslip(p)">
+              Download PDF
+            </button>
+
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+<!-- 🔥 VIEW POPUP -->
+<div class="modal fade show d-block" *ngIf="selectedPayroll" style="background: rgba(0,0,0,0.5); padding-top: 120px;">
+
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <!-- HEADER -->
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          Payslip - {{selectedPayroll.monthName}} {{selectedPayroll.year}}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closePopup()">
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body payslip-design">
+
+        <!-- HEADER -->
+        <div class="payslip-header">
+          <h5>CORTRACKER IT SOLUTIONS PVT LTD</h5>
+          <div class="right">
+            <div>Print Date: {{today | date:'dd MMM yyyy'}}</div>
+            <div>Payslip for {{selectedPayroll.monthName}} {{selectedPayroll.year}}</div>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- EMPLOYEE DETAILS -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div><b>Name:</b> {{selectedPayroll.employeeName}}</div>
+            <div><b>Designation:</b> {{selectedPayroll.designation}}</div>
+            <div><b>Department:</b> {{selectedPayroll.department}}</div>
+            <div><b>Location:</b> Hyderabad</div>
+          </div>
+
+          <div class="col-md-6 text-end">
+            <div><b>Employee No:</b> {{selectedPayroll.employeeCode}}</div>
+            <div><b>Bank:</b> -</div>
+            <div><b>A/C No:</b> -</div>
+            <div><b>PAN:</b> -</div>
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div class="row">
+
+          <div class="col-md-6">
+            <h6>Earnings</h6>
+            <div *ngFor="let d of selectedPayroll.details">
+              <div *ngIf="d.type==='Earning'" class="row border-bottom py-1">
+                <div class="col">{{d.componentName}}</div>
+                <div class="col text-end">₹ {{d.amount}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h6>Deductions</h6>
+            <div *ngFor="let d of selectedPayroll.details">
+              <div *ngIf="d.type==='Deduction'" class="row border-bottom py-1">
+                <div class="col">{{d.componentName}}</div>
+                <div class="col text-end">₹ {{d.amount}}</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between">
+          <div class="text-danger fw-bold">
+            Total Earnings: ₹ {{selectedPayroll.grossSalary}}
+          </div>
+
+          <div class="text-dark fw-bold">
+            Total Deductions: ₹ {{selectedPayroll.totalDeductions}}
+          </div>
+        </div>
+
+        <div class="text-end mt-2 text-danger fw-bold fs-5">
+          Net Pay: ₹ {{selectedPayroll.netSalary}}
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closePopup()">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 🔥 REQUEST POPUP -->
+<div class="modal fade show d-block" *ngIf="showRequestPopup" style="background: rgba(0,0,0,0.5); padding-top: 120px;">
+
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header bg-danger">
+        <h5 class="modal-title">
+          Request Payslips to Download ({{payslips.length}} Months)
+        </h5>
+        <button class="btn-close" (click)="closePopup()"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <label>Enter HR Email</label>
+
+        <input type="email" [(ngModel)]="hrEmail" class="form-control" placeholder="Enter HR Email" />
+
+        <button class="btn btn-danger mt-3 w-100" (click)="sendRequest()">
+          Send Request
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>

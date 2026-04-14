@@ -13,29 +13,22 @@
 <div class="tab-container p-3">
 
   <!-- Tabs -->
-  <div class="tab-header">
+<div class="tab-header">
 
-    <a routerLink="earning-deductions" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }"
-      class="tab-label">
-      Earning & Deductions
-    </a>
+  <a routerLink="employee-payslip"
+     routerLinkActive="active-tab"
+     class="tab-label">
+     Employee Payslip
+  </a>
 
-    <a routerLink="tax-settings" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }"
-      class="tab-label">
-      Salary Structure
-    </a>
+  <a routerLink="hr-payslip"
+     routerLinkActive="active-tab"
+     class="tab-label">
+     HR Payslip Dashboard
+  </a>
 
-    <a routerLink="pay-groups" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }"
-      class="tab-label">
-      Assign Salary
-    </a> 
+</div>
 
-    <a routerLink="payslip-template" routerLinkActive="active-tab" [routerLinkActiveOptions]="{ exact: true }"
-      class="tab-label">
-      Payroll Processing
-    </a>
-
-  </div>
 
   <!-- Routed Components Render Here -->
   <router-outlet></router-outlet>
