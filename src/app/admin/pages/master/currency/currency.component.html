@@ -98,8 +98,8 @@
                             <td>{{ i + 1 }}</td>
                             <td>{{ x.currencyCode }}</td>
                             <td>{{ x.currencyName }}</td>
-                            <td>{{ companyMap[x.companyId] }}</td>
-                            <td>{{ regionMap[x.regionId] }}</td>
+                            <td>{{ getCompanyName(x.companyId) }}</td>
+                            <td>{{ getRegionName(x.regionId) }}</td>
 
                             <td class="text-center">
                                 <i class="fa-solid"

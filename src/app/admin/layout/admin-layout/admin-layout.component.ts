@@ -43,7 +43,7 @@ export class AdminLayoutComponent {
       { title: 'Expense Category Type', route: '/admin/expense-category' },
     //  { title: 'Expense Status', route: '/admin/expense-status' },
       { title: 'Leave Type', route: '/admin/leave-type' },
-       { title: 'Leave Status', route: '/admin/leave-status' },
+      // { title: 'Leave Status', route: '/admin/leave-status' },
       { title: 'Attendance Status', route: '/admin/attendance-status' },
         { title: 'Ticket priority', route: '/admin/priority' },
          { title: 'Holiday List', route: '/admin/holiday-list' },
@@ -59,7 +59,10 @@ export class AdminLayoutComponent {
      { title: 'Grade', route: '/admin/grade'},
      { title: 'Asset Type', route: '/admin/asset-type'},
      { title: 'Asset Category', route: '/admin/asset-category'},
-     { title: 'Currency', route: '/admin/currency'}
+     { title: 'Currency', route: '/admin/currency'},
+     { title: 'Visa Type', route: '/admin/visatype'},
+     { title: 'Mode of Study', route: '/admin/modeofstudy'},
+     { title: 'Project Master', route: '/admin/project-master'},
     ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },

@@ -771,6 +771,14 @@ export interface EmployeeMaster {
   updatedBy?: number | null;  // ✅ needed for edit
 
 }
+export interface ModeOfStudy {
+  modeOfStudyId: number;
+  modeName: string;
+  companyId: number;
+  regionId: number;
+  isActive: boolean;
+  userId: number;
+}
 //------------------- Manager Dropdown Interface ------------------ //
 export interface ManagerDropdown {
   userId: number;
@@ -1534,8 +1542,10 @@ CreateEmployeeImmigration(formData: FormData): Observable<any> {
     return this.http.delete(`${this.baseUrl}/Employee/DeleteImmigration/${id}`)
   }
 // Visa Types Dropdown
-getVisaTypes(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.baseUrl}/Employee/GetVisaTypes`);
+getVisaTypes(companyId: number, regionId: number): Observable<any[]> {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/Employee/GetVisaTypes?companyId=${companyId}&regionId=${regionId}`
+  );
 }
 
 // Status Dropdown
@@ -1630,10 +1640,6 @@ deleteEducation(id: number): Observable<any> {
     {}
   );
 }
-  // Mode of Study
-  // getModeOfStudy(): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.baseUrl}/employee/modeofstudy`);
-  // }
 // ================= CERTIFICATION APIs =================
 
 
@@ -2183,6 +2189,13 @@ updateAssetType(data: any) {
 deleteAssetType(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeleteAssetType?id=${id}`, {});
 }
+// getAssetCategoriestype() {
+//   return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype`);
+// }
+
+getAssetCategoriestype(userId: number) {    
+  return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype?userId=${userId}`);
+}
 getAssetTypesByCompanyRegion(companyId: number, regionId: number) {
   return this.http.get(
     `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}`
@@ -2664,4 +2677,76 @@ getEmploymentTypesByFilter(companyId: number, regionId: number) {
     `${this.baseUrl}/MasterData/employment-type/filter?companyId=${companyId}&regionId=${regionId}`
   );
 }
+
+getVisaTypeList(userId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/visatype-list/${userId}`
+  );
+}
+
+createVisaType(data: any) {
+  debugger;
+  return this.http.post(
+    `${this.baseUrl}/MasterData/CreateVisaType`,
+    data
+  );
+}
+
+updateVisaType(data: any) {
+  debugger;
+  return this.http.post(
+    `${this.baseUrl}/MasterData/UpdateVisaType`,
+    data
+  );
+}
+
+deleteVisaType(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeleteVisaType?id=${id}`,{}
+  );
+}
+
+getAllModeOfStudyList(userId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/GetAllModeOfStudy?userId=${userId}`
+  );
+}
+createModeOfStudy(data: any) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/CreateModeOfStudy`,
+    data
+  );
+}
+updateModeOfStudy(data: any) {
+  return this.http.put(
+    `${this.baseUrl}/MasterData/UpdateModeOfStudy`,
+    data
+  );
+}
+deleteModeOfStudy(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/MasterData/DeleteModeOfStudy?id=${id}`,
+    {}
+  );
+}
+getProjects(userId: number) {
+  return this.http.get<any>(`${this.baseUrl}/MasterData/GetAllProjects?userId=${userId}`);
+}
+
+createProject(data: any) {
+  debugger;
+  return this.http.post<any>(`${this.baseUrl}/MasterData/CreateProject`, data);
+}
+
+updateProject(data: any) {
+  return this.http.put<any>(`${this.baseUrl}/MasterData/UpdateProject`, data);
+}
+
+deleteProject(id: number) {
+  return this.http.post<any>(`${this.baseUrl}/MasterData/DeleteProjectMaster/${id}`, {});
+}
+
+getProjectNames(companyId: number, regionId: number) {
+    return this.http.get<any>(`${this.baseUrl}/MasterData/GetProjectsByCompanyRegion?companyId=${companyId}&regionId=${regionId}`);
+  }
 }

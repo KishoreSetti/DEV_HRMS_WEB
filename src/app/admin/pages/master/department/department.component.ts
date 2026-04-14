@@ -31,6 +31,7 @@ export class DepartmentComponent {
 userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0;
   // Bulk Upload sample model
   departmentModel: any;
+  filteredRegions: any[] = [];
 
   constructor(
     private departmentService: AdminService,
@@ -87,6 +88,13 @@ userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getIte
       error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
     });
   }
+  onCompanyChange(): void {
+  this.department.regionId = '';
+
+  this.filteredRegions = this.department.companyId
+    ? this.regions.filter(r => Number(r.companyID) === Number(this.department.companyId))
+    : [];
+}
 
   // ------------------------------------------------------------
   // 🔹 Create / Update Department
@@ -121,6 +129,9 @@ userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getIte
   editDepartment(d: any): void {
     this.department = { ...d };
     this.isEditMode = true;
+    this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.department.companyId)
+  );
   }
 
   deleteDepartment(d: any): void {

@@ -65,7 +65,7 @@ changePageSize(size: number): void {
   }
 
   loadVisaTypes(): void {
-    this.adminService.getVisaTypes().subscribe({
+    this.adminService.getVisaTypes(this.companyId, this.regionId).subscribe({
       next: (data) => {
         this.visaTypes = data;
         console.log("Visa Types Loaded:", data);

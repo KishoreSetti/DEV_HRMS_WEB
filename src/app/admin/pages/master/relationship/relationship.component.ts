@@ -21,6 +21,7 @@ relationship: Relationship = this.getEmptyRelationship();
   searchText = '';
   statusFilter: boolean | '' = '';
   showUploadPopup = false;
+  filteredRegions: any[] = [];
 
   
 
@@ -83,25 +84,30 @@ loadCompanies(): void {
 }
 
 loadRegions(): void {
-  debugger;
-
   this.adminService.getRegions(null, this.userId).subscribe((res: any) => {
-    console.log('All Regions 👉', res);
-
     const data = res?.data ?? res ?? [];
-
-    // 🔥 Filter only active regions
+    // Only active regions
     this.regions = data.filter((r: any) => r.isActive === true);
 
-    // ✅ Build region map correctly
+    // Region map for display
     this.regionMap = this.regions.reduce((map: any, r: any) => {
       map[r.regionID] = r.regionName;
       return map;
     }, {});
 
-    console.log('Active Regions 👉', this.regions);
-    console.log('Region Map 👉', this.regionMap);
+    // Don't populate filteredRegions yet
+    this.filteredRegions = [];
   });
+}
+onCompanyChange(): void {
+  const companyId = Number(this.relationship.companyId);
+  if (companyId) {
+    this.filteredRegions = this.regions.filter(r => r.companyID === companyId);
+  } else {
+    this.filteredRegions = []; // no company, no regions
+  }
+  // Reset selected region
+  this.relationship.regionId = 0;
 }
   // Load
   loadRelationships(): void {

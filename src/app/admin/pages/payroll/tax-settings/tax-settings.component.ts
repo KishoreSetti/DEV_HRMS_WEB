@@ -28,6 +28,7 @@ export class TaxSettingsComponent {
   searchText = '';
   currentPage = 1;
   pageSize = 5;
+  filteredRegions: any[] = [];
 
   departments: any[] = [];
   designations: any[] = [];
@@ -41,7 +42,7 @@ export class TaxSettingsComponent {
 
   ngOnInit(): void {
 
-    this.userId = Number(sessionStorage.getItem('userCompanyId'));
+    this.userId = Number(sessionStorage.getItem('UserId'));
     this.companyId = sessionStorage.getItem('CompanyId') || '';
     this.regionId = sessionStorage.getItem('RegionId') || '';
 
@@ -90,28 +91,34 @@ export class TaxSettingsComponent {
   }
 
   loadRegions() {
-    this.payrollService.getRegions(this.userId)
-      .subscribe((res: any) => {
+  this.payrollService.getRegions(this.userId)
+    .subscribe((res: any) => {
+      if (res && Array.isArray(res)) {
+        this.regions = res.map((r: any) => ({
+          regionId: r.regionID,
+          regionName: r.regionName,
+          companyID: r.companyID  // important for filtering
+        }));
+      } else {
+        this.regions = [];
+      }
 
-        console.log('Regions API:', res);
+      // Initialize filteredRegions if a company is already selected
+      this.onCompanyChange();
+    });
+}
+  onCompanyChange() {
+  // Reset region selection
+  this.structure.regionId = null;
 
-        if (res && Array.isArray(res)) {
-
-          this.regions = res.map((r: any) => ({
-            regionId: r.regionID,        // ✅ FIX HERE
-            regionName: r.regionName
-          }));
-
-          // Mapping (for table display)
-          this.regions.forEach(r => {
-            this.regionMap[r.regionId] = r.regionName;
-          });
-
-        } else {
-          this.regions = [];
-        }
-      });
+  if (this.structure.companyId) {
+    this.filteredRegions = this.regions.filter(r =>
+      Number(r.companyID) === Number(this.structure.companyId)
+    );
+  } else {
+    this.filteredRegions = [];
   }
+}
   loadDepartments() {
     this.payrollService.getDepartments(this.userId)
       .subscribe((res: any) => {

@@ -1883,4 +1883,60 @@ button:hover {
 .typing span:nth-child(3) {
   animation-delay: 0.4s;
 }
+/* DEFAULT (DESKTOP) */
+.mobile-menu-btn,
+.mobile-dropdown {
+  display: none;
+}
+
+/* RIGHT SECTION POSITION FIX */
+.right-section {
+  position: relative;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+
+  .clock-status,
+  .top-right-icons,
+  .icon-btn {
+    display: none;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    padding: 8px 10px;
+  }
+
+  .topbar .logo img {
+    width: 110px;
+    height: 35px;
+  }
+
+  .mobile-menu-btn {
+    display: inline-block;
+    font-size: 22px;
+    background: none;
+    border: none;
+    color: #b02828;
+  }
+
+  .mobile-dropdown {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 55px;
+    width: 280px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 12px;
+    z-index: 99999;
+  }
+
+  .mobile-dropdown.open {
+    display: block;
+  }
+
+}
 

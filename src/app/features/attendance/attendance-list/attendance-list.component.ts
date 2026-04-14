@@ -714,4 +714,32 @@ getStatusClass(status: string): string {
   return 'badge-default';
 }
 
+get visibleReportPages(): number[] {
+  const pages = [];
+  const maxVisible = 6;
+
+  let start = Math.max(this.reportPage - Math.floor(maxVisible / 2), 1);
+  let end = start + maxVisible - 1;
+
+  if (end > this.reportTotalPages) {
+    end = this.reportTotalPages;
+    start = Math.max(end - maxVisible + 1, 1);
+  }
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+
+  return pages;
+}
+
+goToReportFirst() {
+  this.reportPage = 1;
+}
+
+goToReportLast() {
+  this.reportPage = this.reportTotalPages;
+  console.log("Reports:", this.reports.length);
+console.log("Total Pages:", this.reportTotalPages);
+}
 }

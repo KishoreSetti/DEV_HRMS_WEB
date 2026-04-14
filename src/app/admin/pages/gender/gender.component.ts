@@ -349,6 +349,7 @@ genderModel: any;
   regionId:any=sessionStorage.getItem('RegionId');
   companyMap: { [key: number]: string } = {};
 regionMap: { [key: number]: string } = {};
+filteredRegions: any[] = [];
   constructor(
     private adminservice: AdminService,
     private spinner: NgxSpinnerService
@@ -377,6 +378,18 @@ regionMap: { [key: number]: string } = {};
           userId: sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0
     };
   }
+  onCompanyChange(): void {
+  console.log('Selected Company 👉', this.gender.companyId);
+
+  this.filteredRegions = this.regions.filter((r: any) =>
+    Number(r.companyID) === Number(this.gender.companyId)
+  );
+
+  // Reset region when company changes
+  this.gender.regionId = 0;
+
+  console.log('Filtered Regions 👉', this.filteredRegions);
+}
 
   // ------------------------------------------------------------
   // 🔹 Load Genders
@@ -487,6 +500,9 @@ regionMap: { [key: number]: string } = {};
   };
 
   this.isEditMode = true;
+  this.filteredRegions = this.regions.filter((r: any) =>
+    Number(r.companyID) === Number(this.gender.companyId)
+  );
 }
   // editGender(g: Gender): void {
   //   console.log('Edit Clicked Row Data 👉', g); 

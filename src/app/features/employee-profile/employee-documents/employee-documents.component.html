@@ -14,12 +14,14 @@
   <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
   <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
   <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
+  <input type="radio" id="tab4" name="tab" [checked]="selectedTab === 'tab4'">
 
   <!-- Tab Header -->
   <div class="tab-header">
     <label class="tab-label" for="tab1" *ngIf="canViewLetters">Letters</label>
     <label class="tab-label" for="tab2" *ngIf="canViewForms">Forms</label>
-    <label class="tab-label" for="tab3" *ngIf="canViewDocuments">Employee Documents</label>
+    <label class="tab-label" for="tab3" *ngIf="canViewDocuments">My Documents</label>
+    <label class="tab-label" for="tab4" *ngIf="canViewMyLettersForms">My Letters/Forms</label>
   </div>
 
   <!-- TAB 1: LETTERS -->
@@ -36,6 +38,10 @@
   <!-- TAB 3: EMPLOYEE DOCUMENTS -->
  <div id="content3" class="tab-content" *ngIf="canViewDocuments">
   <app-employee-document></app-employee-document>
+ </div>
+
+ <div id="content4" class="tab-content" *ngIf="canViewMyLettersForms">
+  <app-employee-my-letters-forms></app-employee-my-letters-forms>
  </div>
 
 </div>

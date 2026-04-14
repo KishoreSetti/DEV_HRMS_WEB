@@ -573,46 +573,64 @@ maritalStatuses: any[] = [];
     const file = event.target.files[0] as File;
     this.resumeFile = file;
 
-    // this.isParsing = true;
+    this.isParsing = true;
 
-    // this.recruitmentService.parseResume(file).subscribe({
-    //   next: (res: any) => {
-    //     this.isParsing = false;
+  const fd = new FormData();
+  fd.append('ResumeFile', file, file.name);
+  fd.append('UserId', this.userId.toString());
+  fd.append('CompanyId', this.companyId.toString());
+  fd.append('RegionId', this.regionId.toString());
+    this.recruitmentService.parseResume(fd).subscribe({
+      next: (res: any) => {
+        this.isParsing = false;
 
-    //     // ✅ Auto-fill fields safely
-    //     this.candidate.firstName = res.firstName || this.candidate.firstName;
-    //     this.candidate.lastName = res.lastName || this.candidate.lastName;
-    //     this.candidate.email = res.email || this.candidate.email;
-    //     this.candidate.mobile = res.mobile || this.candidate.mobile;
-    //     this.candidate.skills = res.skills || this.candidate.skills;
-    //     this.candidate.location = res.location || this.candidate.location;
-    //     this.candidate.designation = res.designation || this.candidate.designation;
+        // ✅ Auto-fill fields safely
+        this.candidate.firstName = res.firstName || this.candidate.firstName;
+        this.candidate.lastName = res.lastName || this.candidate.lastName;
+        this.candidate.email = res.email || this.candidate.email;
+        this.candidate.mobile = res.mobile || this.candidate.mobile;
+        this.candidate.skills = res.skills || this.candidate.skills;
+        this.candidate.location = res.location || this.candidate.location;
+        this.candidate.designation = res.designation || this.candidate.designation;
+        this.eduForm.qualification = res.qualification || this.eduForm.qualification;
+        this.candidate.dob = res.dateOfBirth || this.candidate.dob;
 
-    //     if (res.experiences?.length) {
-    //       this.experienceList = res.experiences.map((e: any) => ({
-    //         from: e.fromYear,
-    //         to: e.toYear,
-    //         designation: e.designation,
-    //         organization: e.organization
-    //       }));
-    //     }
 
-    //     if (res.qualifications?.length) {
-    //       this.qualificationList = res.qualifications.map((q: any) => ({
-    //         from: q.fromYear,
-    //         to: q.toYear,
-    //         qualification: q.qualification,
-    //         board: q.boardUniversity
-    //       }));
-    //     }
+        if (res.experiences?.length) {
+          this.experienceList = res.experiences.map((e: any) => ({
+            from: e.fromYear,
+            to: e.toYear,
+            designation: e.designation,
+            organization: e.organization
+          }));
+        }
 
-    //     Swal.fire('Success', 'Resume parsed and fields auto-filled', 'success');
-    //   },
-    //   error: () => {
-    //     this.isParsing = false;
-    //     Swal.fire('Error', 'Unable to parse resume', 'error');
-    //   }
-    // });
+        if (res.qualifications?.length) {
+          this.qualificationList = res.qualifications.map((q: any) => ({
+            from: q.fromYear,
+            to: q.toYear,
+            qualification: q.qualification,
+            board: q.boardUniversity
+          }));
+        }
+
+
+        if (!res.qualifications?.length && res.qualification) {
+          this.qualificationList = [{
+            from: '',
+            to: '',
+            qualification: res.qualification,
+            board: ''
+          }];
+        }
+
+        Swal.fire('Success', 'Resume parsed and fields auto-filled', 'success');
+      },
+      error: () => {
+        this.isParsing = false;
+        Swal.fire('Error', 'Unable to parse resume', 'error');
+      }
+    });
   }
 
 

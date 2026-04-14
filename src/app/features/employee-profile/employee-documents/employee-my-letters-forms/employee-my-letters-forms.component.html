@@ -1,0 +1,127 @@
+<div class="dashboard-tables full-row mt-4">
+  <div class="table-card">
+    <h3>Letters List</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>S.No</th>
+
+          <th (click)="sortLetters('documentType')" style="cursor:pointer">
+            Document Type
+            <span *ngIf="letterSortColumn  === 'documentType'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortLetters('title')" style="cursor:pointer">
+            Document Title
+            <span *ngIf="letterSortColumn === 'title'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortLetters('empName')" style="cursor:pointer">
+            Employee Code And Name
+            <span *ngIf="letterSortColumn === 'empName'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortLetters('issuedDate')" style="cursor:pointer">
+            Issued Date
+            <span *ngIf="letterSortColumn === 'issuedDate'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th (click)="sortLetters('validityDate')" style="cursor:pointer">
+            Validity
+            <span *ngIf="letterSortColumn === 'validityDate'">
+              {{ sortDirection === 'asc' ? '▲' : '▼' }}
+            </span>
+          </th>
+
+          <th>File</th>
+          
+        </tr>
+      </thead>
+
+
+      <tbody>
+        <tr *ngFor="let l of filteredLetters(); let i = index">
+          <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+          <td>{{  getDocumentTypeName(l.documentType) }}</td>
+          <td>{{ l.title }}</td>
+          <td>{{ l.empCode }} - {{ l.empName }}</td>
+          <td>{{ l.issuedDate }}</td>
+          <td>{{ l.validityDate || '-' }}</td>
+          <td>
+            <a *ngIf="l.fileName"
+              style="cursor:pointer; color:#0d6efd; font-weight:500;"
+              (click)="viewDocument(l.fileName)">
+              View
+            </a>
+          </td>
+
+         
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+<div class="dashboard-tables full-row mt-4">
+
+  <div class="table-card">
+    <h3>Forms List</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th (click)="sortForms('type')" style="cursor:pointer">Type
+            <span *ngIf="formSortColumn==='type'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
+          </th>
+          <th (click)="sortForms('name')" style="cursor:pointer">Name
+            <span *ngIf="formSortColumn==='name'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
+          </th>
+          <th (click)="sortForms('employee')" style="cursor:pointer">Employee Name and Code
+            <span *ngIf="formSortColumn==='employee'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
+          </th>
+          <th (click)="sortForms('date')" style="cursor:pointer">Date
+            <span *ngIf="formSortColumn==='date'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
+          </th>
+          <th>File</th>
+          <!-- <th>Actions</th> -->
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let f of pagedForms(); let i = index">
+          <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+          <td>{{ f.type }}</td>
+          <td>{{ f.name }}</td>
+          <td>{{ f.employee }}</td>
+          <td>{{ formatDate(f.date) }}</td>
+
+
+          <td>
+            <a *ngIf="f.fileName" style="cursor:pointer; color:#0d6efd; font-weight:500;"
+              (click)="viewDocument(f.fileName)">
+              View
+            </a>
+          </td>
+          <!-- <td class="action-icons">
+            <i class="fa-solid fa-pen me-2" style="color: black;" (click)="editRecord(f)" title="Edit"></i>
+            <i class="fa-solid fa-trash" style="color: black;" (click)="deleteRecord(f.id)" title="Delete"></i>
+          </td> -->
+        </tr>
+
+        <tr *ngIf="pagedForms().length === 0">
+          <td colspan="7" class="text-center">No forms found.</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

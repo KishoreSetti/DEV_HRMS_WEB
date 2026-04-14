@@ -10,6 +10,7 @@ export interface AssetType {
   regionId: number;
   isActive: boolean;
   userId?: number;
+  assetCategoryId: number;  
 }
 
 @Component({
@@ -21,7 +22,8 @@ export interface AssetType {
 export class AssetTypeComponent implements OnInit{
  assetTypeList: AssetType[] = [];
   assetType!: AssetType;
-
+assetCategories: any[] = [];
+categoryMap: Record<number, string> = {};
   companies: Company[] = [];
   regions: Region[] = [];
   allRegions: Region[] = [];
@@ -40,6 +42,8 @@ export class AssetTypeComponent implements OnInit{
     this.loadCompanies();
     this.loadRegions();
     this.loadData();
+      this.loadCategories();   // ✅ ADD THIS
+
   }
 
   getEmpty(): AssetType {
@@ -50,9 +54,23 @@ export class AssetTypeComponent implements OnInit{
       companyId: 0,
       regionId: 0,
       isActive: true,
-      userId: this.userId
+      userId: this.userId,
+      assetCategoryId: 0,   
     };
   }
+loadCategories() {
+  this.adminService.getAssetCategoriestype(this.userId).subscribe((res: any) => {
+    const data = res.data || res;
+
+    this.assetCategories = data;   // ✅ FIX
+
+    this.assetCategories.forEach(c => {
+      this.categoryMap[c.assetCategoryId] = c.assetCategoryName;
+    });
+
+    console.log("Categories:", this.assetCategories); // debug
+  });
+}
 
   loadCompanies() {
     this.adminService.getCompanies(null, this.userId).subscribe((res: any) => {
