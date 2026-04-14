@@ -18,8 +18,8 @@
         </div>
 
         <!-- ✅ SHOW ONLY IF UNSAVED DATES EXIST -->
-        <div *ngIf="unsavedDates.length > 0">
-
+        <!-- <div *ngIf="unsavedDates.length > 0"> -->
+        <div>
             <!-- DATE FILTER -->
             <div class="date-filter">
                 <label>Select Date To Save Missed Attendance:</label>
@@ -92,11 +92,11 @@
                         {{ emp.grossTime ? emp.grossTime : '--:--' }}
                     </td>
 
-<td>
-  <span class="status-badge" [ngClass]="getStatusClass(emp.status)">
-    {{ emp.status }}
-  </span>
-</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(emp.status)">
+                            {{ emp.status }}
+                        </span>
+                    </td>
 
                 </tr>
 
@@ -202,11 +202,11 @@
                     <td>{{ r.clockOut }}</td>
                     <td>{{ r.grossTime }}</td>
 
-<td>
-  <span class="status-badge" [ngClass]="getStatusClass(r.status)">
-    {{ r.status }}
-  </span>
-</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(r.status)">
+                            {{ r.status }}
+                        </span>
+                    </td>
 
                 </tr>
 

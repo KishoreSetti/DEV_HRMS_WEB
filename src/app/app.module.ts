@@ -122,6 +122,8 @@ import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { ErrorHandler } from '@angular/core';
 import { GlobalErrorHandler } from './admin/shared/global-error-handler';
+import { EmployeePayslipComponent } from './features/compensation/payroll/employee-payslip/employee-payslip.component';
+import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/hr-payslip.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -235,6 +237,8 @@ import { GlobalErrorHandler } from './admin/shared/global-error-handler';
           SubscriptionPlansComponent,
           AssetRequestComponent,
           AssignAssetScreenComponent,
+          EmployeePayslipComponent,
+          HrPayslipComponent,
           
    
     
