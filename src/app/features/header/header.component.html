@@ -16,9 +16,24 @@
   </div>
 
   <!-- ================= CLOCK BUTTON ================= -->
-  <button class="btn btn-primary" (click)="toggleClock()">
+<div class="d-flex align-items-center gap-2">
+
+  <!-- ✅ BUTTON -->
+  <button 
+    *ngIf="showClockButton"
+    class="btn btn-primary"
+    (click)="toggleClock()">
     {{ isClockedIn ? 'Clock Out' : 'Clock In' }}
   </button>
+
+  <!-- ❌ MESSAGE -->
+<small *ngIf="!showClockButton" class="text-muted">
+  <strong>
+    ⏰ Clock-in opens at {{ allowedClockTimeText }} (Shift Starts: {{ shiftStartTime }})
+  </strong>
+</small>
+
+</div>
 
   <!-- ================= RIGHT SECTION ================= -->
   <div class="right-section">
