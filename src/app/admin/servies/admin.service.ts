@@ -517,7 +517,8 @@ export interface User {
   password?: string;
   status: string;
   userCompanyId?: number; // ✅ added for tracking which company the user belongs to
-  loginType?: string; // "Admin" or "User"
+  loginType?: string; // "Admin" or "User",
+  designationId?: number;
 }
 export interface CompanyNewsCategory {
   categoryId: number;

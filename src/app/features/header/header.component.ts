@@ -22,6 +22,10 @@ export class HeaderComponent {
 
  isClockedIn = false;
 
+  shiftStartTime: string = ''; // e.g. "09:00"
+  showClockButton: boolean = false;
+  allowedClockTimeText: string = '';
+
 clockStatus = 'Not Clocked In';
 clockInDisplay = '--:--:--';
 totalHoursDisplay = '00:00:00';
@@ -54,7 +58,15 @@ userId: number = Number(sessionStorage.getItem('UserId'));
     this.startTimer();
   }
     this.loadAttendance();
+
+        this.loadUserShift();
+
+  // ⏱️ Check every minute (important)
+  setInterval(() => {
+    this.checkClockButtonVisibility();
+  }, 60000);
   }
+
   loadProfilePicture() {
   this.employeeResignationService.getProfilePicture(this.userId)
     .subscribe({
@@ -857,5 +869,108 @@ stopListening() {
   if (this.recognition) {
     this.recognition.stop();
   }
+}
+
+loadUserShift() {
+
+  const companyId = Number(sessionStorage.getItem('CompanyId'));
+  const regionId = Number(sessionStorage.getItem('RegionId'));
+
+  this.employeeResignationService.getAllAllocations(this.userId)
+    .subscribe((allocations: any[]) => {
+
+      console.log('Allocations 👉', allocations);
+
+      const today = new Date().toISOString().split('T')[0];
+
+      // ✅ STEP 1: Filter by Company + Region + Active Date
+      const activeAllocation = allocations.find(a => {
+
+        const start = a.startDate ? a.startDate.split('T')[0] : null;
+        const end = a.endDate ? a.endDate.split('T')[0] : null;
+
+        return (
+          a.isActive &&
+          a.companyID == companyId &&
+          a.regionID == regionId &&
+          start <= today &&
+          (!end || end >= today)
+        );
+      });
+
+      if (!activeAllocation) {
+        console.warn('No active shift found');
+        this.showClockButton = false;
+        return;
+      }
+
+      console.log('Active Allocation 👉', activeAllocation);
+
+      // ✅ STEP 2: Get Shift Master Details
+      this.adminService
+        .getShiftsForDropdown(companyId, regionId)
+        .subscribe((shifts: any[]) => {
+
+          console.log('Shifts 👉', shifts);
+
+          const shift = shifts.find(s => s.shiftID == activeAllocation.shiftID);
+
+          if (!shift) {
+            console.warn('Shift not found in master');
+            return;
+          }
+
+          // ✅ FINAL: Assign Start Time
+          this.shiftStartTime = shift.shiftStartTime;
+
+          console.log('Shift Start Time 👉', this.shiftStartTime);
+
+          this.checkClockButtonVisibility();
+        });
+    });
+}
+
+checkClockButtonVisibility() {
+  if (!this.shiftStartTime) {
+    this.showClockButton = false;
+    return;
+  }
+
+  const now = new Date();
+
+  const [hours, minutes] = this.shiftStartTime.split(':').map(Number);
+
+  const shiftStart = new Date();
+  shiftStart.setHours(hours, minutes, 0, 0);
+
+  // ⏪ 30 mins before
+  const allowedTime = new Date(shiftStart.getTime() - (30 * 60 * 1000));
+
+  // ❌ After shift start + grace (optional)
+  const shiftEndLimit = new Date(shiftStart.getTime() + (2 * 60 * 60 * 1000)); // 2 hrs buffer
+
+  this.allowedClockTimeText = this.formatDisplayTime(allowedTime);
+
+  // ✅ FINAL CONDITION
+  this.showClockButton = now >= allowedTime && now <= shiftEndLimit;
+
+  console.log('Now:', now);
+  console.log('Allowed:', allowedTime);
+  console.log('Shift Start:', shiftStart);
+  console.log('Show Button:', this.showClockButton);
+}
+
+formatDisplayTime(date: Date): string {
+  let hours = date.getHours();
+  let minutes: any = date.getMinutes();
+
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0 => 12
+
+  minutes = minutes.toString().padStart(2, '0');
+
+  return `${hours}:${minutes} ${ampm}`;
 }
 }
