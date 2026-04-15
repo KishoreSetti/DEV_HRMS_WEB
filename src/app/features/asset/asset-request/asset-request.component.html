@@ -25,6 +25,17 @@
 
     <div class="row mb-3">
 
+          <!-- Asset Category -->
+        <div class="col-md-4">
+            <label>Asset Category</label>
+            <select class="form-select" formControlName="assetCategory">
+                <option value="">Select Category</option>
+                <option *ngFor="let cat of assetCategories" [ngValue]="cat.assetCategoryId">
+                    {{ cat.assetCategoryName }}
+                </option>
+            </select>
+        </div>
+
         <!-- Asset Type -->
         <div class="col-md-4">
             <label>Asset Type <span class="text-danger">*</span></label>
@@ -41,16 +52,7 @@
             </small>
         </div>
 
-        <!-- Asset Category -->
-        <div class="col-md-4">
-            <label>Asset Category</label>
-            <select class="form-select" formControlName="assetCategory">
-                <option value="">Select Category</option>
-                <option *ngFor="let cat of assetCategories" [ngValue]="cat.assetCategoryId">
-                    {{ cat.assetCategoryName }}
-                </option>
-            </select>
-        </div>
+      
 
         <!-- Required Date -->
         <div class="col-md-4">
@@ -124,8 +126,9 @@
         <thead>
             <tr>
                 <th>Request ID</th>
-                <th>Asset Type</th>
                 <th>Category</th>
+                <th>Asset Type</th>
+                
                 <th>Required Date</th>
                 <th>Priority</th>
                 <th>Reason</th>
@@ -137,8 +140,9 @@
         <tbody>
             <tr *ngFor="let r of requests">
                 <td>{{ r.requestID }}</td>
+                 <td>{{ getAssetCategoryName(r.assetCategory) }}</td>
                 <td>{{ getAssetTypeName(r.assetType) }}</td>
-                <td>{{ getAssetCategoryName(r.assetCategory) }}</td>
+               
                 <td>{{ r.requiredDate | date:'dd-MM-yyyy' }}</td>
                 <td>{{ getPriorityName(r.priority) }}</td>
                 <td>{{ r.reason }}</td>

@@ -126,9 +126,9 @@ getApprovedRequests(companyId: number, regionId: number) {
   );
 }
 // ✅ Get Available Assets
-getAvailableAssets$(companyId: number, regionId: number) {
+getAvailableAssets$(companyId: number, regionId: number, userId: number) {
   return this.http.get<any[]>(
-    `${this.apiUrl}/available-assets?companyId=${companyId}&regionId=${regionId}`
+    `${this.apiUrl}/available-assets?companyId=${companyId}&regionId=${regionId}&userId=${userId}`
   );
 }
 assignAsset$(payload: any) {

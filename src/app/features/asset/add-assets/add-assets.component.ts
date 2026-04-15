@@ -42,16 +42,28 @@ export class AddAssetsComponent {
 
   ngOnInit(): void {
     this.loadSessionData();
+    this.loadAllAssetTypesForDisplay();
     this.initForm();
-    this.loadAssetTypes();
+    //this.loadAssetTypes();
     this.loadCurrency();
     this.loadAssetCategories();
     this.assetForm.patchValue({
       userID: this.userId
     });
-
+this.assetForm.get('assetCategory')?.valueChanges.subscribe(() => {
+  this.loadAssetTypes();   // ✅ reuse same method
+});
     this.loadEmployeesAndStatuses(); // load employees & statuses first
   }
+  loadAllAssetTypesForDisplay() {
+  this.service.getAssetTypesByCompanyRegion(
+    this.companyId,
+    this.regionId,
+    0   // get all types
+  ).subscribe((res: any) => {
+    this.assetTypes = res.data || res;
+  });
+}
   loadCurrency() {
     this.service.getCurrenciesByCompanyRegion(
       this.companyId,
@@ -62,14 +74,22 @@ export class AddAssetsComponent {
     });
   }
 
-  loadAssetTypes() {
-    this.service.getAssetTypesByCompanyRegion(
-      this.companyId,
-      this.regionId
-    ).subscribe((res: any) => {
-      this.assetTypes = res.data || res;
-    });
+loadAssetTypes() {
+  const categoryId = this.assetForm.get('assetCategory')?.value;
+
+  if (!categoryId) {
+    this.assetTypes = [];   // ✅ clear dropdown
+    return;
   }
+
+  this.service.getAssetTypesByCompanyRegion(
+    this.companyId,
+    this.regionId,
+    categoryId
+  ).subscribe((res: any) => {
+    this.assetTypes = res.data || res;
+  });
+}
   loadAssetCategories() {
     this.service.getAssetCategoriesByCompanyRegion(
       this.companyId,
@@ -172,7 +192,9 @@ export class AddAssetsComponent {
   // }
   private loadAssets(): void {
 
-    const loggedUserId = Number(sessionStorage.getItem('UserId'));
+   // const loggedUserId = Number(sessionStorage.getItem('UserId'));
+   const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+const loggedUserId = user.userId;
 
     this.assetService.getAllAssets$().subscribe(res => {
 
@@ -244,9 +266,9 @@ export class AddAssetsComponent {
     this.loadAssets();
   }
 getAssetTypeName(id?: number): string {
+  if (!id || this.assetTypes.length === 0) return '-'; // ✅ ADD
   return this.assetTypes.find(x => x.assetTypeId === id)?.assetTypeName ?? '-';
 }
-
 getAssetCategoryName(id?: number): string {
   return this.assetCategories.find(x => x.assetCategoryId === id)?.assetCategoryName ?? '-';
 }

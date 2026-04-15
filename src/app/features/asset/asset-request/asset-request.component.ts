@@ -53,7 +53,9 @@ export class AssetRequestComponent {
     this.loadAssetTypes();
     this.loadAssetCategories();
     this.loadPriorities();
-
+this.assetRequestForm.get('assetCategory')?.valueChanges.subscribe(() => {
+  this.loadAssetTypes();   // ✅ reuse same method
+});
   }
   viewDocument(filePath: string | undefined): void {
 
@@ -84,13 +86,24 @@ export class AssetRequestComponent {
   }
 
   loadAssetTypes() {
-    this.service.getAssetTypesByCompanyRegion(
-      this.companyId,
-      this.regionId
-    ).subscribe((res: any) => {
-      this.assetTypes = res.data || res;
-    });
-  }
+
+  const categoryId = this.assetRequestForm.get('assetCategory')?.value;
+
+  // if (!categoryId) {
+  //   this.assetTypes = [];
+  //   return;
+  // }
+
+  this.service.getAssetTypesByCompanyRegion(
+    this.companyId,
+    this.regionId,
+     categoryId ? categoryId : 0   // ✅ ADD
+  ).subscribe((res: any) => {
+
+    this.assetTypes = res.data || res;
+
+  });
+}
   loadAssetCategories() {
     this.service.getAssetCategoriesByCompanyRegion(
       this.companyId,
@@ -232,6 +245,7 @@ export class AssetRequestComponent {
     return this.priorities.find(x => x.priorityId === id)?.priorityName || '-';
   }
   getAssetTypeName(id?: number): string {
+     if (!id || this.assetTypes.length === 0) return '-'; 
     return this.assetTypes.find(x => x.assetTypeId === id)?.assetTypeName ?? '-';
   }
 

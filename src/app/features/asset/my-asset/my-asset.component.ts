@@ -55,7 +55,7 @@ this.companyId = Number(sessionStorage.getItem('CompanyId'));
   
   loadAssetTypes() {
   this.adminService
-    .getAssetTypesByCompanyRegion(this.companyId, this.regionId)
+    .getAssetTypesByCompanyRegion(this.companyId, this.regionId, 0)
     .subscribe((res: any) => {
       this.assetTypes = res.data || res;
     });
