@@ -63,7 +63,7 @@ expenseForm!: FormGroup;
     });
 }
 loadCurrencies(): void {
-  this.service.getCurrenciesByCompanyRegion(this.companyId, this.regionId)
+  this.service.getCurrenciesbycompanyId(this.companyId, this.regionId)
     .subscribe((res: any) => {
       if (res.success && res.data) {
         this.currencies = res.data;

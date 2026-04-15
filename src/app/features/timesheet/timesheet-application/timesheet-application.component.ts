@@ -57,10 +57,12 @@ model: TimesheetModel = {
   pageSize = 5;
   currentPage = 1;
   pageSizeOptions = [5, 10, 20, 50];
-
+ todayDate: string = '';
   constructor(private timesheetService: TimesheetService) {}
 
   ngOnInit(): void {
+    const today = new Date();
+  this.todayDate = today.toISOString().split('T')[0];
     this.userId = Number(sessionStorage.getItem("UserId"));
     this.companyId = Number(sessionStorage.getItem("CompanyId"));
     this.regionId = Number(sessionStorage.getItem("RegionId"));

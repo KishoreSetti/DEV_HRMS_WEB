@@ -2226,9 +2226,12 @@ getAssetCategoriesByCompanyRegion(companyId: number, regionId: number) {
 }
 
 
-
 ///////////Currency CRUD operations
-
+getCurrenciesbycompanyId(companyId: number, regionId: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/MasterData/GetcurrencyByCompanyAndRegion?companyId=${companyId}&regionId=${regionId}`
+  );
+}
 getCurrencies(userId: number) {
   return this.http.get(`${this.baseUrl}/MasterData/currencies?userId=${userId}`);
 }
