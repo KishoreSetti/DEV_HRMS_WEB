@@ -24,12 +24,14 @@ export class AppComponent {
       });
   }
  checkSession() {
-    const user = sessionStorage.getItem('UserId'); // your key
+  const user = sessionStorage.getItem('UserId');
 
-     if (!user && this.router.url !== '/login') {
-      this.logout();
-    }
+  const publicRoutes = ['/login', '/Welcomedemo'];
+
+  if (!user && !publicRoutes.includes(this.router.url)) {
+    this.logout();
   }
+}
 
 
   ngOnInit() {
