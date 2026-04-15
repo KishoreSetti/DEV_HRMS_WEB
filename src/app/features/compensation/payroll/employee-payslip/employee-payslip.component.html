@@ -55,8 +55,15 @@
     </button>
   </div> -->
   <div class="d-flex justify-content-end mb-3">
-    <button class="btn request-btn" *ngIf="payslips[0]?.requestStatus === 'Not Requested'" (click)="openRequestPopup()">
-      📩 Request Download ({{payslips.length}} Months)
+    <button class="btn request-btn"
+      *ngIf="payslips[0]?.requestStatus === 'Not Requested' || payslips[0]?.requestStatus === 'Rejected'"
+      (click)="openRequestPopup()">
+
+      {{ payslips[0]?.requestStatus === 'Rejected'
+      ? '🔁 Request Again'
+      : '📩 Request Download'
+      }} ({{payslips.length}} Months)
+
     </button>
   </div>
 
