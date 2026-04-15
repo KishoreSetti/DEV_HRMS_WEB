@@ -1,7 +1,7 @@
 <div class="topbar">
   <!-- Left side: Logo -->
   <div class="top-left">
-    <div class="logo">
+    <div class="logo" style="cursor: pointer;" routerLink="/dashboard">
       <img src="/assets/images/cor-logo.png" width="150px" height="50px" alt="Logo">
     </div>
     <div class="clock-status">
@@ -15,12 +15,12 @@
   </button>
   <div class="right-section">
     <!-- Quick Links -->
-    <button class="icon-btn" title="Quick Links"><i class="fas fa-link"></i></button>
+    <!-- <button class="icon-btn" title="Quick Links"><i class="fas fa-link"></i></button> -->
 
     <!-- Notifications -->
     <div class="top-right-icons">
       <!-- Notifications -->
-      <div class="icon-dropdown">
+      <!-- <div class="icon-dropdown">
         <i class="fas fa-bell"></i>
         <span class="count">3</span>
         <div class="dropdown-content">
@@ -30,10 +30,10 @@
           <a href="#">Timesheet pending</a>
           <a href="#">Another notification</a>
         </div>
-      </div>
+      </div> -->
 
       <!-- Messages -->
-      <div class="icon-dropdown">
+      <!-- <div class="icon-dropdown">
         <i class="fas fa-envelope"></i>
         <span class="count">2</span>
         <div class="dropdown-content">
@@ -41,12 +41,12 @@
           <a href="#">Message from HR</a>
           <a href="#">Project update</a>
         </div>
-      </div>
+      </div> -->
     </div>
 
 
     <!-- Language / Country -->
-    <div class="profile-menu">
+    <!-- <div class="profile-menu">
 
       <div class="profile-menu" (click)="toggleLocationMenu($event)">
 
@@ -56,14 +56,14 @@
         <div class="profile-dropdown" [class.show]="isLocationOpen">
           <div class="location-container">
 
-            <!-- LEFT: COUNTRY LIST -->
+           
             <div class="country-list">
               <a *ngFor="let country of (locations | keyvalue)" (click)="selectCountry(country.key)">
                 {{ country.key }}
               </a>
             </div>
 
-            <!-- RIGHT: REGION LIST -->
+          
             <div class="region-list">
               <a *ngFor="let region of regionList" (click)="selectRegion(region)">
                 {{ region }}
@@ -73,7 +73,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div class="profile-menu">
       <span class="profile-name">Welcome, <b>{{userName}}({{roleName}})</b></span>

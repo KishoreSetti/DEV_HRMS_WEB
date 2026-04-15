@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-employee-details',
   standalone: false,
@@ -12,6 +12,7 @@ canViewFamily = false;
 canViewEmergency = false;
 canViewReference = false;
 selectedTab: string = '';
+constructor(public router: Router) {}
 ngOnInit(): void {
 
   this.loadTabPermissions();   }
