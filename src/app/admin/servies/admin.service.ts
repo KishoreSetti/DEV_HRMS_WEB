@@ -2785,4 +2785,3 @@ getProjectNames(companyId: number, regionId: number) {
   }
 
 }
-}
