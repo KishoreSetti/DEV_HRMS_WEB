@@ -77,6 +77,7 @@ export class EmployeePayslipComponent {
     this.payrollService.getPayslipsByRange(payload)
       .subscribe({
         next: (res: any[]) => {
+          console.log('months range pay slips',res);
 
           Swal.close(); // 🔥 close loader
 

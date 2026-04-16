@@ -69,10 +69,22 @@ export class TaxSettingsComponent {
     };
   }
 
-  loadStructures() {
-    this.payrollService.getAllSalaryStructures(this.userId)
-      .subscribe((res: any) => this.structures = res || []);
-  }
+loadStructures() {
+  this.payrollService.getAllSalaryStructures(this.userId)
+    .subscribe((res: any) => {
+
+      console.log('Salary Structures API Response:', res);
+
+      // ✅ FIX: normalize types
+      this.structures = (res || []).map((s: any) => ({
+        ...s,
+        regionId: Number(s.regionId),     // 🔥 IMPORTANT
+        companyId: Number(s.companyId)
+      }));
+
+      console.log('Normalized Structures:', this.structures);
+    });
+}
 
   loadSalaryComponents() {
     this.payrollService.getComponents(this.userId)
@@ -90,21 +102,31 @@ export class TaxSettingsComponent {
       });
   }
 
-  loadRegions() {
+loadRegions() {
   this.payrollService.getRegions(this.userId)
     .subscribe((res: any) => {
+
       if (res && Array.isArray(res)) {
+
         this.regions = res.map((r: any) => ({
-          regionId: r.regionID,
+          regionId: Number(r.regionID),   // ✅ normalize
           regionName: r.regionName,
-          companyID: r.companyID  // important for filtering
+          companyID: Number(r.companyID)
         }));
+
+        // ✅ CREATE MAP HERE (IMPORTANT)
+        this.regionMap = {};
+        this.regions.forEach(r => {
+          this.regionMap[r.regionId] = r.regionName;
+        });
+
       } else {
         this.regions = [];
       }
 
-      // Initialize filteredRegions if a company is already selected
       this.onCompanyChange();
+
+      console.log("Region Map:", this.regionMap);
     });
 }
   onCompanyChange() {

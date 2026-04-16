@@ -160,9 +160,9 @@
 
           <div class="col-md-6 text-end">
             <div><b>Employee No:</b> {{selectedPayroll.employeeCode}}</div>
-            <div><b>Bank:</b> -</div>
-            <div><b>A/C No:</b> -</div>
-            <div><b>PAN:</b> -</div>
+            <div><b>Bank:</b> {{selectedPayroll.bank || '-'}}</div>
+            <div><b>A/C No:</b> {{selectedPayroll.accountNo || '-'}}</div>
+            <div><b>PAN:</b> {{selectedPayroll.pan || '-'}}</div>
           </div>
         </div>
 

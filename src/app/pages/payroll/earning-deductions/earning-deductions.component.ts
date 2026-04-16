@@ -68,11 +68,24 @@ regionMap: { [key: string]: string } = {};
 loadComponents() {
   this.payrollService.getComponents(this.userId)
     .subscribe({
-      next: (res:any) => {
-        this.components = res || [];
-         this.currentPage = 1;
+      next: (res: any) => {
+
+        console.log('regions in components',res);
+
+        const raw = res || [];
+
+        // ✅ Normalize component data
+        this.components = raw.map((c: any) => ({
+          ...c,
+          regionId: Number(c.regionId || c.regionID),   // ✅ FIX
+          companyId: Number(c.companyId)
+        }));
+
+        console.log("Normalized Components:", this.components);
+
+        this.currentPage = 1;
       },
-      error: (err:any) => {
+      error: (err: any) => {
         console.error('Load error:', err);
         this.components = [];
       }
@@ -92,29 +105,41 @@ loadCompanies() {
   }
 
   // ------------------ Load Regions ------------------
-  loadRegions() {
-    this.payrollService.getRegions(this.userId)
-      .subscribe((res: any) => {
-        this.regions = res?.data ?? res ?? [];
-        // map for table display
-        this.regionMap = {};
-        this.regions.forEach(r => {
-          this.regionMap[r.regionID] = r.regionName;
-        });
+loadRegions() {
+  this.payrollService.getRegions(this.userId)
+    .subscribe((res: any) => {
+
+      const raw = res?.data ?? res ?? [];
+
+      // ✅ Normalize keys
+      this.regions = raw.map((r: any) => ({
+        regionId: r.regionID,        // FIX HERE
+        regionName: r.regionName,
+        companyId: r.companyID
+      }));
+
+      // ✅ Build map correctly
+      this.regionMap = {};
+      this.regions.forEach(r => {
+        this.regionMap[r.regionId] = r.regionName;
       });
-  }
+
+      console.log("Normalized Regions:", this.regions);
+    });
+}
 
   // ------------------ Filter Regions on Company Change ------------------
-  onCompanyChange() {
-    this.component.regionId = '';
-    if (this.component.companyId) {
-      this.filteredRegions = this.regions.filter(r =>
-        Number(r.companyID) === Number(this.component.companyId)
-      );
-    } else {
-      this.filteredRegions = [];
-    }
+onCompanyChange() {
+  this.component.regionId = '';
+
+  if (this.component.companyId) {
+    this.filteredRegions = this.regions.filter(r =>
+      Number(r.companyId) === Number(this.component.companyId)
+    );
+  } else {
+    this.filteredRegions = [];
   }
+}
 
  onSubmit() {
 

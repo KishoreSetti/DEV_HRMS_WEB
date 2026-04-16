@@ -1,0 +1,16 @@
+.pagination {
+  margin-top: 10px;
+}
+
+.pagination button {
+  margin: 2px;
+  padding: 5px 10px;
+  border: none;
+  background: #eee;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #007bff;
+  color: white;
+}

@@ -110,31 +110,24 @@
           </thead>
 
           <tbody>
-            <tr *ngFor="let s of salaries; let i = index">
+            <tr *ngFor="let s of paginatedSalaries; let i = index">
               <td>{{ i + 1 }}</td>
               <td>{{ getEmployeeName(s.employeeId) }}</td>
               <td>{{s.effectiveFrom}}</td>
               <td>{{ getStructureName(s.structureId) }}</td>
               <td>{{ companyMap[s.companyId] }}</td>
-              <td>{{ regionMap[s.regionId] }}</td>
+              <td>{{ regionMap[s.regionId?.toString()] || '-' }}</td>
               <td>{{ s.isActive ? 'Yes' : 'No' }}</td>
             </tr>
           </tbody>
         </table>
-        <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="pagination" *ngIf="salaries.length > pageSize">
 
-          <button class="btn btn-sm btn-outline-primary" (click)="currentPage = currentPage - 1"
-            [disabled]="currentPage === 1">
-            Previous
-          </button>
+          <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i+1)"
+            [class.active]="currentPage === (i+1)">
 
-          <span>
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
+            {{ i + 1 }}
 
-          <button class="btn btn-sm btn-outline-primary" (click)="currentPage = currentPage + 1"
-            [disabled]="currentPage === totalPages">
-            Next
           </button>
 
         </div>
