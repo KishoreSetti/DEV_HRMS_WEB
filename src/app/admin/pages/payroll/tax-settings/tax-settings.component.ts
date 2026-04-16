@@ -61,6 +61,7 @@ export class TaxSettingsComponent {
       departmentId: null,
       designationId: null,
       gradeId: null,
+      gradeName: '',
       isActive: true,
       companyId: null,
       regionId: null,
@@ -145,7 +146,9 @@ export class TaxSettingsComponent {
 
           this.designations = res.data.data.map((d: any) => ({
             designationId: d.designationID,   // ✅ mapping fix
-            designationName: d.designationName
+            designationName: d.designationName,
+              gradeId: d.gradeID,        // ✅ ADD THIS
+          gradeName: d.gradeName     // (optional)
           }));
 
         } else {
@@ -264,4 +267,20 @@ export class TaxSettingsComponent {
   onSearchChange() {
     this.currentPage = 1;
   }  
+
+onDesignationChange() {
+  const selected = this.designations.find(
+    d => Number(d.designationId) === Number(this.structure.designationId)
+  );
+
+  if (selected) {
+    this.structure.gradeId = selected.gradeId;       // ✅ for saving
+    this.structure.gradeName = selected.gradeName;  // ✅ for UI display
+  } else {
+    this.structure.gradeId = null;
+    this.structure.gradeName = '';
+  }
+
+  console.log("Selected Designation:", selected);
+}
 }
