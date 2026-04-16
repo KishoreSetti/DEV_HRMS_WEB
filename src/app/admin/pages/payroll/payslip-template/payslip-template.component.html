@@ -4,6 +4,18 @@
     <h4 class="fw-semibold mb-3">Payroll Processing</h4>
 
     <div class="row g-3">
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-danger" (click)="downloadPayrollPDF()">
+          Download PDF
+        </button>
+
+        <button class="btn btn-success" (click)="downloadPayrollExcel()">
+          Download Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-3">
 
       <div class="col-md-3">
         <label class="form-label">Month *</label>
@@ -15,10 +27,6 @@
         </select>
       </div>
 
-      <!-- <div class="col-md-3">
-        <label class="form-label">Year *</label>
-        <input type="number" class="form-control" [(ngModel)]="year">
-      </div> -->
       <div class="col-md-3">
         <label class="form-label">Year *</label>
         <select class="form-select" [(ngModel)]="year" name="year" required>
@@ -37,14 +45,17 @@
           Preview Payrolls
         </button>
 
-        <button class="btn btn-success w-100" (click)="processPayroll()"
-          [disabled]="!isPreviewDone || isProcessed || isLoading">
-          Process Payrolls
-        </button>
+        <span [title]="isPayrollAlreadyProcessed() ? 'Payroll already processed for selected month and year' : ''"
+          style="display:block; width:100%">
 
-        <!-- <button class="btn btn-secondary w-100" (click)="loadPayroll()" [disabled]="isLoading">
-          Load Saved Payrolls
-        </button> -->
+          <button class="btn btn-success w-100" (click)="processPayroll()"
+            [disabled]="!isPreviewDone || isProcessed || isLoading || isPayrollAlreadyProcessed()">
+
+            Process Payrolls
+
+          </button>
+
+        </span>
 
       </div>
 
@@ -60,8 +71,6 @@
         <tr>
           <th>Employee ID</th>
           <th>Employee Name</th>
-          <!-- <th>Department</th>
-          <th>Designation</th> -->
           <th>Working Days</th>
           <th>Present</th>
           <th>Leave</th>
@@ -69,7 +78,6 @@
           <th>Expenses</th>
           <th>Status</th>
           <th>View</th>
-          <!-- <th>PDF</th> -->
         </tr>
       </thead>
 
@@ -78,13 +86,6 @@
 
           <td>{{ getEmployee(p.employeeId)?.employeeCode }}</td>
           <td>{{ getEmployee(p.employeeId)?.fullName }}</td>
-          <!-- <td>
-            {{ departmentMap[getEmployee(p.employeeId)?.departmentId] || '-' }}
-          </td>
-
-          <td>
-            {{ designationMap[getEmployee(p.employeeId)?.designationId] || '-' }}
-          </td> -->
           <td>{{p.workingDays}}</td>
           <td>{{p.presentDays}}</td>
           <td>{{p.leaveDays}}</td>
@@ -103,11 +104,7 @@
             </button>
           </td>
 
-          <!-- <td>
-            <button class="btn btn-sm btn-danger" (click)="downloadPDF(p)">
-              PDF
-            </button>
-          </td> -->
+
 
         </tr>
 
@@ -119,9 +116,20 @@
 
       </tbody>
     </table>
+
+    <div class="pagination" *ngIf="payrollList.length > pageSize">
+
+      <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i+1)"
+        [class.active]="currentPage === (i+1)">
+
+        {{ i + 1 }}
+
+      </button>
+
+    </div>
   </div>
 </div>
-<!-- VIEW MODAL -->
+
 <div class="modal fade show d-block" *ngIf="selectedPayroll" style="background: rgba(0,0,0,0.5); padding-top: 150px;">
 
   <div class="modal-dialog modal-lg">

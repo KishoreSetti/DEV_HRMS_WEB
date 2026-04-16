@@ -27,8 +27,6 @@ export class PayGroupsComponent {
   searchText = '';
 
 
-  currentPage = 1;
-  pageSize = 5;
   filteredRegions: any[] = [];
   constructor(private payrollService: EmployeePayRollService) { }
 
@@ -69,8 +67,10 @@ export class PayGroupsComponent {
     this.payrollService.getAllAssignedSalaries(this.userId)
       .subscribe({
         next: (res:any) => {
-          console.log("API Response:", res);   // 🔥 ADD THIS
+          console.log("loadAllAssignedSalaries:", res);   // 🔥 ADD THIS
           this.salaries = res || [];
+
+            this.currentPage = 1; 
         },
         error: (err:any) => {
           console.error(err);
@@ -100,30 +100,33 @@ export class PayGroupsComponent {
       });
   }
 
-  loadRegions() {
+loadRegions() {
   this.payrollService.getRegions(this.userId)
     .subscribe((res: any) => {
-      if (res && Array.isArray(res)) {
-        this.regions = res.map((r: any) => ({
-          regionId: r.regionID,
-          regionName: r.regionName,
-          companyID: r.companyID  
-        }));
-      } else {
-        this.regions = [];
-      }
 
-      // initialize filteredRegions if company already selected
-      this.onCompanyChange();
+      const raw = res?.data ?? res ?? [];
+
+      this.regions = raw.map((r: any) => ({
+        regionId: String(r.regionID),   // ✅ MAKE STRING
+        regionName: r.regionName,
+        companyId: String(r.companyID)
+      }));
+
+      // ✅ IMPORTANT: Map keys also as STRING
+      this.regionMap = {};
+      this.regions.forEach(r => {
+        this.regionMap[String(r.regionId)] = r.regionName;
+      });
+
+      console.log("Region Map:", this.regionMap);
     });
 }
-  onCompanyChange() {
-  // Reset region selection
+onCompanyChange() {
   this.salary.regionId = null;
 
   if (this.salary.companyId) {
     this.filteredRegions = this.regions.filter(r =>
-      Number(r.companyID) === Number(this.salary.companyId)
+      String(r.companyId) === String(this.salary.companyId)
     );
   } else {
     this.filteredRegions = [];
@@ -219,12 +222,19 @@ export class PayGroupsComponent {
 
   //====================== Pagination Code ========================
 
-  get paginatedSalaries() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.salaries.slice(start, start + this.pageSize);
-  }
+currentPage = 1;
+pageSize = 5;
 
-  get totalPages() {
-    return Math.ceil(this.salaries.length / this.pageSize);
-  }
+get paginatedSalaries() {
+  const start = (this.currentPage - 1) * this.pageSize;
+  return this.salaries.slice(start, start + this.pageSize);
+}
+
+get totalPages() {
+  return Math.ceil(this.salaries.length / this.pageSize);
+}
+
+changePage(page: number) {
+  this.currentPage = page;
+}
 }

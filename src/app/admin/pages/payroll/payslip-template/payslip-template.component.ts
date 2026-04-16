@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { EmployeePayRollService } from '../../../../employee-pay-roll.service';
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-payslip-template',
   standalone: false,
@@ -9,7 +12,7 @@ import jsPDF from 'jspdf';
   styleUrl: './payslip-template.component.css'
 })
 export class PayslipTemplateComponent {
-userId!: number;
+  userId!: number;
 
   month: number | null = null;
   year: number | null = null;
@@ -48,8 +51,8 @@ userId!: number;
   constructor(private payrollService: EmployeePayRollService) { }
 
   ngOnInit(): void {
-   // this.userId = Number(sessionStorage.getItem('userCompanyId'));
-   this.userId = Number(sessionStorage.getItem('UserId'));
+    // this.userId = Number(sessionStorage.getItem('userCompanyId'));
+    this.userId = Number(sessionStorage.getItem('UserId'));
     // this.loadEmployees();
     this.loadEmployees();
     this.loadDepartments();
@@ -57,7 +60,7 @@ userId!: number;
   }
   loadEmployees() {
     this.payrollService.getEmployees(this.userId)
-      .subscribe((res:any) => {
+      .subscribe((res: any) => {
         this.employees = res || [];
         console.log("Employees Data:", this.employees);
       });
@@ -79,8 +82,8 @@ userId!: number;
   }
   loadDepartments() {
     this.payrollService.getDepartments(this.userId)
-      .subscribe((res:any) => {
-        
+      .subscribe((res: any) => {
+
         console.log('Departments', res);
 
         if (res && res.success && Array.isArray(res.data)) {
@@ -99,7 +102,7 @@ userId!: number;
 
   loadDesignations() {
     this.payrollService.getDesignations(this.userId)
-      .subscribe((res:any) => {
+      .subscribe((res: any) => {
 
         console.log('Designations', res);
 
@@ -142,14 +145,17 @@ userId!: number;
 
     this.payrollService.previewPayroll(this.userId, payload)
       .subscribe({
-        next: (res:any) => {
+        next: (res: any) => {
           console.log('Privew Payroll Responce', res);
           this.payrollList = res || [];
           this.isPreviewDone = true;
           this.isProcessed = false;
           this.isLoading = false;
+          this.currentPage = 1;
+          this.isProcessed = this.isPayrollAlreadyProcessed();
+
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error(err);
           this.isLoading = false;
           Swal.fire('Error', 'Preview Failed', 'error');
@@ -158,6 +164,10 @@ userId!: number;
   }
 
   processPayroll() {
+    if (this.isPayrollAlreadyProcessed()) {
+      Swal.fire('Info', 'Payroll already processed for selected month and year', 'info');
+      return;
+    }
     if (!this.validateInputs()) return;
 
     this.isLoading = true;
@@ -174,8 +184,9 @@ userId!: number;
           Swal.fire('Success', res.message, 'success');
 
           this.loadPayroll();
+          this.currentPage = 1;
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error('Actual error:', err);
           this.isLoading = false;
           Swal.fire('Error', 'Processing Failed', 'error');
@@ -191,149 +202,202 @@ userId!: number;
     this.payrollService
       .getPayrollByMonth(this.month!, this.year!, this.userId)
       .subscribe({
-        next: (res:any) => {
+        next: (res: any) => {
           this.payrollList = res || [];
           this.isLoading = false;
         },
-        error: (err:any) => {
+        error: (err: any) => {
           console.error(err);
           this.isLoading = false;
         }
       });
   }
-downloadPDF(p: any) {
- 
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
- 
-  const safeText = (val: any) => val ? String(val) : '';
-  const safeNumber = (val: any) => isNaN(Number(val)) ? 0 : Number(val);
-  const currency = (val: any) =>
-    safeNumber(val).toLocaleString('en-IN', { minimumFractionDigits: 0 });
- 
-  const emp = this.getEmployee(p.employeeId);
- 
-  const monthName = this.getMonthName(this.month!);
-  const printDate = new Date().toLocaleDateString('en-GB');
- 
-  /* ================= HEADER ================= */
- 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(200, 0, 0);
-  doc.text('CORTRACKER IT SOLUTIONS PVT LTD', 20, 20);
- 
-  doc.setFontSize(9);
-  doc.setTextColor(100);
-  doc.text('Flat No. 1101, 11th Floor, B-Block Asian Sun City...', 20, 26);
-  doc.text('Hyderabad, Telangana 500084', 20, 30);
- 
-  doc.setTextColor(0);
-  doc.setFontSize(10);
-  doc.text(`Print Date: ${printDate}`, pageWidth - 20, 20, { align: 'right' });
-  doc.text(`Payslip for ${monthName} ${this.year}`, pageWidth - 20, 26, { align: 'right' });
- 
-  doc.setDrawColor(200, 0, 0);
-  doc.line(20, 35, pageWidth - 20, 35);
- 
-  /* ================= EMPLOYEE DETAILS ================= */
- 
-  let y = 45;
- 
-  doc.setFontSize(10);
- 
-  // LEFT SIDE
-  doc.text(`Name: ${safeText(emp?.fullName)}`, 20, y);
-  doc.text(`Designation: ${this.designationMap[emp?.designationId] || ''}`, 20, y + 6);
-  doc.text(`Department: ${this.departmentMap[emp?.departmentId] || ''}`, 20, y + 12);
-  doc.text(`Location: Madhapur`, 20, y + 18);
-  doc.text(`Joining Date: ${emp?.createdDate || ''}`, 20, y + 24);
- 
-  // RIGHT SIDE
-  doc.text(`Employee No: ${safeText(emp?.employeeCode)}`, pageWidth / 2, y);
-  doc.text(`Bank: -`, pageWidth / 2, y + 6);
-  doc.text(`A/C No: -`, pageWidth / 2, y + 12);
-  doc.text(`PAN: -`, pageWidth / 2, y + 18);
- 
-  /* ================= TABLE ================= */
- 
-  let tableY = y + 35;
- 
-  doc.setFillColor("240");
-  doc.rect(20, tableY, pageWidth - 40, 10, 'F');
- 
-  doc.setFont('helvetica', 'bold');
-  doc.text('Component', 25, tableY + 7);
-  doc.text('Amount (INR)', pageWidth / 2 - 10, tableY + 7, { align: 'right' });
- 
-  doc.text('Deduction', pageWidth / 2 + 10, tableY + 7);
-  doc.text('Amount (INR)', pageWidth - 25, tableY + 7, { align: 'right' });
- 
-  tableY += 15;
- 
-  let earningsY = tableY;
-  let deductionY = tableY;
- 
-  let totalEarnings = 0;
-  let totalDeductions = 0;
- 
-  (p.details || []).forEach((d: any) => {
- 
-    const amount = safeNumber(d.amount);
- 
-    if (d.type === 'Earning') {
-      doc.text(d.componentName, 25, earningsY);
-      doc.text(currency(amount), pageWidth / 2 - 10, earningsY, { align: 'right' });
-      totalEarnings += amount;
-      earningsY += 8;
-    }
- 
-    if (d.type === 'Deduction') {
-      doc.text(d.componentName, pageWidth / 2 + 10, deductionY);
-      doc.text(currency(amount), pageWidth - 25, deductionY, { align: 'right' });
-      totalDeductions += amount;
-      deductionY += 8;
-    }
- 
-  });
- 
-  const finalY = Math.max(earningsY, deductionY) + 10;
- 
-  /* ================= TOTAL ================= */
- 
-  doc.setFont('helvetica', 'bold');
- 
-  doc.setTextColor(200, 0, 0);
-  doc.text(`Total Earnings: INR ${currency(totalEarnings)}`, 20, finalY);
- 
-  doc.setTextColor(0);
-  doc.text(`Total Deductions: INR ${currency(totalDeductions)}`, 20, finalY + 8);
- 
-  const net = totalEarnings - totalDeductions;
- 
-  doc.setFontSize(14);
-  doc.setTextColor(200, 0, 0);
-  doc.text(`Net Pay: INR ${currency(net)}`, pageWidth - 20, finalY + 8, { align: 'right' });
- 
-  doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text(`(Rupees ${currency(net)} Only)`, 20, finalY + 16);
- 
-  /* ================= FOOTER ================= */
- 
-  doc.setFontSize(8);
-  doc.setTextColor(150);
-  doc.text(
-    '© CORTRACKER IT SOLUTIONS PVT LTD — This is a system generated payslip.',
-    pageWidth / 2,
-    finalY + 25,
-    { align: 'center' }
-  );
- 
-  doc.save(`Payslip_${emp?.employeeCode}_${monthName}.pdf`);
-}
+
   get paginatedPayroll() {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.payrollList.slice(start, start + this.pageSize);
+  }
+
+
+  get totalPages() {
+    return Math.ceil(this.payrollList.length / this.pageSize);
+  }
+
+  changePage(page: number) {
+    this.currentPage = page;
+  }
+
+  isPayrollAlreadyProcessed(): boolean {
+    return this.payrollList.some(p =>
+      p.status?.trim().toLowerCase() === 'processed'
+    );
+  }
+
+downloadPayrollPDF() {
+
+  if (!this.payrollList || this.payrollList.length === 0) {
+    Swal.fire('Warning', 'No payroll data available', 'warning');
+    return;
+  }
+
+  const doc = new jsPDF('l', 'mm', 'a4');
+
+  // ===== HEADER =====
+  doc.setFontSize(16);
+  doc.setTextColor(200, 0, 0);
+  doc.text('CORTRACKER IT SOLUTIONS PVT LTD', 14, 15);
+
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 14, 25);
+  doc.text(`Month: ${this.getMonthName(this.month!)} ${this.year}`, 14, 32);
+
+  // ===== SINGLE TABLE (SUMMARY) =====
+  const tableData = this.payrollList.map(p => {
+
+    const emp = this.getEmployee(p.employeeId);
+
+    return [
+      emp?.employeeCode,
+      emp?.fullName,
+      p.grossSalary,
+      p.totalDeductions,
+      p.attendanceDeduction,
+      p.expenses,
+      p.netSalary
+    ];
+  });
+
+  autoTable(doc, {
+    startY: 40,
+    head: [[
+      'Emp ID',
+      'Employee Name',
+      'Earnings',
+      'Deductions',
+      'Attendance',
+      'Expenses',
+      'Net Salary'
+    ]],
+    body: tableData,
+    theme: 'grid',
+
+    styles: {
+      fontSize: 10
+    },
+
+    headStyles: {
+      fillColor: [41, 128, 185],
+      textColor: 255,
+      halign: 'center'
+    }
+  });
+
+  doc.save(`Payroll_${this.month}_${this.year}.pdf`);
+}
+
+  downloadPayrollExcel() {
+
+    if (!this.payrollList || this.payrollList.length === 0) {
+      Swal.fire('Warning', 'No payroll data available', 'warning');
+      return;
+    }
+
+    const data = this.payrollList.map(p => {
+
+      const emp = this.getEmployee(p.employeeId);
+
+      return {
+        'Emp ID': emp?.employeeCode,
+        'Employee Name': emp?.fullName,
+
+        'Earnings Details': p.details
+          .filter((d: any) => d.type === 'Earning')
+          .map((d: any) => `${d.componentName} (₹ ${d.amount})`)
+          .join('\n'),
+
+        'Deductions Details': p.details
+          .filter((d: any) => d.type === 'Deduction')
+          .map((d: any) => `${d.componentName} (₹ ${d.amount})`)
+          .join('\n'),
+
+        'Total Earnings': p.grossSalary,
+        'Total Deductions': p.totalDeductions,
+        'Attendance': p.attendanceDeduction,
+        'Expenses': p.expenses,
+        'Net Salary': p.netSalary
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+
+    // =========================
+    // ✅ COLUMN WIDTHS (PROPER ALIGNMENT)
+    // =========================
+    worksheet['!cols'] = [
+      { wch: 15 }, // Emp ID
+      { wch: 25 }, // Name
+      { wch: 40 }, // Earnings Details
+      { wch: 40 }, // Deductions Details
+      { wch: 18 }, // Total Earnings
+      { wch: 18 }, // Total Deductions
+      { wch: 15 }, // Attendance
+      { wch: 15 }, // Expenses
+      { wch: 18 }  // Net Salary
+    ];
+
+    // =========================
+    // ✅ WRAP TEXT (MULTILINE SUPPORT)
+    // =========================
+    const range = XLSX.utils.decode_range(worksheet['!ref']!);
+
+    for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+
+        if (!worksheet[cellAddress]) continue;
+
+        worksheet[cellAddress].s = {
+          alignment: {
+            wrapText: true,
+            vertical: 'top'
+          }
+        };
+      }
+    }
+
+    // =========================
+    // ✅ HEADER STYLE (RED + WHITE)
+    // =========================
+    const headerRange = XLSX.utils.decode_range(worksheet['!ref']!);
+
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+
+      if (!worksheet[cellAddress]) continue;
+
+      worksheet[cellAddress].s = {
+        font: {
+          bold: true,
+          color: { rgb: "FFFFFF" } // white
+        },
+        fill: {
+          fgColor: { rgb: "C00000" } // red
+        },
+        alignment: {
+          horizontal: 'center'
+        }
+      };
+    }
+
+    // =========================
+    // ✅ CREATE WORKBOOK
+    // =========================
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Payroll Report');
+
+    XLSX.writeFile(workbook, `Payroll_${this.month}_${this.year}.xlsx`);
   }
 }
