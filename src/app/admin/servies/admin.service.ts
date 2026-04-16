@@ -447,6 +447,7 @@ export interface MenuItem {
   icon?: string;
   orderNo?: number;
   children?: MenuItem[];
+  isOpen?: boolean;
 }
 // export interface CertificationType {
 //   certificationTypeID: number;

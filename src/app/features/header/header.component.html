@@ -14,11 +14,14 @@
     {{ isClockedIn ? 'Clock Out' : 'Clock In' }}
   </button>
   <div class="right-section">
+     <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
     <!-- Quick Links -->
     <!-- <button class="icon-btn" title="Quick Links"><i class="fas fa-link"></i></button> -->
 
     <!-- Notifications -->
-    <div class="top-right-icons">
+    <!-- <div class="top-right-icons"> -->
       <!-- Notifications -->
       <!-- <div class="icon-dropdown">
         <i class="fas fa-bell"></i>
@@ -42,7 +45,7 @@
           <a href="#">Project update</a>
         </div>
       </div> -->
-    </div>
+    <!-- </div> -->
 
 
     <!-- Language / Country -->
@@ -78,7 +81,7 @@
     <div class="profile-menu">
       <span class="profile-name">Welcome, <b>{{userName}}({{roleName}})</b></span>
       <img [src]="profilePicture" alt="Profile Picture" width="100" height="100" class="profile-pic"
-        (error)="profilePicture='/assets/images/default-Logo.jpg'" />
+        (error)="profilePicture='/assets/images/default-Logo.jpg'" (click)="toggleProfileMenu()" />
       <i class="fas fa-chevron-down dropdown-arrow"></i>
 
       <div class="profile-dropdown" [class.show]="isProfileOpen">
@@ -91,6 +94,25 @@
 
 
   </div>
+</div>
+<div class="mobile-dropdown" [class.open]="isMobileMenuOpen">
+
+  <p><b>Quick Info</b></p>
+  <p>Status: {{ clockStatus }}</p>
+  <p>Clock In: {{ clockInDisplay }}</p>
+  <p>Total Hours: {{ totalHoursDisplay }}</p>
+
+  <hr>
+
+  <p><b>Notifications</b></p>
+  <p>New leave request</p>
+  <p>Policy update</p>
+
+  <hr>
+
+  <p><b>Messages</b></p>
+  <p>Message from HR</p>
+
 </div>
 <div class="chatbot-container">
 

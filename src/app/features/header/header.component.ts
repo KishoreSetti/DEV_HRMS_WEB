@@ -21,7 +21,7 @@ export class HeaderComponent {
  superadmin:any;
 
  isClockedIn = false;
-
+isMobileMenuOpen = false;
   shiftStartTime: string = ''; // e.g. "09:00"
   showClockButton: boolean = false;
   allowedClockTimeText: string = '';
@@ -100,6 +100,9 @@ userId: number = Number(sessionStorage.getItem('UserId'));
     }
   });
 }
+toggleMobileMenu() {
+  this.isMobileMenuOpen = !this.isMobileMenuOpen;
+}
 
   loadProfilePicture() {
   this.employeeResignationService.getProfilePicture(this.userId)
@@ -143,8 +146,7 @@ this.addMessage(
   }
   isProfileOpen = false;
 
-toggleProfileMenu(event: Event): void {
-  event.stopPropagation();
+toggleProfileMenu(): void {
   this.isProfileOpen = !this.isProfileOpen;
 }
 
@@ -214,9 +216,26 @@ selectRegion(region: string) {
   // localStorage.setItem('region', region);
 }
 
-@HostListener('document:click')
-closeOnOutsideClick() {
-  this.isLocationOpen = false;
+@HostListener('document:click', ['$event'])
+onGlobalClick(event: Event) {
+
+  const target = event.target as HTMLElement;
+
+  // ================= PROFILE DROPDOWN CLOSE =================
+  if (!target.closest('.profile-menu')) {
+    this.isProfileOpen = false;
+  }
+
+  // ================= LOCATION DROPDOWN CLOSE =================
+  if (!target.closest('.location-wrapper')) {
+    this.isLocationOpen = false;
+  }
+
+  // ================= MOBILE MENU CLOSE =================
+  if (!target.closest('.mobile-dropdown') &&
+      !target.closest('.mobile-menu-btn')) {
+    this.isMobileMenuOpen = false;
+  }
 }
 
 getSystemTime(): Date {
