@@ -35,15 +35,21 @@ export class AssignAssetScreenComponent {
     private assetService: AssetService,
     private adminService: AdminService
   ) {}
-
+userId!: number;
   ngOnInit(): void {
     this.companyId = Number(sessionStorage.getItem('CompanyId'));
     this.regionId = Number(sessionStorage.getItem('RegionId'));
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    this.userId = Number(sessionStorage.getItem('UserId'));
 
     this.loadApprovedRequests();
     this.loadAssetTypes();
     this.loadAvailableAssets(); // 🔥 ADD THIS
     this.loadAssignments();
+this.form.get('assetCategory')?.valueChanges.subscribe(() => {
+  this.loadAssetTypes();   // ✅ reuse same method
+});
+
   }
   loadAssignments() {
   this.assetService
@@ -55,7 +61,7 @@ export class AssignAssetScreenComponent {
 
   loadAvailableAssets() {
   this.assetService
-    .getAvailableAssets$(this.companyId, this.regionId)
+    .getAvailableAssets$(this.companyId, this.regionId,this.userId) // ✅ pass userId
     .subscribe(res => {
       this.availableAssets = res;
     });
@@ -76,33 +82,62 @@ export class AssignAssetScreenComponent {
   // ============================================================
   // 🔹 LOAD ASSET TYPES (FOR NAME)
   // ============================================================
-  loadAssetTypes() {
-    this.adminService
-      .getAssetTypesByCompanyRegion(this.companyId, this.regionId)
-      .subscribe((res: any) => {
-        this.assetTypes = res.data || res;
-      });
-  }
+  // loadAssetTypes() {
+  //   this.adminService
+  //     .getAssetTypesByCompanyRegion(this.companyId, this.regionId )
+  //     .subscribe((res: any) => {
+  //       this.assetTypes = res.data || res;
+  //     });
+  // }
+
+//   loadAssetTypes() {
+
+//   const categoryId = this.form.get('assetCategory')?.value;
+
+//   if (!categoryId) {
+//     this.assetTypes = [];
+//     return;
+//   }
+
+//   this.adminService.getAssetTypesByCompanyRegion(
+//     this.companyId,
+//     this.regionId,
+//     categoryId   // ✅ ADD
+//   ).subscribe((res: any) => {
+
+//     this.assetTypes = res.data || res;
+
+//   });
+// }
+loadAssetTypes() {
+  this.adminService.getAssetTypesByCompanyRegion(
+    this.companyId,
+    this.regionId,
+    0   // ✅ get all types
+  ).subscribe((res: any) => {
+    this.assetTypes = res.data || res;
+  });
+}
+getAssetTypeName(id?: number): string {
+  if (!id || this.assetTypes.length === 0) return '-'; // ✅ ADD
+  return this.assetTypes.find(x => x.assetTypeId === id)?.assetTypeName ?? '-';
+}
 
   // ============================================================
   // 🔹 ON REQUEST CHANGE
   // ============================================================
-  onRequestChange() {
-    const selected = this.requests.find(
-      r => r.requestID == this.form.requestId
-    );
+ onRequestChange() {
+  const selected = this.requests.find(
+    r => r.requestID == this.form.requestId
+  );
 
-    if (selected) {
-      this.form.employeeName = selected.employeeName;
+  if (selected) {
+    this.form.employeeName = selected.employeeName;
 
-      // 🔥 Convert AssetTypeId → Name
-      const type = this.assetTypes.find(
-        x => x.assetTypeId == selected.assetType
-      );
-
-      this.form.assetType = type?.assetTypeName || '-';
-    }
+    // ✅ Safe mapping
+    this.form.assetType = this.getAssetTypeName(selected.assetType);
   }
+}
 
   // ============================================================
   // 🔹 ON ASSET CHANGE

@@ -2197,9 +2197,9 @@ deleteAssetType(id: number) {
 getAssetCategoriestype(userId: number) {    
   return this.http.get(`${this.baseUrl}/MasterData/assetcategoriestype?userId=${userId}`);
 }
-getAssetTypesByCompanyRegion(companyId: number, regionId: number) {
+getAssetTypesByCompanyRegion(companyId: number, regionId: number, categoryId: number) {
   return this.http.get(
-    `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}`
+    `${this.baseUrl}/MasterData/assettypesfilter?companyId=${companyId}&regionId=${regionId}&assetCategoryId=${categoryId}`
   );
 }
 

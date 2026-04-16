@@ -48,6 +48,17 @@
         Asset Code must be alphanumeric
       </small>
     </div>
+    <!-- Asset Category -->
+    <div class="col-md-4">
+      <label>Asset Category</label>
+      <select class="form-select" formControlName="assetCategory">
+        <option value="">Select Category</option>
+        <option *ngFor="let cat of assetCategories" [ngValue]="cat.assetCategoryId">
+          {{ cat.assetCategoryName }}
+        </option>
+      </select>
+    </div>
+
     <div class="col-md-4">
       <label>Asset Type <span class="text-danger">*</span></label>
       <select class="form-select" formControlName="assetType">
@@ -63,16 +74,7 @@
       </small>
     </div>
 
-    <!-- Asset Category -->
-    <div class="col-md-4">
-      <label>Asset Category</label>
-      <select class="form-select" formControlName="assetCategory">
-        <option value="">Select Category</option>
-        <option *ngFor="let cat of assetCategories" [ngValue]="cat.assetCategoryId">
-          {{ cat.assetCategoryName }}
-        </option>
-      </select>
-    </div>
+
 
     <!-- Asset Location -->
     <div class="col-md-4">
@@ -230,8 +232,9 @@
                 {{ sortDirection === 'asc' ? '▲' : '▼' }}
               </span>
             </th>
-            <th>Asset Type</th>
             <th>Asset Category</th>
+            <th>Asset Type</th>
+            
 
 
             <th>Location</th>
@@ -260,8 +263,9 @@
 
             <td>{{ asset.assetName }}</td>
             <td>{{ asset.assetCode }}</td>
+             <td>{{ getAssetCategoryName(asset.assetCategory) }}</td>
             <td>{{ getAssetTypeName(asset.assetType) }}</td>
-            <td>{{ getAssetCategoryName(asset.assetCategory) }}</td>
+           
 
             <td>{{ asset.assetLocation }}</td>
             <td>{{ asset.currencyCode }} {{ asset.assetCost }}</td>
