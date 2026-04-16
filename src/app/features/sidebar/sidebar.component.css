@@ -1254,6 +1254,51 @@ button:hover {
   background: #ffebeb;
   color: #b02828;
 }
+@media (max-width: 768px) {
 
+  .menu {
+    display: none;
+    flex-direction: column;
+    background: #b02828;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+  }
 
+  .menu.open {
+    display: flex;
+  }
 
+  .dropdown-content {
+    position: static;
+    display: none;
+    background: #8e1f1f;
+    width: 100%;
+    padding-left: 15px;
+  }
+
+  .dropdown.open > .dropdown-content {
+    display: block;
+  }
+
+  .arrow {
+    float: right;
+    cursor: pointer;
+    padding: 0 10px;
+  }
+
+  .navbar {
+    position: relative;
+  }
+
+  .menu-toggle {
+    display: block;
+    font-size: 26px;
+    padding: 10px;
+    color: white;
+    background: #b02828;
+    cursor: pointer;
+  }
+}

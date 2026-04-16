@@ -199,3 +199,67 @@ canvas {
   width: 100% !important;
   height: 250px !important;
 }
+/* ================= MOBILE CLEAN FIX ================= */
+@media (max-width: 768px) {
+
+  /* KEEP HEADER FULL */
+  .header {
+    width: 100%;
+  }
+
+  /* DASHBOARD FLEX WRAP */
+  .dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  /* ===== FIX STAT CARDS (2x2 GRID) ===== */
+  .dashboard > .stat-card {
+    width: calc(50% - 10px);
+    display: flex;
+    align-items: center;
+  }
+
+  /* OTHER CARDS FULL WIDTH */
+  .dashboard > .card:not(.stat-card) {
+    width: 100%;
+  }
+
+  /* REMOVE GRID SPAN EFFECT */
+  .span-2,
+  .span-4 {
+    width: 100% !important;
+  }
+.card {
+    padding: 10px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+/* ===== ATTENDANCE CHART SMALL ===== */
+  canvas {
+    height: 150px !important;
+  }
+
+  /* ===== LEAVE SUMMARY COMPACT ===== */
+  .leave-summary {
+    gap: 6px;
+  }
+
+  .leave-box {
+    padding: 8px;
+  }
+
+  .leave-box p {
+    font-size: 12px;
+    margin: 2px 0;
+  }
+
+  .leave-box h4 {
+    font-size: 14px;
+    margin: 0;
+  }
+}
