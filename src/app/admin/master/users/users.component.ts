@@ -31,6 +31,9 @@ filter = {
   regionId: 0
 };
 
+designations: any[] = [];
+filteredDesignations: any[] = [];
+
 filteredUsers: User[] = [];
   constructor(private userService: AdminService) {}
 
@@ -41,6 +44,7 @@ filteredUsers: User[] = [];
     this.loadRegions();
     this.loadRoles();
     this.loadDepartments();
+    this.loadDesignations();
   }
 
   loadDepartments(): void {
@@ -53,7 +57,32 @@ filteredUsers: User[] = [];
   });
 }
 
-  getEmptyUser(): User {
+loadDesignations(): void {
+  this.userService.getDesignations(this.userId).subscribe({
+    next: (res: any) => {
+      console.log('Desugnations For User Creation',res);
+      this.designations = res?.data?.data ?? [];
+      this.filterDesignations(); // 🔥 important
+    },
+    error: () => this.showError('Failed to load designations.')
+  });
+}
+
+filterDesignations(): void {
+  if (!this.user.companyId || !this.user.regionId) {
+    this.filteredDesignations = [];
+    return;
+  }
+
+  this.filteredDesignations = this.designations.filter(d =>
+    Number(d.companyID) === Number(this.user.companyId) &&   // ✅ FIX
+    Number(d.regionID) === Number(this.user.regionId)        // ✅ FIX
+  );
+
+  console.log("Filtered Designations:", this.filteredDesignations);
+}
+
+getEmptyUser(): User {
     return {
       userId: 0,
       companyId: 0,
@@ -63,6 +92,7 @@ filteredUsers: User[] = [];
       email: '',
       roleId: 0,
       departmentId:0,
+      designationId: 0,
       reportingTo:0,
       password: '',
       status: 'Active',
@@ -145,6 +175,7 @@ onStatusChange(event: Event): void {
     this.filteredRoles = [];
     this.filteredDepartments = [];
     this.generateNextEmployeeCode();
+    this.filteredDesignations = [];
   }
   onRegionChange(regionId: number): void {
   this.user.roleId = 0;
@@ -153,6 +184,7 @@ onStatusChange(event: Event): void {
   if (!this.user.companyId || !regionId) {
     this.filteredRoles = [];
     this.filteredDepartments = [];
+    this.filteredDesignations = [];
     return;
   }
   this.filteredRoles = this.roles.filter(r =>
@@ -161,6 +193,7 @@ onStatusChange(event: Event): void {
   );
   this.filterDepartments();
   this.generateNextEmployeeCode();
+  this.filterDesignations();
 }
 filterDepartments(): void {
   if (!this.user.companyId || !this.user.regionId) {
@@ -278,6 +311,11 @@ filterDepartments(): void {
     return;
   }
 
+  if (!this.user.designationId || this.user.designationId === 0) {
+  Swal.fire('Validation', 'Please select designation', 'warning');
+  return;
+}
+
  
 
   if (!this.user.loginType || this.user.loginType.trim() === '') {
@@ -331,14 +369,17 @@ filterDepartments(): void {
     this.filteredRoles = [];
   }
 
+   // ✅ Step 1: filter departments
   this.filterDepartments();
 
-  this.user.roleId = u.roleId;
+  // ✅ Step 2: filter designations (🔥 ADD HERE)
+  this.filterDesignations();
 
+  this.user.roleId = u.roleId;
   this.user.departmentId = u.departmentId;
- 
-  // const manager = this.reportingManagers.find(m => m.userId === this.user.reportingTo);
-  // this.user.reportingTo = manager?.userId ?? 0;
+
+  // ✅ Step 3: set designation value (🔥 ADD HERE)
+  this.user.designationId = u.designationId;
 
   this.user.loginType = u.loginType;
 }
