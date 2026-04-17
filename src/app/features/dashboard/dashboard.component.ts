@@ -54,12 +54,19 @@ export class DashboardComponent {
 
   tickets: any[] = [];
   submittedTimesheets: any[] = [];
+  totalWorkedHours: string = '0';
+  liveTimer: any;
+  baseWorkedMinutes: number = 0;  
+  liveWorkedMinutes: number = 0; 
+  displayHours: number = 0;
+  displayMinutes: number = 0;
 
   constructor(
     private adminService: AdminService,
     private empService: EmployeeResignationService,
     private helpdeskService: HelpdeskService,
-    private timesheetService: TimesheetService
+    private timesheetService: TimesheetService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -78,20 +85,86 @@ export class DashboardComponent {
     this.loadTickets();
     this.loadTimesheets();
   }
+  formatDate(date: Date): string {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = ('0' + (d.getMonth() + 1)).slice(-2);
+  const day = ('0' + d.getDate()).slice(-2);
+
+  return `${year}-${month}-${day}`;
+}
+timeToMinutes(time: string): number {
+  const [h, m, s] = time.split(':').map(Number);
+  return (h * 60) + m + (s || 0) / 60;
+}
+calculateTotalWorkedMinutes(records: any[]): number {
+  let total = 0;
+  let lastIn: string | null = null;
+
+  for (let r of records) {
+
+    if (r.actionType === 'ClockIn') {
+      lastIn = r.actionTime;
+    }
+
+    if (r.actionType === 'ClockOut' && lastIn) {
+      const start = this.timeToMinutes(lastIn);
+      const end = this.timeToMinutes(r.actionTime);
+
+      if (end > start) {
+        total += (end - start);
+      }
+
+      lastIn = null;
+    }
+  }
+
+  return total;
+}
 
   // ================= DASHBOARD =================
   loadDashboard() {
-    this.adminService.getDashboardEmployees(this.companyId)
-      .subscribe((res: any) => {
-        this.dashboardData = res || {};
+    this.adminService.getEmployeesByDate(
+    this.companyId,
+    this.currentUser.regionId,
+    this.formatDate(this.today)
+  ).subscribe((res: any) => {
 
-        this.statCards = [
-          { label: 'Total Employees', value: res.totalEmployees || 0, icon: 'fas fa-users' },
-          { label: 'Present', value: res.presentCount || 0, icon: 'fas fa-user-check' },
-          { label: 'Absent', value: res.absentCount || 0, icon: 'fas fa-user-times' },
-          { label: 'Today Hours', value: this.todayAttendance.workingHours, icon: 'fas fa-clock' }
-        ];
-      });
+    const data = res?.data || res || [];
+
+    let fullPresent = 0;
+    let halfPresent = 0;
+    let absent = 0;
+
+    data.forEach((emp: any) => {
+      const status = emp.status?.toLowerCase();
+
+      if (status === 'present') {
+        // if backend has halfday flag, check it
+        if (emp.isHalfDay === true || status.includes('half')) {
+          halfPresent++;
+        } else {
+          fullPresent++;
+        }
+      } 
+      else if (status === 'halfday' || status.includes('half')) {
+        halfPresent++;
+      } 
+      else {
+        absent++;
+      }
+    });
+
+    const totalPresent = fullPresent + halfPresent;
+
+    this.statCards = [
+      { label: 'Total Employees', value: data.length, icon: 'fas fa-users' },
+      { label: 'Present', value: `${totalPresent} (F:${fullPresent}, H:${halfPresent})`, icon: 'fas fa-user-check' },
+      { label: 'Absent', value: absent, icon: 'fas fa-user-times' },
+      { label: 'Today Hours', value: '0h 0m',  icon: 'fas fa-clock' }
+    ];
+
+  });
   }
 
   // ================= ATTENDANCE =================
@@ -99,10 +172,67 @@ export class DashboardComponent {
     this.empService.getTodayByEmployee(this.currentUser.employeeCode, this.companyId, this.currentUser.regionId)
       .subscribe((res: any) => {
         this.attendanceRecords = res || [];
+        this.baseWorkedMinutes = this.calculateTotalWorkedMinutes(this.attendanceRecords);
+        this.liveWorkedMinutes = this.baseWorkedMinutes;
+        this.updateTodayHoursCard();
+        this.startLiveTimer();
         this.updateAttendance();
         this.createChart();
+        this.loadDashboard();
       });
   }
+  startLiveTimer() {
+  if (this.liveTimer) {
+    clearInterval(this.liveTimer);
+  }
+this.liveTimer = setInterval(() => {
+
+  const base = this.calculateTotalWorkedMinutes(this.attendanceRecords);
+
+  const lastIn = [...this.attendanceRecords]
+    .filter(x => x.actionType === 'ClockIn')
+    .pop();
+
+  const lastOut = [...this.attendanceRecords]
+    .filter(x => x.actionType === 'ClockOut')
+    .pop();
+
+  let extra = 0;
+
+  const isWorking =
+  lastIn &&
+  (!lastOut || new Date(`1970-01-01T${lastIn.actionTime}`) >
+               new Date(`1970-01-01T${lastOut.actionTime}`));
+
+  if (isWorking && lastIn) {
+    const start = this.timeToMinutes(lastIn.actionTime);
+
+    const now = new Date();
+    const current = now.getHours() * 60 + now.getMinutes();
+
+    extra = current - start;
+  }
+
+  const total = base + extra;
+
+  this.displayHours = Math.floor(total / 60);
+  this.displayMinutes = total % 60;
+
+  this.totalWorkedHours = `${this.displayHours}h ${this.displayMinutes}m`;
+  this.statCards = [...this.statCards];
+
+  this.updateTodayHoursCard(); // 🔥 IMPORTANT
+
+}, 1000);
+}
+updateTodayHoursCard() {
+  const total = `${this.displayHours}h ${this.displayMinutes}m`;
+  const card = this.statCards.find(x => x.label === 'Today Hours');
+  if (card) {
+    card.value = this.totalWorkedHours;
+    this.statCards = [...this.statCards];
+  }
+}
 
   updateAttendance() {
     const inTime = this.attendanceRecords.find(x => x.actionType === 'ClockIn');
@@ -199,5 +329,11 @@ export class DashboardComponent {
       ? parts[0][0] + parts[1][0]
       : parts[0][0];
   }
+  
+  ngOnDestroy() {
+  if (this.liveTimer) {
+    clearInterval(this.liveTimer);
+  }
+}
   
 }

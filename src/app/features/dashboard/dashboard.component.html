@@ -48,10 +48,10 @@
     <h3>Quick Actions</h3>
 
     <div class="actions">
-      <a routerLink="/leave"><i class="fas fa-calendar"></i> Leave</a>
-      <a routerLink="/attendance"><i class="fas fa-clock"></i> Attendance</a>
-      <a routerLink="/timesheet"><i class="fas fa-file-alt"></i> Timesheet</a>
-      <a routerLink="/helpdesk"><i class="fas fa-headset"></i> Helpdesk</a>
+      <a [routerLink]="['/leave-management']"><i class="fas fa-calendar"></i> Leave</a>
+      <a [routerLink]="['/clockin-out']"><i class="fas fa-clock"></i> Attendance</a>
+      <a [routerLink]="['/timesheet']"><i class="fas fa-file-alt"></i> Timesheet</a>
+      <a [routerLink]="['/help-desk']"><i class="fas fa-headset"></i> Helpdesk</a>
     </div>
   </div>
 
