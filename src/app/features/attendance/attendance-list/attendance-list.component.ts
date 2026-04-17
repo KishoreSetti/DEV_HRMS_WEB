@@ -320,6 +320,8 @@ export class AttendanceListComponent {
         }
       });
   }
+
+
   /// Seacrch reports by dates
   searchReport() {
 
@@ -341,6 +343,8 @@ export class AttendanceListComponent {
 
       });
   }
+
+
   loadShiftDetailsForEmployees() {
 
     this.employees.forEach(emp => {
@@ -356,6 +360,13 @@ export class AttendanceListComponent {
             emp.shiftName = res.shiftName;
             emp.shiftStartTime = res.shiftStartTime;
             emp.shiftEndTime = res.shiftEndTime;
+
+                 // ✅ ADD THIS
+          emp.graceTime = res.grassTime;
+
+          // ✅ VERY IMPORTANT
+          this.calculateLate(emp);
+
           },
           error: () => {
             emp.shiftName = '';
@@ -367,6 +378,34 @@ export class AttendanceListComponent {
     });
 
   }
+
+calculateLate(emp: any) {
+
+  if (!emp.clockIn || !emp.shiftStartTime || !emp.graceTime) {
+    emp.lateMinutes = 0;
+    return;
+  }
+
+  const [sh, sm] = emp.shiftStartTime.split(':').map(Number);
+  const shiftStart = new Date();
+  shiftStart.setHours(sh, sm, 0, 0);
+
+  const [gh, gm] = emp.graceTime.split(':').map(Number);
+  const graceEnd = new Date(shiftStart.getTime() + ((gh * 60 + gm) * 60000));
+
+  const [ih, im] = emp.clockIn.split(':').map(Number);
+  const clockIn = new Date();
+  clockIn.setHours(ih, im, 0, 0);
+
+  if (clockIn > graceEnd) {
+    const diff = clockIn.getTime() - graceEnd.getTime();
+    emp.lateMinutes = Math.floor(diff / (1000 * 60));
+  } else {
+    emp.lateMinutes = 0;
+  }
+}
+
+
   getLateLoginText(emp: any): string {
 
     if (emp.lateMinutes && emp.lateMinutes > 0) {
