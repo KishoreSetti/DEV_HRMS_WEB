@@ -1691,6 +1691,11 @@ updateEmployeeLetter(id: number, formData: FormData): Observable<any> {
 deleteEmployeeLetter(id: number): Observable<any> {
   return this.http.post(`${this.baseUrl}/employee/deleteletters?id=${id}`, {});
 }
+getMyLetters(employeeCode: string) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/employee/GetMyLetters/${employeeCode}`
+  );
+}
 
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Forms  OPERATIONS
