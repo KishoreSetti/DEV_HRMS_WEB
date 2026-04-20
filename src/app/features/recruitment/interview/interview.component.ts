@@ -160,7 +160,8 @@ onInterviewerChange(user: any, event: any) {
       location: this.interviewForm.location,
       meetingLink: this.interviewForm.meetingLink,
       description: this.interviewForm.feedback,
-      result: this.interviewForm.result
+      result: this.interviewForm.result,
+      hrEmail: this.interviewForm.hrEmail
     };
 
     console.log("Update Payload:", payload);
@@ -280,6 +281,7 @@ onInterviewerChange(user: any, event: any) {
     this.interviewForm.interviewId = row.interviewId;
     this.interviewForm.interviewId = row.interviewId;
     this.interviewForm.level = row.levelNo;
+    this.interviewForm.hrEmail = row.hrEmail;
     this.interviewForm.interviewerIds = this.interviewer
     .filter(x => row.interviewerName.split(', ').includes(x.fullName))
     .map(x => x.userId);
