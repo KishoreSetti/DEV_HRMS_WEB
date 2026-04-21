@@ -124,6 +124,9 @@
                   Certification Type
                   <i class="fa" [ngClass]="getSortIcon('certificationTypeName')"></i>
                 </th>
+                <th>Company</th>
+<th>Region</th>
+
                 <th>Status</th>
                 <th class="text-center">Actions</th>
               </tr>
@@ -133,6 +136,9 @@
               <tr *ngFor="let c of certifications; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ c.certificationTypeName }}</td>
+                <td>{{ c.companyName }}</td>
+<td>{{ c.regionName }}</td>
+
                 <td>
                   <span class="badge" [ngClass]="c.isActive ? 'bg-success' : 'bg-secondary'">
                     {{ c.isActive ? 'Active' : 'Inactive' }}
