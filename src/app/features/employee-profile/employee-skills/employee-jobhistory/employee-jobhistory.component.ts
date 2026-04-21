@@ -177,15 +177,19 @@ onFileChange(event: any) {
       employer: item.employer,
       jobTitle: item.jobTitle,
       employeeCode: item.employeeCode,
-      fromDate: item.fromDate,
-      toDate: item.toDate,
+       fromDate: this.formatDate(item.fromDate),
+    toDate: this.formatDate(item.toDate),
       lastCTC: item.lastCTC,
       website: item.website,
       reasonForLeaving: item.reasonForLeaving
     });
     this.selectedFile = null;
   }
-
+formatDate(date: any): string {
+  if (!date) return '';
+  const d = new Date(date);
+  return d.toISOString().split('T')[0]; // ✅ yyyy-MM-dd
+}
   delete(id: number) {
      if (!this.canDelete) {
     Swal.fire("You don't have permission to delete this record", "", "warning");

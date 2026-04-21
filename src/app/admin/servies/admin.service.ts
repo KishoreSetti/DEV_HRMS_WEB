@@ -662,6 +662,8 @@ export interface CertificationType {
   companyID: number;
   regionId: number;
   userId?: number;
+    companyName?: string;
+  regionName?: string;
 }
 export interface ClockInOutDto {
   attendanceId?: number;   // optional for new records
@@ -1367,13 +1369,13 @@ getAttachmentTypesByCategory(category: string) {
   // UPDATE
   updateProjectStatus(status: ProjectStatus): Observable<any> {
    //  return this.http.put(`${this.baseUrl}/MasterData/project-status/${status.ProjectStatusID}`, status);
-   return this.http.post(`${this.baseUrl}/MasterData/project-status/${status.ProjectStatusID}`, status);
+   return this.http.post(`${this.baseUrl}/MasterData/UpdateProject/${status.ProjectStatusID}`, status);
   }
 
   // DELETE
   deleteProjectStatus(id: number): Observable<any> {
   //  return this.http.delete(`${this.baseUrl}/MasterData/project-status/${id}`);
-return this.http.post(`${this.baseUrl}/MasterData/project-status/${id}`, {});  
+return this.http.post(`${this.baseUrl}/MasterData/DeleteProject/${id}`, {});  
 }
 
 getAssetStatus(userId: number) {
@@ -1406,13 +1408,13 @@ deleteAssetStatus(id: number) {
   // UPDATE
   updateHelpdeskCategory(category: HelpdeskCategory): Observable<any> {
    // return this.http.put(`${this.baseUrl}/MasterData/helpdesk-category/${category.HelpdeskCategoryID}`, category);
-  return this.http.post(`${this.baseUrl}/MasterData/helpdesk-category/${category.HelpdeskCategoryID}`, category);
+  return this.http.post(`${this.baseUrl}/MasterData/Updatehelpdeskcategory/${category.HelpdeskCategoryID}`, category);
   }
 
   // DELETE
   deleteHelpdeskCategory(id: number): Observable<any> {
   // return this.http.delete(`${this.baseUrl}/MasterData/helpdesk-category/${id}`);
- return this.http.post(`${this.baseUrl}/MasterData/helpdesk-category/${id}`, {});  
+ return this.http.post(`${this.baseUrl}/MasterData/Deletehelpdeskcategory/${id}`, {});  
 }
 //  getAttendanceStatus(companyId: number, regionId: number) {
 //  return this.http.get<any>(`${this.baseUrl}/MasterData/GetAllAttendanceStatus?companyId=${companyId}&regionId=${regionId}`); 
@@ -1692,6 +1694,11 @@ updateEmployeeLetter(id: number, formData: FormData): Observable<any> {
 // DELETE letter (FIXED)
 deleteEmployeeLetter(id: number): Observable<any> {
   return this.http.post(`${this.baseUrl}/employee/deleteletters?id=${id}`, {});
+}
+getMyLetters(employeeCode: string) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/employee/GetMyLetters/${employeeCode}`
+  );
 }
 
 // -------------------------------------------------------------
