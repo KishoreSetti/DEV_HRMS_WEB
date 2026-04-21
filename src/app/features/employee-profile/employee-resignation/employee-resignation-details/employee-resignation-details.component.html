@@ -81,7 +81,7 @@
     <!-- ROW 3 (Buttons) -->
     <div class="row mb-3">
         <div class="col-md-12 text-start">
-            <button type="submit" class="btn btn-primary me-2">
+            <button type="submit" class="btn btn-primary me-2"  [disabled]="!canSubmitResignation()">
                 {{ isEditMode ? 'Update Resignation' : 'Submit Resignation' }}
             </button>
             <button type="button" class="btn btn-secondary" (click)="resetForm(resignForm)">
@@ -158,9 +158,10 @@
                     <td *ngIf="columns.status">{{ item.status }}</td>
 
                     <td *ngIf="columns.actions" class="action-icons">
-                        <i class="fa-solid fa-pen text-primary" (click)="editResignation(item)"></i>
-                        <i class="fa-solid fa-trash text-danger ms-2"
-                            (click)="deleteResignation(item.resignationId!)"></i>
+                        <i *ngIf="isEditable(item)" class="fa-solid fa-pen text-primary" (click)="editResignation(item)" title="Edit"></i>
+                        <i *ngIf="!isEditable(item)" class="fa-solid fa-pen text-secondary" title="Approved resignations cannot be edited" style="cursor: not-allowed; opacity: .45;"></i>
+                        <i *ngIf="isDeletable(item)" class="fa-solid fa-trash text-danger ms-2" (click)="deleteResignation(item)"></i>
+                        <i *ngIf="!isDeletable(item)" class="fa-solid fa-trash text-secondary ms-2" title="Approved resignations cannot be deleted" style="cursor: not-allowed; opacity: .45;"></i>
                     </td>
 
                 </tr>
