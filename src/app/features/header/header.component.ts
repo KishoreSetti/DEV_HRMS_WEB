@@ -4,6 +4,7 @@ import { timeEnd } from 'node:console';
 import { EmployeeResignationService } from '../employee-profile/employee-services/employee-resignation.service';
 import { AdminService } from '../../admin/servies/admin.service';
 import { environment } from '../../../environments/environment';
+import Swal from 'sweetalert2';
 interface LocationMap {
   [key: string]: string[];
 }
@@ -19,6 +20,10 @@ export class HeaderComponent {
  roleName:any='';
  userName:any='';
  superadmin:any;
+
+officeLat = 17.458637;
+officeLng = 78.363151;
+allowedRadius: number = 500; // meters (recommended)
 
  isClockedIn = false;
 isMobileMenuOpen = false;
@@ -102,6 +107,77 @@ userId: number = Number(sessionStorage.getItem('UserId'));
 }
 toggleMobileMenu() {
   this.isMobileMenuOpen = !this.isMobileMenuOpen;
+}
+
+//===============================  geo fencing =================================
+
+getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+
+  const R = 6371e3; // meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+checkIfInsideOffice(): Promise<'INSIDE' | 'OUTSIDE' | 'NO_LOCATION'> {
+
+  return new Promise((resolve) => {
+
+    if (!navigator.geolocation) {
+      resolve('NO_LOCATION');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        const distance = this.getDistance(
+          userLat,
+          userLng,
+          this.officeLat,
+          this.officeLng
+        );
+
+        console.log("📍 USER:", userLat, userLng);
+        console.log("🏢 OFFICE:", this.officeLat, this.officeLng);
+        console.log("🎯 ACCURACY:", accuracy);
+        console.log("📏 DISTANCE:", distance);
+
+        // ✅ FIXED SMART LOGIC
+        if ((distance - accuracy) <= this.allowedRadius) {
+          resolve('INSIDE');
+        } else {
+          resolve('OUTSIDE');
+        }
+      },
+
+      (error) => {
+        console.error("Location Error:", error);
+        resolve('NO_LOCATION');
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0
+      }
+    );
+  });
 }
 
   loadProfilePicture() {
@@ -275,10 +351,102 @@ getSystemTime24(): string {
   const mm = now.getMinutes().toString().padStart(2, '0');
   return `${hh}:${mm}`;   // HH:mm
 }
-toggleClock() {
+// toggleClock() {
+//   const now = this.getSystemTime();
+
+//   if (!this.isClockedIn) {
+//     // 🟢 CLOCK IN
+//     this.isClockedIn = true;
+//     this.clockInTime = now;
+
+//     sessionStorage.setItem('clockInTime', now.toISOString());
+
+//     this.clockStatus = 'Clocked In';
+//     this.clockInDisplay = this.formatTime(now);
+//     this.totalHoursDisplay = '00:00:00';
+
+//     this.startTimer();
+
+//     this.employeeResignationService.addClockInOut({
+//       employeeCode: this.employeeCode,
+//       employeeName: sessionStorage.getItem('Name') || '',
+//       department: 0,
+//       attendanceDate: new Date(),
+//       actionType: 'ClockIn',
+//       actionTime: this.getSystemTime24(),
+//       clockInTime: this.getSystemTime24(),
+//       clockOutTime: '',
+//       companyId: this.companyId,
+//       regionId: this.regionId
+//     }).subscribe(() => {
+//       this.loadAttendance();
+//     });
+
+//   } else {
+//     // 🔴 CLOCK OUT
+//     this.isClockedIn = false;
+
+//     sessionStorage.removeItem('clockInTime');
+
+//     this.clockStatus = 'Clocked Out';
+//     this.stopTimer();
+
+//     this.employeeResignationService.addClockInOut({
+//       employeeCode: this.employeeCode,
+//       employeeName: sessionStorage.getItem('Name') || '',
+//       department: 0,
+//       attendanceDate: new Date(),
+//       actionType: 'ClockOut',
+//       actionTime: this.getSystemTime24(),
+//       clockInTime: '',
+//       clockOutTime: this.getSystemTime24(),
+//       companyId: this.companyId,
+//       regionId: this.regionId
+//     }).subscribe(() => {
+//       this.loadAttendance();
+//     });
+//   }
+// }
+async toggleClock() {
+
+  const permission = await navigator.permissions.query({
+    name: 'geolocation' as PermissionName
+  });
+
+  if (permission.state === 'denied') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Location Blocked',
+      text: 'Please enable location permission from browser settings'
+    });
+    return;
+  }
+
+  const locationStatus = await this.checkIfInsideOffice();
+
+  if (locationStatus === 'NO_LOCATION') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Location Required',
+      text: 'Please enable location services'
+    });
+    return;
+  }
+
+  if (locationStatus === 'OUTSIDE') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Not Allowed',
+      text: 'Outside office premises'
+    });
+    return;
+  }
+
+  // ✅ NOW EXECUTE CLOCK LOGIC
   const now = this.getSystemTime();
 
   if (!this.isClockedIn) {
+
     // 🟢 CLOCK IN
     this.isClockedIn = true;
     this.clockInTime = now;
@@ -303,10 +471,11 @@ toggleClock() {
       companyId: this.companyId,
       regionId: this.regionId
     }).subscribe(() => {
-      this.loadAttendance();
+      this.loadAttendance(); // 🔥 refresh
     });
 
   } else {
+
     // 🔴 CLOCK OUT
     this.isClockedIn = false;
 
@@ -327,7 +496,7 @@ toggleClock() {
       companyId: this.companyId,
       regionId: this.regionId
     }).subscribe(() => {
-      this.loadAttendance();
+      this.loadAttendance(); // 🔥 refresh
     });
   }
 }
