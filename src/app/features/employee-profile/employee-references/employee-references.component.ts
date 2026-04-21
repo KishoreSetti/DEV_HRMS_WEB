@@ -14,7 +14,7 @@ export class EmployeeReferencesComponent {
   referenceList: Reference[] = [];
   isEdit = false;
   editId!: number;
-canCreate: boolean = false;
+canCreate: boolean = true;
 canEdit: boolean = false;
  canDelete: boolean = false;
   constructor(
