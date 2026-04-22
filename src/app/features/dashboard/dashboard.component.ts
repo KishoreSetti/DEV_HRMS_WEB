@@ -24,6 +24,7 @@ export class DashboardComponent {
 
   currentUser: any;
   userId!: number;
+  EmployeeCode!: string;
   companyId!: number;
 
   dashboardData: any = {};
@@ -41,6 +42,8 @@ export class DashboardComponent {
   attendanceChart: any;
 
   userLeaves: any[] = [];
+  weeklyData: any[] = [];
+  weekoffDates: string[] = [];
 
   leaveApprovalSummary = {
     approved: 0,
@@ -73,6 +76,7 @@ export class DashboardComponent {
     this.currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 
     this.userId = Number(sessionStorage.getItem('UserId'));
+    this.EmployeeCode = sessionStorage.getItem('EmployeeCode') || '';
     this.companyId = this.currentUser.companyId;
 
     this.employeeName = this.currentUser.fullName || '';
@@ -84,6 +88,8 @@ export class DashboardComponent {
     this.loadLeaves();
     this.loadTickets();
     this.loadTimesheets();
+    this.loadWeekoffs();
+    this.loadWeeklyData();
   }
   formatDate(date: Date): string {
   const d = new Date(date);
@@ -166,6 +172,38 @@ calculateTotalWorkedMinutes(records: any[]): number {
 
   });
   }
+  loadAllData() {
+  this.loadAttendance();
+  this.loadWeeklyData();
+  this.loadWeekoffs();
+}
+  loadWeeklyData() {
+  this.EmployeeCode = this.currentUser.employeeCode;
+  if (!this.EmployeeCode) return;
+
+  this.empService.getWeeklyByEmployee(this.EmployeeCode)
+    .subscribe({
+      next: (res: any) => {
+        this.weeklyData = res || [];
+        this.tryRenderChart();
+      },
+      error: (err) => {
+        console.error('Weekly API failed', err);
+      }
+    });
+}
+loadWeekoffs() {
+  this.adminService.getWeekoffs(this.companyId, this.currentUser.regionId)
+    .subscribe((res: any) => {
+
+      const data = res?.data || []; 
+
+      this.weekoffDates = data.map((x: any) => x.weekoffDate);
+      this.tryRenderChart();
+      // redraw chart after loading
+    });
+}
+
 
   // ================= ATTENDANCE =================
   loadAttendance() {
@@ -177,10 +215,22 @@ calculateTotalWorkedMinutes(records: any[]): number {
         this.updateTodayHoursCard();
         this.startLiveTimer();
         this.updateAttendance();
-        this.createChart();
         this.loadDashboard();
+        this.tryRenderChart();
       });
   }
+  tryRenderChart() {
+  if (
+    !this.weeklyData ||
+    !this.weekoffDates ||
+    !this.attendanceRecords
+  ) return;
+
+  // small delay ensures DOM ready
+  setTimeout(() => {
+    this.createChart();
+  }, 0);
+}
   startLiveTimer() {
   if (this.liveTimer) {
     clearInterval(this.liveTimer);
@@ -222,6 +272,7 @@ this.liveTimer = setInterval(() => {
   this.statCards = [...this.statCards];
 
   this.updateTodayHoursCard(); // 🔥 IMPORTANT
+  this.updateChartTodayHours(total / 60);
 
 }, 1000);
 }
@@ -257,24 +308,122 @@ updateTodayHoursCard() {
   }
 
   createChart() {
-    if (this.attendanceChart) {
-      this.attendanceChart.destroy();
-    }
-
-    const hours = parseFloat(this.todayAttendance.workingHours) || 0;
-
-    this.attendanceChart = new Chart("attendanceChart", {
-      type: 'bar',
-      data: {
-        labels: ['Today'],
-        datasets: [{
-          label: 'Working Hours',
-          data: [hours]
-        }]
-      }
-    });
+  if (this.attendanceChart) {
+    this.attendanceChart.destroy();
   }
 
+  const labels: string[] = [];
+  const data: number[] = [];
+  const colors: string[] = [];
+
+  const today = new Date();
+  const todayStr = this.formatDate(today);
+
+  // normalize today (IMPORTANT FIX)
+  today.setHours(0, 0, 0, 0);
+
+  const currentDay = today.getDay();
+  const startOfWeek = new Date(today);
+  const diff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+  startOfWeek.setDate(diff);
+
+  // WEEKOFF SET (FAST LOOKUP)
+  const weekoffSet = new Set(this.weekoffDates);
+
+  // ATTENDANCE MAP
+  const map = new Map<string, number>();
+  this.weeklyData.forEach((x: any) => {
+    const key = this.formatDate(new Date(x.attendanceDate));
+    map.set(key, Number(x.totalHours || 0));
+  });
+
+  for (let i = 0; i < 7; i++) {
+
+  const dateObj = new Date(startOfWeek);
+  dateObj.setDate(startOfWeek.getDate() + i);
+
+  const dateStr = this.formatDate(dateObj);
+
+  // 👇 LABEL (Mon, Tue...)
+  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+  labels.push(dayName);
+
+  const dayNameFull = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+  const isWeekoff = this.weekoffDates.includes(dayNameFull);
+  const isFuture = dateStr > todayStr;
+  const isToday = dateStr === todayStr;
+
+  let hours = 0;
+  let color = '#007bff';
+
+  // ================= WEEKOFF =================
+  if (isWeekoff) {
+    hours = 8;
+    color = '#000000'; // BLACK
+  }
+
+  // ================= FUTURE =================
+  else if (isFuture) {
+    hours = 8;
+    color = '#007bff'; // BLUE
+  }
+
+  // ================= TODAY =================
+  else if (isToday) {
+    const minutes = this.calculateTotalWorkedMinutes(this.attendanceRecords);
+    hours = +(minutes / 60).toFixed(2);
+
+    color = hours > 0 ? '#28a745' : '#dc3545';
+  }
+
+  // ================= PAST =================
+  else {
+    const h = map.get(dateStr);
+
+    if (h !== undefined && h > 0) {
+      hours = h;
+      color = '#ffc107'; // YELLOW
+    } else {
+      hours = 8;
+      color = '#dc3545'; // RED
+    }
+  }
+
+  data.push(hours);
+  colors.push(color);
+}
+
+  this.attendanceChart = new Chart("attendanceChart", {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Working Hours',
+        data,
+        backgroundColor: colors
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          suggestedMax: 8
+        }
+      }
+    }
+  });
+}
+updateChartTodayHours(totalHours: number) {
+  if (!this.attendanceChart) return;
+
+  const todayIndex = this.attendanceChart.data.labels.length - 1;
+
+  this.attendanceChart.data.datasets[0].data[todayIndex] = totalHours;
+
+  this.attendanceChart.update();
+}
   // ================= LEAVES =================
   loadLeaves() {
     this.empService.getUserLeaves(this.userId)
