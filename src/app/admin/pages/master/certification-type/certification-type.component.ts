@@ -81,11 +81,21 @@ resetForm(): void {
         )
       : this.adminService.createCertificationType(this.certification);
 
-    api$.subscribe(() => {
-      Swal.fire('Success', 'Saved successfully', 'success');
-      this.resetForm();
-      this.loadCertifications();
-    });
+  api$.subscribe((res: any) => {
+
+  if (res.success) {
+    Swal.fire('Success', res.message || 'Saved successfully', 'success');
+    this.resetForm();
+    this.loadCertifications();
+  } else {
+    // ✅ DUPLICATE CASE
+    Swal.fire('Warning', res.message || 'Already exists', 'warning');
+  }
+
+}, error => {
+  Swal.fire('Error', 'Something went wrong', 'error');
+});
+
   }
 
 editCertification(c: CertificationType): void {
@@ -148,7 +158,9 @@ loadCertifications(): void {
         isActive: item.IsActive ?? item.isActive,
         companyID: item.CompanyID ?? item.companyID,
         regionId: item.RegionID ?? item.regionId,
-        userId: item.UserId ?? item.userId
+        userId: item.UserId ?? item.userId,
+          companyName: item.CompanyName ?? item.companyName,
+  regionName: item.RegionName ?? item.regionName
       }));
     });
 }

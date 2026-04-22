@@ -127,6 +127,7 @@ import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/h
 import { VisatypeComponent } from './pages/visatype/visatype.component';
 import { EmployeeMyLettersFormsComponent } from './features/employee-profile/employee-documents/employee-my-letters-forms/employee-my-letters-forms.component';
 import { ProjectMasterComponent } from './features/project-master/project-master.component';
+import { EmployeeMyformsComponent } from './features/employee-profile/employee-documents/employee-myforms/employee-myforms.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -245,6 +246,7 @@ import { ProjectMasterComponent } from './features/project-master/project-master
           VisatypeComponent,
           EmployeeMyLettersFormsComponent,
           ProjectMasterComponent,
+          EmployeeMyformsComponent,
           
    
     

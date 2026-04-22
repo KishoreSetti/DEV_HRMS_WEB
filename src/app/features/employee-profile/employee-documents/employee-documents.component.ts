@@ -10,8 +10,9 @@ export class EmployeeDocumentsComponent {
 canViewLetters :boolean= false;
 canViewForms :boolean= false;
 canViewDocuments :boolean= false;
-canViewMyLettersForms :boolean= false;
+canViewMyLetters :boolean= false;
 selectedTab: string = '';
+canViewMyForms :boolean= false;
 ngOnInit(){
   
     this.loadTabPermissions();
@@ -31,16 +32,20 @@ loadTabPermissions() {
 
     const mylettersforms = menus.find((m:any) => 
         m.menuName?.trim().toLowerCase() === "my letters/forms");
+    
+    const myforms = menus.find((m:any) => 
+        m.menuName?.trim().toLowerCase() === "my forms");
 
   this.canViewLetters = letters?.canView ?? false;
   this.canViewForms = forms?.canView ?? false;
   this.canViewDocuments = documents?.canView ?? false;
-  this.canViewMyLettersForms = mylettersforms?.canView ?? false;
+  this.canViewMyLetters = mylettersforms?.canView ?? false;
+  this.canViewMyForms = myforms?.canView ?? false;
 
     if (this.canViewLetters) this.selectedTab = 'tab1';
   else if (this.canViewForms) this.selectedTab = 'tab2';
   else if (this.canViewDocuments) this.selectedTab = 'tab3';
-  else if (this.canViewMyLettersForms) this.selectedTab = 'tab4';
-
+  else if (this.canViewMyLetters) this.selectedTab = 'tab4';
+  else if (this.canViewMyForms) this.selectedTab = 'tab5';
 }
 }
