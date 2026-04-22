@@ -116,7 +116,7 @@ export class KpiPerformanceComponent {
       departmentProject: sessionStorage.getItem('DepartmentProject') || '',
 
       department: sessionStorage.getItem('DepartmentName') || '',
-      designation: sessionStorage.getItem('Designation') || '',
+      designation: sessionStorage.getItem('DesignationName') || '',
       reportingManagerName: sessionStorage.getItem('ReportingManagerName') || '',
     });
 

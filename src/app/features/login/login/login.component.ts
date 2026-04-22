@@ -13,6 +13,7 @@ export class LoginComponent {
   password: string = '';
   errorMessage: string = '';
   loading: boolean = false;
+  showPassword = false;
   users = [
     { role: 'HR', username: 'hr_user', password: 'Hr@123', route: '/dashboard' },
     { role: 'Manager', username: 'manager_user', password: 'Mg@123', route: '/dashboard' },
@@ -62,7 +63,7 @@ export class LoginComponent {
           sessionStorage.setItem('roleName', response.user.roleName);
             sessionStorage.setItem('DepartmentName', response.user.departmentName ?? '');
         sessionStorage.setItem('ReportingManagerName', response.user.reportingManagerName ?? '');
-        sessionStorage.setItem('Designation', response.user.designation ?? '');
+        sessionStorage.setItem('DesignationName', response.user.designationName ?? '');
           sessionStorage.setItem('Name', response.user.fullName);         
           sessionStorage.setItem('EmployeeCode', response.user.employeeCode);
           sessionStorage.setItem('UserId', response.user.userId.toString());
@@ -74,9 +75,9 @@ export class LoginComponent {
            sessionStorage.setItem('UserId', response.user.userId.toString());
           sessionStorage.setItem('repotingTo', response.user.reportingTo);
            sessionStorage.setItem('DepartmentId', response.user.departmentId?.toString() ?? '');
+           sessionStorage.setItem('DesignationId', response.user.designationId?.toString() ?? '');
         sessionStorage.setItem('reportingManagerId',response.user.reportingManagerId?.toString() ?? '');
         sessionStorage.setItem('userCompanyId',response.user.userCompanyId?.toString() ?? '');
-          // sessionStorage.setItem('DepartmentId', response.user.departmentId.toString());
           Swal.fire('Login Successful', response.message, 'success');
            
           if(response.user.paswordChanged == null){
@@ -110,5 +111,7 @@ export class LoginComponent {
       }
     });
   }
-  
+  togglePassword() {
+  this.showPassword = !this.showPassword;
+}
 }
