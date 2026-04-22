@@ -185,6 +185,33 @@ setLastWorkingDay(noticePeriodStr: string) {
     }
   }
 
+
+canSubmitResignation(): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // ❌ Approved → always block
+  const hasApproved = this.resignations.some(r =>
+    r.status?.trim().toLowerCase() === 'approved'
+  );
+
+  if (hasApproved) return false;
+
+  // 🔍 Pending check
+  const pending = this.resignations.find(r =>
+    r.status?.trim().toLowerCase() === 'pending'
+  );
+
+  if (!pending) return true;
+
+  if (!pending.lastWorkingDay) return false;
+
+  const lastDay = new Date(pending.lastWorkingDay);
+  lastDay.setHours(0, 0, 0, 0);
+
+  return today > lastDay; // ✅ allow only after last day
+}
+
   saveResignation(form: NgForm) {
     this.formSubmitted = true;
     this.message = '';
@@ -193,13 +220,31 @@ setLastWorkingDay(noticePeriodStr: string) {
       control.markAsTouched();
       control.updateValueAndValidity();
     });
+ if (!this.isEditMode && !this.canSubmitResignation()) {
 
+  const hasApproved = this.resignations.some(r =>
+    r.status?.trim().toLowerCase() === 'approved'
+  );
+
+  if (hasApproved) {
+    this.message = 'You already have an approved resignation. Cannot create new record.';
+  } else {
+    this.message = 'You have a pending resignation. You can apply again only after your last working day is completed.';
+  }
+
+  return;
+}
     if (
       !this.resignationModel.resignationReason ||
       this.resignationModel.resignationReason.trim().length < 10 ||
       form.invalid ||
       this.dateError
     ) return;
+
+    if (this.isEditMode && this.resignationModel.status?.trim().toLowerCase() === 'approved') {
+      this.message = 'Approved resignations cannot be updated.';
+      return;
+    }
 
     this.resignationModel.userId = Number(sessionStorage.getItem('UserId'));
     this.resignationModel.employeeId = sessionStorage.getItem('EmployeeCode') || '';
@@ -226,8 +271,21 @@ setLastWorkingDay(noticePeriodStr: string) {
   }
 
   editResignation(item: EmployeeResignation) {
+    if (!this.isEditable(item)) {
+      this.message = 'Approved resignations cannot be edited.';
+      return;
+    }
+
     this.resignationModel = { ...item };
     this.isEditMode = true;
+  }
+
+  isEditable(item: EmployeeResignation): boolean {
+    return item.status?.trim().toLowerCase() !== 'approved';
+  }
+
+  isDeletable(item: EmployeeResignation): boolean {
+    return this.isEditable(item);
   }
 
   // ---------------- DELETE FIXED ----------------
@@ -239,10 +297,15 @@ loadForManager() {
       this.filteredResignations = res;
     });
 }
-deleteResignation(id: number) {
+deleteResignation(item: EmployeeResignation) {
+  if (!this.isDeletable(item)) {
+    this.message = 'Approved resignations cannot be deleted.';
+    return;
+  }
+
   if (confirm('Are you sure you want to delete this resignation?')) {
     this.resignationService
-      .delete(id, this.companyId, this.regionId, this.roleId) // pass all 4 args
+      .delete(item.resignationId!, this.companyId, this.regionId, this.roleId) // pass all 4 args
       .subscribe({
         next: () => {
           this.message = 'Resignation deleted successfully!';
