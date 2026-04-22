@@ -263,6 +263,7 @@ downloadPayrollPDF() {
       p.grossSalary,
       p.totalDeductions,
       p.attendanceDeduction,
+      p.lateCount || 0,
       p.expenses,
       p.netSalary
     ];
@@ -276,6 +277,7 @@ downloadPayrollPDF() {
       'Earnings',
       'Deductions',
       'Attendance',
+      'Late Count', 
       'Expenses',
       'Net Salary'
     ]],
@@ -324,6 +326,7 @@ downloadPayrollPDF() {
         'Total Earnings': p.grossSalary,
         'Total Deductions': p.totalDeductions,
         'Attendance': p.attendanceDeduction,
+        'Late Count': p.lateCount || 0,
         'Expenses': p.expenses,
         'Net Salary': p.netSalary
       };
@@ -342,6 +345,7 @@ downloadPayrollPDF() {
       { wch: 18 }, // Total Earnings
       { wch: 18 }, // Total Deductions
       { wch: 15 }, // Attendance
+      { wch: 15 }, // Late Count ✅
       { wch: 15 }, // Expenses
       { wch: 18 }  // Net Salary
     ];
@@ -400,4 +404,10 @@ downloadPayrollPDF() {
 
     XLSX.writeFile(workbook, `Payroll_${this.month}_${this.year}.xlsx`);
   }
+  
+
+  // ✅ Calculate half days from late count
+getLateHalfDays(lateCount: number): number {
+  return Math.floor((lateCount || 0) / 3);
+}
 }

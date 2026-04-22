@@ -75,6 +75,7 @@
           <th>Present</th>
           <th>Leave</th>
           <th>Half Day</th>
+          <th>Late Count</th>
           <th>Expenses</th>
           <th>Status</th>
           <th>View</th>
@@ -90,6 +91,12 @@
           <td>{{p.presentDays}}</td>
           <td>{{p.leaveDays}}</td>
           <td>{{p.halfDays}}</td>
+          <td>
+            {{p.lateCount || 0}}
+            <small class="text-muted">
+              ({{ getLateHalfDays(p.lateCount) }} Half)
+            </small>
+          </td>
           <td>{{p.expenses}}</td>
 
           <td>
