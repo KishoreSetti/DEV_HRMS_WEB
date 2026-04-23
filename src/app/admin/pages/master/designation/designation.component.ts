@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService, Designation } from '../../../servies/admin.service';
+import { AdminService, Designation, Region } from '../../../servies/admin.service';
 import Swal from 'sweetalert2';
 import { NgxSpinnerService } from 'ngx-spinner';
 import * as XLSX from 'xlsx';
@@ -26,6 +26,7 @@ export class DesignationComponent {
   currentPage = 1;
   Math = Math;
   userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0;
+  filteredRegions: any[] = [];
   constructor(
     private adminservice: AdminService,
     private spinner: NgxSpinnerService
@@ -39,7 +40,7 @@ export class DesignationComponent {
     this.loadRegions();
     this.loadDesignations();
    this.loadDepartments();
-     
+     this.loadGrades();
   }
   departments: any[] = [];
 
@@ -69,10 +70,24 @@ regions:any;
       error: () => Swal.fire('Error', 'Failed to load regions.', 'error')
     });
   }
+  onCompanyChange(): void {
+  this.designation.regionId = 0;
+
+  this.filteredRegions = this.designation.companyId
+    ? this.regions.filter((r: Region) =>
+        Number(r.companyID) === Number(this.designation.companyId)
+      )
+    : [];
+}
+  // getCompanyName(companyId: number): string {
+  //   const c = this.companies.find((x:any) => x.companyID === companyId);
+  //   return c ? c.companyName : '-';
+  // }
   getCompanyName(companyId: number): string {
-    const c = this.companies.find((x:any) => x.companyID === companyId);
-    return c ? c.companyName : '-';
-  }
+  const c = this.companies.find((x:any) => x.companyID == companyId);
+  return c ? c.companyName : '-';
+}
+
 
   getRegionName(regionId: number): string {
     const r = this.regions.find((x:any) => x.regionId === regionId);
@@ -102,9 +117,19 @@ getEmptyDesignation(): Designation {
     userId: Number(sessionStorage.getItem("UserId")),
     companyName: '',
     regionName: '',
-    departmentName: ''
-   
+    departmentName: '',
+   gradeId: 0,
   };
+}
+grades: any[] = [];
+
+loadGrades(): void {
+  this.adminservice.getGrades(this.userId).subscribe({
+    next: (res: any) => {
+      this.grades = res.data ;
+    },
+    error: () => Swal.fire('Error', 'Failed to load grades.', 'error')
+  });
 }
  changePageSize(event: any): void {
     this.pageSize = +event.target.value;
@@ -179,10 +204,36 @@ getEmptyDesignation(): Designation {
   // ------------------------------------------------------------
   // 🔹 Edit Designation
   // ------------------------------------------------------------
-  editDesignation(d: Designation): void {
-    this.designation = { ...d };
-    this.isEditMode = true;
-  }
+  // editDesignation(d: Designation): void {
+  //   this.designation = { ...d };
+  //   this.isEditMode = true;
+  // }
+
+editDesignation(d: any): void {
+  console.log('EDIT DATA:', d);
+
+  this.designation = {
+    designationID: d.designationID,
+    designationName: d.designationName,
+
+    companyId: Number(d.companyID),
+    regionId: Number(d.regionID),
+    departmentId: Number(d.departmentID),
+    gradeId: d.gradeID ? Number(d.gradeID) : 0,
+
+    isActive: d.isActive,
+    userId: this.userId,
+
+    companyName: d.companyName,
+    regionName: d.regionName,
+    departmentName: d.departmentName
+  };
+
+  this.isEditMode = true;
+  this.filteredRegions = this.regions.filter((r: Region) =>
+  Number(r.companyID) === Number(this.designation.companyId)
+);
+}
 
   // ------------------------------------------------------------
   // 🔹 Delete (Soft Delete)
@@ -342,6 +393,10 @@ getEmptyDesignation(): Designation {
     const start = (this.currentPage - 1) * this.pageSize;
     return sorted.slice(start, start + this.pageSize);
   }
+      onCancel(): void {
+  this.resetForm();
+
+}
 }
 
 

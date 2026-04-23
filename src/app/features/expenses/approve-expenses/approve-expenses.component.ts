@@ -47,7 +47,7 @@ filtersForm!: FormGroup;
 
     this.managerId = Number(storedUserId);
     this.buildForm();
-    this.loadCategories();
+    //this.loadCategories();
     this.loadExpensesForApproval();
   }
 
@@ -89,13 +89,14 @@ filtersForm!: FormGroup;
   // ============================================================
   // 🔹 LOAD CATEGORIES
   // ============================================================
-  loadCategories(): void {
-    this.expenseService.getExpenseCategories().subscribe(res => {
-      if (res.success) {
-        this.categories = res.data;
-      }
-    });
-  }
+  // loadCategories(): void {
+  //   this.expenseService.getExpenseCategories().subscribe(res => {
+  //     if (res.success) {
+  //       this.categories = res.data;
+  //     }
+  //   });
+  // }
+  
 
   // ============================================================
   // 🔹 APPLY FILTERS (AND logic)

@@ -36,7 +36,6 @@ export class LoginComponent {
   //   }
   // }
   login() {
-    debugger;
     this.errorMessage = '';
 
     if (!this.username || !this.password) {
@@ -49,7 +48,6 @@ export class LoginComponent {
     this.loginService.login(this.username, this.password).subscribe({
       next: (response) => {
         this.loading = false;
-debugger;
         if (response && response.message) {
           // ✅ Save session or token
           if(response.user.error)          {

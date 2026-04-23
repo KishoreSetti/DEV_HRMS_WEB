@@ -13,17 +13,17 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrl: './attendance-status.component.css'
 })
 export class AttendanceStatusComponent {
-isDuplicate = false;
-isSubmitting = false;
+  isDuplicate = false;
+  isSubmitting = false;
 
-companyId!: number;
-regionId!: number;
-userId!: number;
+  companyId!: number;
+  regionId!: number;
+  userId!: number;
   // attendance: AttendanceStatus = this.getEmptyAttendance();
   attendanceList: AttendanceStatus[] = [];
-  
+
   attendanceModel: any = {};
-attendance!: AttendanceStatus;
+  attendance!: AttendanceStatus;
   isEditMode = false;
   searchText = '';
   statusFilter: boolean | '' = '';
@@ -35,26 +35,76 @@ attendance!: AttendanceStatus;
   sortDirection: 'asc' | 'desc' = 'desc';
 
   showUploadPopup = false;
+  companies: any[] = [];
+  regions: any[] = [];
 
-  constructor(private admin: AdminService, private spinner: NgxSpinnerService) {}
+  companyMap: Record<number, string> = {};
+  regionMap: Record<number, string> = {};
 
- ngOnInit(): void {
 
-  const user = sessionStorage.getItem('currentUser');
+  constructor(private admin: AdminService, private spinner: NgxSpinnerService) { }
 
-  if (user) {
-    const currentUser = JSON.parse(user);
+  ngOnInit(): void {
+    this.userId = Number(sessionStorage.getItem("UserId"));
+    this.companyId = Number(sessionStorage.getItem("CompanyId"));
+    this.regionId = Number(sessionStorage.getItem("RegionId"));
+    const user = sessionStorage.getItem('currentUser');
 
-    this.companyId = currentUser.companyId;
-    this.regionId = currentUser.regionId;
-    this.userId = currentUser.userId;
-  } else {
-    Swal.fire('Session Expired', 'Please login again.', 'warning');
-    return;
+    if (user) {
+      const currentUser = JSON.parse(user);
+
+      this.companyId = currentUser.companyId;
+      this.regionId = currentUser.regionId;
+      this.userId = currentUser.userId;
+    } else {
+      Swal.fire('Session Expired', 'Please login again.', 'warning');
+      return;
+    }
+    this.attendance = this.getEmptyAttendance();
+    this.loadCompanies();
+    this.loadAttendanceStatus();
   }
-this.attendance = this.getEmptyAttendance();
-  this.loadAttendanceStatus();
-}
+  loadCompanies() {
+    this.admin.getCompanies(null, this.userId).subscribe(res => {
+      this.companies = res || [];
+
+      this.companyMap = {};
+      this.companies.forEach(c => {
+        this.companyMap[c.companyId] = c.companyName;
+      });
+
+      this.loadRegions();
+    });
+  }
+
+  loadRegions() {
+    this.admin.getRegions(null, this.userId).subscribe(res => {
+      const all = res || [];
+
+      this.regionMap = {};
+      all.forEach(r => {
+        this.regionMap[r.regionID] = r.regionName;
+      });
+
+      this.regions = all.filter(r => r.companyID == this.companyId);
+
+      if (!this.regionId && this.regions.length > 0) {
+        this.regionId = this.regions[0].regionID;
+      }
+
+      this.attendance.regionId = this.regionId;
+    });
+  }
+  onCompanyChange() {
+    this.attendance.companyId = this.companyId;
+    this.regionId = 0;
+    this.loadRegions();
+  }
+
+  onRegionChange() {
+    this.attendance.regionId = this.regionId;
+  }
+
 
   /** Default new record */
   // getEmptyAttendance(): AttendanceStatus {
@@ -67,28 +117,29 @@ this.attendance = this.getEmptyAttendance();
   //   };
   // }
   getEmptyAttendance(): AttendanceStatus {
-  return {
-    attendanceStatusId: 0,
-    attendanceStatusName : '',
-    isActive: true,
-    companyId: this.companyId,
-    regionId: this.regionId,
-    createdBy: this.userId,
-    modifiedBy: this.userId,
-  };
-}
-checkDuplicate(): void {
-  const name = this.attendance.attendanceStatusName ?.trim().toLowerCase();
+    return {
+      attendanceStatusId: 0,
+      attendanceStatusName: '',
+      isActive: true,
+      companyId: this.companyId,
+      regionId: this.regionId,
+      createdBy: this.userId,
+      modifiedBy: this.userId,
+      userId: this.userId
+    };
+  }
+  checkDuplicate(): void {
+    const name = this.attendance.attendanceStatusName?.trim().toLowerCase();
 
-  this.isDuplicate = this.attendanceList.some(x =>
-    x.attendanceStatusName .toLowerCase() === name &&
-    x.attendanceStatusId !== this.attendance.attendanceStatusId
-  );
-}
+    this.isDuplicate = this.attendanceList.some(x =>
+      x.attendanceStatusName.toLowerCase() === name &&
+      x.attendanceStatusId !== this.attendance.attendanceStatusId
+    );
+  }
   /** Load Data */
   loadAttendanceStatus(): void {
     this.spinner.show();
-    this.admin.getAttendanceStatus(this.companyId, this.regionId).subscribe({
+    this.admin.getAttendanceStatus(this.userId).subscribe({
       next: res => {
         this.attendanceList = res.data;
         this.spinner.hide();
@@ -131,58 +182,60 @@ checkDuplicate(): void {
   //     });
   //   }
   // }
- onSubmit(form: any): void {
-  if (!this.attendance.attendanceStatusName ?.trim()) {
-    Swal.fire('Validation', 'Status name is required.', 'warning');
-    return;
-  }
+  onSubmit(form: any): void {
+    if (!this.attendance.attendanceStatusName?.trim()) {
+      Swal.fire('Validation', 'Status name is required.', 'warning');
+      return;
+    }
 
-  if (this.isDuplicate) {
-    Swal.fire('Duplicate', 'Attendance Status already exists.', 'warning');
-    return;
-  }
+    if (this.isDuplicate) {
+      Swal.fire('Duplicate', 'Attendance Status already exists.', 'warning');
+      return;
+    }
 
-  this.isSubmitting = true;
-  this.spinner.show();
-this.attendance.companyId = this.companyId;
-this.attendance.regionId = this.regionId;
-this.attendance.createdBy = this.userId;
-
-  this.attendance.attendanceStatusName  =
-    this.attendance.attendanceStatusName .trim();
-
-  const request = this.isEditMode
-    ? this.admin.updateAttendanceStatus(this.attendance)
-    : this.admin.createAttendanceStatus(this.attendance);
-     if (this.isEditMode) {
-    this.attendance.modifiedBy = this.userId;
-  } else {
+    this.isSubmitting = true;
+    this.spinner.show();
+    this.attendance.companyId = this.companyId;
+    this.attendance.regionId = this.regionId;
     this.attendance.createdBy = this.userId;
+    this.attendance.userId = this.userId;
+
+
+    this.attendance.attendanceStatusName =
+      this.attendance.attendanceStatusName.trim();
+
+    const request = this.isEditMode
+      ? this.admin.updateAttendanceStatus(this.attendance)
+      : this.admin.createAttendanceStatus(this.attendance);
+    if (this.isEditMode) {
+      this.attendance.modifiedBy = this.userId;
+    } else {
+      this.attendance.createdBy = this.userId;
+    }
+
+    request.subscribe({
+      next: () => {
+        this.spinner.hide();
+        this.isSubmitting = false;
+
+        Swal.fire(
+          this.isEditMode ? 'Updated' : 'Created',
+          `Attendance Status ${this.isEditMode ? 'updated' : 'created'} successfully!`,
+          'success'
+        );
+
+        this.loadAttendanceStatus();
+
+        form.resetForm();      // ✅ VERY IMPORTANT
+        this.resetForm();      // reset model variables
+      },
+      error: () => {
+        this.spinner.hide();
+        this.isSubmitting = false;
+        Swal.fire('Error', 'Operation failed.', 'error');
+      }
+    });
   }
-
-  request.subscribe({
-next: () => {
-  this.spinner.hide();
-  this.isSubmitting = false;
-
-  Swal.fire(
-    this.isEditMode ? 'Updated' : 'Created',
-    `Attendance Status ${this.isEditMode ? 'updated' : 'created'} successfully!`,
-    'success'
-  );
-
-  this.loadAttendanceStatus();
-
-  form.resetForm();      // ✅ VERY IMPORTANT
-  this.resetForm();      // reset model variables
-},
-  error: () => {
-    this.spinner.hide();
-    this.isSubmitting = false;
-    Swal.fire('Error', 'Operation failed.', 'error');
-  }
-});
-}
 
   /** Edit */
   // editAttendance(item: AttendanceStatus): void {
@@ -190,15 +243,19 @@ next: () => {
   //   this.isEditMode = true;
   // }
   editAttendance(item: AttendanceStatus): void {
-  this.attendance = { ...item };
-  this.isEditMode = true;
-  this.isDuplicate = false;
-}
+    this.attendance = { ...item };
+    this.companyId = item.companyId;
+    this.regionId = item.regionId;
+
+    this.loadRegions();
+    this.isEditMode = true;
+    this.isDuplicate = false;
+  }
 
   /** Delete */
   deleteAttendance(item: AttendanceStatus): void {
     Swal.fire({
-      title: `Delete "${item.attendanceStatusName }"?`,
+      title: `Delete "${item.attendanceStatusName}"?`,
       showCancelButton: true,
       confirmButtonText: 'Delete'
     }).then(result => {
@@ -224,9 +281,9 @@ next: () => {
   resetForm(): void {
     this.attendance = this.getEmptyAttendance();
     this.isEditMode = false;
-  this.isDuplicate = false;
-  this.isSubmitting = false;
-  
+    this.isDuplicate = false;
+    this.isSubmitting = false;
+
   }
 
   /** Filtered Data */
@@ -238,19 +295,19 @@ next: () => {
   //   });
   // }
   filteredAttendance(): AttendanceStatus[] {
-  this.currentPage = 1;
+    this.currentPage = 1;
 
-  return this.attendanceList.filter(c => {
-    const matchSearch =
-      c.attendanceStatusName .toLowerCase()
-        .includes(this.searchText.toLowerCase());
+    return this.attendanceList.filter(c => {
+      const matchSearch =
+        c.attendanceStatusName.toLowerCase()
+          .includes(this.searchText.toLowerCase());
 
-    const matchStatus =
-      this.statusFilter === '' || c.isActive === this.statusFilter;
+      const matchStatus =
+        this.statusFilter === '' || c.isActive === this.statusFilter;
 
-    return matchSearch && matchStatus;
-  });
-}
+      return matchSearch && matchStatus;
+    });
+  }
 
   /** Sorting */
   sortTable(column: string) {
@@ -301,7 +358,7 @@ next: () => {
 
   exportExcel() {
     const data = this.attendanceList.map(c => ({
-      'Status Name': c.attendanceStatusName ,
+      'Status Name': c.attendanceStatusName,
       'Active': c.isActive ? 'Yes' : 'No'
     }));
     const ws = XLSX.utils.json_to_sheet(data);
@@ -312,7 +369,7 @@ next: () => {
 
   exportPDF() {
     const doc = new jsPDF();
-    const data = this.attendanceList.map(c => [c.attendanceStatusName , c.isActive ? 'Yes' : 'No']);
+    const data = this.attendanceList.map(c => [c.attendanceStatusName, c.isActive ? 'Yes' : 'No']);
     autoTable(doc, { head: [['Status Name', 'Active']], body: data });
     doc.save('AttendanceStatus.pdf');
   }

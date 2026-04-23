@@ -1146,3 +1146,32 @@ button:hover {
   color: #333;
   font-weight: bold;
 }
+/* ================= MOBILE RESPONSIVE FIX ================= */
+
+/* Prevent horizontal scroll globally */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Main layout fix */
+.main-body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Make all containers responsive */
+* {
+  box-sizing: border-box;
+}
+
+/* Fix tables (allow scroll inside, not whole page) */
+.table-card,
+.tab-content {
+  overflow-x: auto;
+}
+
+/* Prevent large elements from breaking layout */
+img, table {
+  max-width: 100%;
+}
+

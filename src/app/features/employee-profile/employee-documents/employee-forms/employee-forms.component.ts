@@ -3,6 +3,7 @@ import { EmployeeForm } from '../../../../admin/layout/models/employee-forms.mod
 import Swal from 'sweetalert2';
 import { AdminService } from '../../../../admin/servies/admin.service';
 import { environment } from '../../../../../environments/environment';
+import { EmployeeLetter } from '../../../../admin/layout/models/employee-letter.model';
 @Component({
   selector: 'app-employee-forms',
   standalone: false,
@@ -23,7 +24,7 @@ export class EmployeeFormsComponent {
   confidential: boolean = false;
   fileName: string = "";
   
-
+employees: any[] = [];
   selectedFile: File | null = null;
 
   // EDIT MODE
@@ -47,12 +48,16 @@ export class EmployeeFormsComponent {
   pageSize = 5;
   currentPage = 1;
   pageSizeOptions = [5, 10, 20, 50];
-
+form = {
+  empCode: '',
+  empName: ''
+};
   // Search & confidentiality
   searchTerm: string = '';
   showConfidential: boolean = true; // toggle to hide/show confidential in listing
   isAdmin = true; // simulate role
   documentTypes: any[] = [];
+    // form: EmployeeLetter = this.resetFormInternal();
   constructor(private adminService: AdminService) {}
  ngOnInit() {
    
@@ -61,8 +66,27 @@ export class EmployeeFormsComponent {
     this.regionId = Number(sessionStorage.getItem("RegionId"));
     this.loadDocumentTypes();
     // this.loadEmployeeForms();
+      this.loadEmployees();
  }
- 
+ onEmployeeChange(code: any) {
+
+  const emp = this.employees.find(x => x.employeeCode == code);
+
+  if (emp) {
+    this.form.empCode = emp.employeeCode;
+    this.form.empName = emp.employeeName;
+  }
+
+}
+loadEmployees() {
+  this.adminService.getEmployees(this.companyId, this.regionId)
+    .subscribe({
+      next: (res:any) => {
+        this.employees = res;
+      },
+      error: (err) => console.error(err)
+    });
+}
  loadEmployeeForms() {
   this.adminService.getEmployeeFormsByEmployeeId(this.userId).subscribe({
     next: (res) => {
@@ -75,7 +99,7 @@ export class EmployeeFormsComponent {
           id: api.id,
           type: typeObj ? typeObj.typeName : '',   // <-- FIX HERE
           name: api.documentName,
-          employee: api.employeeCode,
+         employee: `${api.employeeName} (${api.employeeCode})`,
           date: api.issueDate,
           remarks: api.remarks,
           confidential: api.isConfidential,
@@ -95,17 +119,34 @@ export class EmployeeFormsComponent {
 }
 
 
+//  loadDocumentTypes() {
+//    this.adminService.getActiveDocumentTypes().subscribe({
+//      next: (res: any) => {
+//        this.documentTypes = res; 
+//        this.loadEmployeeForms();    
+//      },
+//      error: (err) => {
+//        console.error('Failed to load document types', err);
+//      }
+//    });
+//  }
+
+
  loadDocumentTypes() {
-   this.adminService.getActiveDocumentTypes().subscribe({
-     next: (res: any) => {
-       this.documentTypes = res; 
-       this.loadEmployeeForms();    
-     },
-     error: (err) => {
-       console.error('Failed to load document types', err);
-     }
-   });
- }
+  this.adminService.getAttachmentTypesByCategory('Forms')
+    .subscribe({
+      next: (res: any[]) => {
+        this.documentTypes = res.map(x => ({
+          id: x.attachmentTypeId,
+          typeName: x.attachmentTypeName
+        }));
+        this.loadEmployeeForms();
+      },
+      error: (err) => {
+        console.error('Failed to load document types', err);
+      }
+    });
+}
 
   // ---------------- FILE UPLOAD ----------------
   onFileSelect(event: any) {
@@ -157,7 +198,7 @@ onSubmit() {
   this.dateError = '';
   this.fileError = '';
 
-  if (!this.documentTypeId || !this.documentName || !this.employeeCode || !this.issuedDate || !this.selectedFile) {
+  if (!this.documentTypeId || !this.documentName || !this.form.empCode || !this.issuedDate || !this.selectedFile) {
 
 
     Swal.fire({ icon: 'warning', title: 'Required fields missing', text: 'Please fill all required fields.' });
@@ -171,7 +212,8 @@ onSubmit() {
   formData.append("DocumentTypeId", this.documentTypeId.toString());
 
   formData.append("DocumentName", this.documentName);
-  formData.append("EmployeeCode", this.employeeCode);
+  formData.append("EmployeeCode", this.form.empCode);
+formData.append("EmployeeName", this.form.empName);
   formData.append("IssueDate", this.issuedDate);
   formData.append("Remarks", this.remarks ?? "");
   formData.append("IsConfidential", this.confidential ? "true" : "false");
@@ -308,6 +350,10 @@ private resetFormInternal() {
   this.fileError = '';
   this.dateError = '';
   this.currentPage = 1;
+  this.form = {
+  empCode: '',
+  empName: ''
+};
 }
 
 

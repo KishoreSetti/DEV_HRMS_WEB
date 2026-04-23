@@ -10,7 +10,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class EmployeeSkillsComponent {
 activeTab = 'skills';
-
+selectedTab: string = '';
   // Skills & Job History
   skillsJobHistory = [
     { label: 'Employer', type: 'text', required: true, placeholder: 'Enter employer name' },
@@ -44,4 +44,32 @@ activeTab = 'skills';
     { label: 'Mode of Study', type: 'select', required: true, options: ['Full-time', 'Part-time', 'Distance'], placeholder: 'Select mode of study' },
     { label: 'Certificate / Document Upload', type: 'file', required: true, placeholder: 'Upload certificate or mark sheet' },
   ];
+  canJobHistory: boolean = false;
+canEducation: boolean = false;
+canCertification: boolean = false;
+ngOnInit(){
+  this.loadTabPermissions();
+}
+loadTabPermissions() {
+
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const jobHistory = menus.find((m:any) => 
+      m.menuName?.trim().toLowerCase() === "job history");
+
+  const education = menus.find((m:any) => 
+      m.menuName?.trim().toLowerCase() === "education");
+
+  const certification = menus.find((m:any) => 
+      m.menuName?.trim().toLowerCase() === "certification");
+
+  this.canJobHistory = jobHistory?.canView ?? false;
+  this.canEducation = education?.canView ?? false;
+  this.canCertification = certification?.canView ?? false;
+
+    if (this.canJobHistory) this.selectedTab = 'tab1';
+  else if (this.canEducation) this.selectedTab = 'tab2';
+  else if (this.canCertification) this.selectedTab = 'tab3';
+
+}
 }

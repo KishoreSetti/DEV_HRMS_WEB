@@ -1,0 +1,347 @@
+/* 🔴 Card Styling */
+.form-card, .table-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* 🔴 Headings */
+h3 {
+  color: #b02828;
+  border-left: 5px solid #b02828;
+  padding-left: 10px;
+  margin-bottom: 20px;
+}
+
+/* 🔴 Table Styling */
+/* .custom-table thead {
+  background: #b02828;
+  color: #fff;
+} */
+
+.custom-table tbody tr:hover {
+  background: #ffebeb;
+}
+
+/* 🔴 Form Controls */
+.form-control {
+  border-radius: 6px;
+  padding: 8px;
+}
+
+/* 🔴 Buttons */
+.btn-primary {
+  background: #b02828;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #901f1f;
+}
+
+.btn-success {
+  background: #28a745;
+}
+
+.btn-danger {
+  background: #dc3545;
+}
+
+/* 🔴 Spacing Fix */
+.card {
+  margin-bottom: 20px;
+}
+/* 🔴 Fix table width */
+.pending-table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* 🔴 Fix Action Column Width */
+.action-col {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+/* 🔴 Center buttons properly */
+.action-btns {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 🔴 Remove extra spacing */
+.custom-table td, 
+.custom-table th {
+  vertical-align: middle;
+  padding: 10px;
+}
+
+/* 🔴 Improve hover */
+.custom-table tbody tr:hover {
+  background: #ffe5e5;
+}
+
+/* 🔴 Responsive fix */
+.table-responsive {
+  overflow-x: auto;
+  padding: 0 5px; /* 🔥 matches heading spacing */
+}
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0; /* 🔥 important */
+}
+
+/* 🔴 Button look */
+.action-btns .btn {
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* 🔴 Card consistency */
+.table-card {
+  padding: 20px;
+}
+
+/* 🔴 Header alignment */
+.custom-table th {
+  text-align: left;
+}
+
+.custom-table th.action-col {
+  text-align: center;
+}
+/* 🔴 Header alignment */
+/* 🔴 FIX HEADING ALIGNMENT */
+.table-card h3 {
+  color: #b02828;
+  border-left: 5px solid #b02828;
+  padding-left: 10px;
+  margin-bottom: 15px;
+
+  /* 🔥 ALIGN WITH TABLE */
+  margin-left: 5px;
+}
+
+/* 🔴 Filter summary */
+.filter-summary {
+  font-size: 14px;
+  color: #555;
+  background: #fff5f5;
+  padding: 8px 12px;
+  border-left: 4px solid #b02828;
+  border-radius: 6px;
+}
+
+/* 🔴 Download button */
+.btn-danger {
+  background: #b02828;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #901f1f;
+}
+/* 🔶 FILTER BAR FIX */
+.filter-summary {
+  background: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #b02828;
+}
+
+/* TEXT GROUP */
+.filter-text span {
+  font-size: 14px;
+  color: #333;
+}
+
+/* SPACING BETWEEN ITEMS */
+.filter-text .divider {
+  margin: 0 10px;
+  color: #b02828;
+  font-weight: bold;
+}
+
+/* BUTTON ALIGN */
+.filter-summary button {
+  white-space: nowrap;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+
+  .filter-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .filter-text {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .filter-summary button {
+    width: 100%;
+  }
+}
+/* 🔥 BLACK HEADER LIKE ATTENDANCE */
+.custom-table thead th {
+  background: #000;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* 🔶 BODY CELLS */
+.custom-table tbody td {
+  text-align: center;
+  padding: 12px;
+  border-top: 1px solid #ccc;
+}
+
+/* 🔶 ROW HOVER */
+.custom-table tbody tr:hover {
+  background: #f5f5f5;
+}
+
+/* 🔶 TABLE FULL WIDTH */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+/* 🔴 ACTION BUTTON ALIGN */
+.action-btns {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 🔴 FIX ACTION COLUMN WIDTH */
+.action-col {
+  width: 120px;
+}
+
+/* 🔴 BUTTON CONSISTENCY */
+.custom-table .btn {
+  min-width: 70px;
+}
+
+/* 🔴 TABLE BASE */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* ✅ IMPORTANT FIX */
+}
+
+/* 🔴 HEADER */
+.custom-table thead th {
+  background: #000;
+  color: #fff;
+  padding: 10px 12px;
+  text-align: left; /* ✅ better UI */
+  font-weight: 600;
+}
+
+/* 🔴 BODY */
+.custom-table tbody td {
+  padding: 10px 12px;
+  border-top: 1px solid #ddd;
+  text-align: left; /* ✅ align properly */
+}
+
+/* 🔴 REMOVE EXTRA SPACE BETWEEN COLUMNS */
+.pending-table th,
+.pending-table td {
+  white-space: nowrap; /* keeps columns tight */
+}
+
+/* 🔴 ACTION COLUMN (RIGHT SIDE ONLY) */
+.action-col {
+  width: 120px;
+  text-align: right !important;
+}
+
+/* 🔴 ACTION BUTTON ALIGN */
+.action-btns {
+  display: flex;
+  justify-content: flex-end; /* ✅ move to right */
+  gap: 6px;
+}
+
+/* 🔴 BUTTON SIZE */
+.custom-table .btn {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* 🔴 REMOVE SIDE GAPS */
+.table-responsive {
+  padding: 0;
+  overflow-x: auto;
+}
+
+/* 🔴 HEADING ALIGN */
+.table-card h3 {
+  margin: 0 0 12px 0;
+  padding-left: 8px;
+}
+.custom-table tbody tr:hover {
+  background: #fff5f5;
+  transition: 0.2s;
+}
+
+
+.pagination-container{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+}
+
+.page-btn{
+  padding:6px 14px;
+  border:none;
+  background:#b02828;
+  color:white;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.page-btn:hover{
+  background:#8d1e1e;
+}
+
+.page-btn.active{
+  background:black;
+}
+
+.page-btn:disabled{
+  background:#ccc;
+  cursor:not-allowed;
+}
+
+
+.report-filter {
+display:flex;
+gap:15px;
+align-items:center;
+margin-bottom:15px;
+}
+
+.btn-search {
+background:#007bff;
+color:white;
+padding:6px 14px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}

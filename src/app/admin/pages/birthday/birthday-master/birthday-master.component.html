@@ -1,0 +1,140 @@
+<div class="container mt-4">
+
+  <h4>🎂 Birthday Master</h4>
+
+  <!-- Add Birthday -->
+  <div class="card mt-4">
+    <div class="card-header bg-dark text-white">Add Birthday</div>
+
+    <div class="card-body">
+      <form (ngSubmit)="onSubmit()" #birthdayForm="ngForm">
+
+        <div class="row g-3">
+
+          <!-- Company -->
+          <div class="col-md-3">
+            <label class="form-label">Company</label>
+            <select class="form-select"
+                    [(ngModel)]="selectedCompanyId"
+                    name="companyId"
+                    (change)="onCompanyChange()"
+                    required>
+              <option [ngValue]="null">Select Company</option>
+              <option *ngFor="let c of companies"
+                      [ngValue]="c.companyId">
+                {{ c.companyName }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Region -->
+          <div class="col-md-3">
+            <label class="form-label">Region</label>
+            <select class="form-select"
+                    [(ngModel)]="selectedRegionId"
+                    name="regionId"
+                    (change)="onRegionChange()"
+                    required>
+              <option [ngValue]="null">Select Region</option>
+              <option *ngFor="let r of filteredRegions"
+                      [ngValue]="r.regionId">
+                {{ r.regionName }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Employee -->
+          <div class="col-md-3">
+            <label class="form-label">Employee</label>
+            <select class="form-select"
+                    [(ngModel)]="selectedEmployeeId"
+                    name="employeeId"
+                    (change)="onEmployeeChange()"
+                    required>
+              <option [ngValue]="null">Select Employee</option>
+              <option *ngFor="let emp of filteredEmployees"
+                      [ngValue]="emp.employeeId">
+                {{ emp.firstName }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-3">
+            <label class="form-label">Email</label>
+            <input type="text"
+                   class="form-control"
+                   [(ngModel)]="selectedEmployeeEmail"
+                   name="email"
+                   readonly />
+          </div>
+
+          <!-- DOB -->
+          <div class="col-md-3">
+            <label class="form-label">Date of Birth</label>
+            <input type="date"
+                   class="form-control"
+                   [(ngModel)]="dateOfBirth"
+                   name="dob"
+                   required />
+          </div>
+
+          <!-- Button -->
+          <div class="col-md-3">
+            <button class="btn btn-danger w-100 mt-3"
+                    [disabled]="!birthdayForm.valid">
+              Save
+            </button>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Birthday List -->
+  <div class="card mt-4">
+    <div class="card-header bg-primary text-white">Birthday List</div>
+
+    <div class="card-body">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Company</th>
+            <th>Region</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>DOB</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let emp of birthdayList; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>{{ getCompanyName(emp.companyId) }}</td>
+            <td>{{ getRegionName(emp.regionId) }}</td>
+            <td>{{ emp.firstName }}</td>
+            <td>{{ emp.email }}</td>
+            <td>{{ emp.dateOfBirth }}</td>
+            <td>
+              <button class="btn btn-danger btn-sm"
+                      (click)="delete(emp.id)">
+                Delete
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="birthdayList.length === 0">
+            <td colspan="7" class="text-center text-muted">
+              No records found
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
