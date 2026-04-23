@@ -1152,10 +1152,12 @@ deleteGender(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeleteGender?id=${id}`, {});
 }
  getBloodGroupsbyID(userID: number): Observable<any> {
+  debugger;
     return this.http.get(`${this.baseUrl}/MasterData/GetBloodGroupsById/${userID}`);
   }
 //   // ✅ CREATE
   createBloodGroup(data: BloodGroup): Observable<any> {
+    debugger;
     return this.http.post(`${this.baseUrl}/MasterData/AddBloodGroups`, data);
   }
 

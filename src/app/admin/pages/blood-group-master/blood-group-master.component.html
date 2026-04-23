@@ -9,26 +9,6 @@
       </h4>
 
       <div class="d-flex gap-2">
-        <!-- Export Dropdown -->
-        <!-- <div class="dropdown">
-          <button
-            class="btn btn-outline-dark dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <i class="fa-solid fa-download me-2"></i> Export
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
-            <li><a class="dropdown-item" (click)="exportAs('pdf')">Download PDF</a></li>
-            <li><a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a></li>
-          </ul>
-        </div> -->
-
-        <!-- Bulk Upload -->
-        <!-- <button class="btn btn-danger" (click)="openUploadPopup()">
-          <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-        </button> -->
       </div>
     </div>
 
@@ -43,67 +23,99 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Blood Group Name</label>
            <input
-  type="text"
-  class="form-control"(input)="onBloodGroupInput()"
-  name="bloodGroupName"
-  [(ngModel)]="bloodGroup.bloodGroupName"
-  #bloodGroupName="ngModel"
-  placeholder="Enter Blood Group Name"
-  required
-  pattern="^(A|B|AB|O)[+-]$"
-/>
+                type="text"
+                class="form-control"(input)="onBloodGroupInput()"
+                name="bloodGroupName"
+                [(ngModel)]="bloodGroup.bloodGroupName"
+                #bloodGroupName="ngModel"
+                placeholder="Enter Blood Group Name"
+                required
+                pattern="^(A|B|AB|O)[+-]$"
+              />
 
-<!-- Validation Messages -->
-<div class="text-danger mt-1" *ngIf="bloodGroupName.invalid && (bloodGroupName.dirty || bloodGroupName.touched)">
+              <!-- Validation Messages -->
+              <div class="text-danger mt-1" *ngIf="bloodGroupName.invalid && (bloodGroupName.dirty || bloodGroupName.touched)">
 
-  <small *ngIf="bloodGroupName.errors?.['required']">
-    Blood Group Name is required.
-  </small>
+                <small *ngIf="bloodGroupName.errors?.['required']">
+                  Blood Group Name is required.
+                </small>
 
-  <small *ngIf="bloodGroupName.errors?.['pattern']">
-    Invalid Blood Group. Allowed values: A+, A-, B+, B-, AB+, AB-, O+, O-
-  </small>
+                <small *ngIf="bloodGroupName.errors?.['pattern']">
+                  Invalid Blood Group. Allowed values: A+, A-, B+, B-, AB+, AB-, O+, O-
+                </small>
 
-</div>
+              </div>
 
             </div>
+            <!-- Company -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Company</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="bloodGroup.companyID"
+                  name="companyID"
+                  (change)="onCompanyChange()"
+                  required
+                >
+                  <option value="">Select Company</option>
+                  <option *ngFor="let company of companies" [value]="company.companyId">
+                    {{ company.companyName }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Region -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Region</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="bloodGroup.regionID"
+                  name="regionID"
+                  required
+                >
+                  <option value="">Select Region</option>
+                  <option *ngFor="let region of filteredRegions" [value]="region.regionID">
+                    {{ region.regionName }}
+                  </option>
+                </select>
+              </div>
  
             <!-- Status -->
             <div class="col-md-3 d-flex align-items-center">
               <div class="form-check form-switch mt-3">
               
-<input
-  class="form-check-input"
-  type="checkbox"
-  id="isActiveSwitch"
-  name="isActive"
-  [(ngModel)]="bloodGroup.isActive"
-/>
-                <label class="form-check-label ms-2" for="isActiveSwitch">
-  {{ bloodGroup.isActive ? 'Active' : 'Inactive' }}
-</label>
-              </div>
-            </div>
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="isActiveSwitch"
+            name="isActive"
+            [(ngModel)]="bloodGroup.isActive"
+          />
+                          <label class="form-check-label ms-2" for="isActiveSwitch">
+            {{ bloodGroup.isActive ? 'Active' : 'Inactive' }}
+          </label>
+                        </div>
+                      </div>
 
-            <!-- Submit -->
-            <div class="col-md-6 d-flex align-items-end gap-4">
-               <button
-                type="button"
-                class="btn btn-danger px-6 w-100"
-                (click)="onCancel()"
-              >
-                <i class="fa-solid fa-xmark me-2"></i>
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-dark w-100" [disabled]="!bloodForm.valid">
-                <i class="fa-solid fa-save me-2"></i>
-                {{ isEditMode ? 'Update Blood Group' : 'Save Blood Group' }}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
+                      <!-- Submit -->
+                      <div class="col-md-6 d-flex align-items-end gap-4">
+                        <button
+                          type="button"
+                          class="btn btn-danger px-6 w-100"
+                          (click)="onCancel()"
+                        >
+                          <i class="fa-solid fa-xmark me-2"></i>
+                          Cancel
+                        </button>
+                        <button type="submit" class="btn btn-dark w-100" [disabled]="!bloodForm.valid">
+                          <i class="fa-solid fa-save me-2"></i>
+                          {{ isEditMode ? 'Update Blood Group' : 'Save Blood Group' }}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
 
     <!-- List -->
     <div class="card shadow-sm">
@@ -137,6 +149,8 @@
                   Blood Group Name
                   <i class="fa" [ngClass]="getSortIcon('bloodGroupName')"></i>
                 </th>
+                <th>Company</th>
+                <th>Region</th>
                 <th>Status</th>
                 <th class="text-center">Actions</th>
               </tr>
@@ -145,6 +159,8 @@
               <tr *ngFor="let b of pagedBloodGroups; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ b.bloodGroupName }}</td>
+                <td>{{ getCompanyName(b.companyID) }}</td>
+                <td>{{ getRegionName(b.regionID) }}</td>
                 <td>
                   <span class="badge" [ngClass]="b.isActive ? 'bg-success' : 'bg-secondary'">
                     {{ b.isActive ? 'Active' : 'Inactive' }}
