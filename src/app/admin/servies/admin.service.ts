@@ -882,6 +882,16 @@ export class AdminService {
     return this.http.post(`${this.baseUrl}/UserManagement/SendEmail`, user);
   }
 
+  sendHrNotification(email: string, subject: string, body: string): Observable<any> {
+    const payload = {
+      Email: email,
+      Subject: subject,
+      Body: body,
+      FullName: 'HR Team'
+    };
+    return this.http.post(`${this.baseUrl}/UserManagement/SendEmail`, payload);
+  }
+
   // -------------------------------------------------------------
   // 🔹 MENU MASTER OPERATIONS
   // -------------------------------------------------------------

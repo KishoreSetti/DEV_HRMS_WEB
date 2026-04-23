@@ -626,8 +626,8 @@ startDate: string = "";
   weekoffDays: Set<string> = new Set();
 
   // Sorting
-  sortColumn: keyof LeaveRequest | null = null;
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortColumn: keyof LeaveRequest | null = 'appliedDate';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   // Pagination
   pageSize = 5;
@@ -833,17 +833,20 @@ startDate: string = "";
   loadMyLeaves() {
     this.leaveService.getMyLeaves(this.userId).subscribe({
       next: (data) => {
-        this.leaveList = data.map(x => ({
-          appliedDate: x.appliedDate,
-          leaveType: x.leaveTypeName || '',
-          fromDate: x.startDate,
-          toDate: x.endDate,
-          totalDays: x.totalDays,
-          reason: x.reason,
-          fileName: x.fileName,
-          status: x.status,
-          isHalfDay: x.isHalfDay ?? false
-        }));
+        this.leaveList = data
+          .slice()
+          .sort((a, b) => new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime())
+          .map(x => ({
+            appliedDate: x.appliedDate,
+            leaveType: x.leaveTypeName || '',
+            fromDate: x.startDate,
+            toDate: x.endDate,
+            totalDays: x.totalDays,
+            reason: x.reason,
+            fileName: x.fileName,
+            status: x.status,
+            isHalfDay: x.isHalfDay ?? false
+          }));
 
         this.calculateLeaveSummary();
         if (this.leaveType) {
@@ -891,26 +894,40 @@ startDate: string = "";
       return;
     }
 
-    // Calculate used leaves for selected type
+    // Calculate used leaves for selected type (Pending + Approved count, expired Pending don't)
     this.usedLeaves = this.leaveList
-      .filter(l => l.leaveType === this.leaveType)
+      .filter(l => l.leaveType === this.leaveType && this.shouldCountLeaveForBalance(l))
       .reduce((sum, l) => sum + l.totalDays, 0);
     // Available = Total - Used
     this.availableLeaves =
       this.selectedLeaveType.leaveDays - this.usedLeaves;
   }
 
+  private shouldCountLeaveForBalance(leave: LeaveRequest): boolean {
+    if (leave.status === 'Rejected') {
+      return false;
+    }
+    if (leave.status === 'Pending') {
+      const toDate = new Date(leave.toDate);
+      const todayDate = new Date(this.today);
+      return !isNaN(toDate.getTime()) && toDate >= todayDate;
+    }
+    return true; // Approved leaves always count
+  }
 
 
  leavedays:any;
   calculateLeaveSummary() {
-    this.leavedays= this.leaveList.reduce((sum, l) => sum + l.totalDays, 0);
+    // Count Pending + Approved leaves, but ignore pending leaves whose period has already passed
+    this.leavedays = this.leaveList
+      .filter(l => this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => sum + l.totalDays, 0);
     this.sickUsed = this.leaveList
-      .filter(l => l.leaveType === "Sick Leave")
+      .filter(l => l.leaveType === "Sick Leave" && this.shouldCountLeaveForBalance(l))
       .reduce((sum, l) => sum + l.totalDays, 0);
 
     this.casualUsed = this.leaveList
-      .filter(l => l.leaveType === "Casual Leave")
+      .filter(l => l.leaveType === "Casual Leave" && this.shouldCountLeaveForBalance(l))
       .reduce((sum, l) => sum + l.totalDays, 0);
 
     this.sickAvailable = this.sickTotal - this.sickUsed;
