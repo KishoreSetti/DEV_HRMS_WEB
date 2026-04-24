@@ -14,13 +14,7 @@ export class EmployeeBankDetailsComponent {
   userId!: number;
   companyId = Number(sessionStorage.getItem("CompanyId"));
   regionId = Number(sessionStorage.getItem("RegionId"));
-  accountTypes = [
-    { id: 1, name: 'Savings' },
-    { id: 2, name: 'Current' },
-    { id: 3, name: 'Salary' },
-    { id: 4, name: 'NRE' },
-    { id: 5, name: 'NRO' }
-  ];
+  accountTypes: any[] = [];
 
   employeeId = 123; // Replace with actual employee ID
   isAdmin: boolean = true; // Role-based display
@@ -48,6 +42,7 @@ export class EmployeeBankDetailsComponent {
     }
     this.initForm();
     this.loadBankDetails();
+    this.loadAccountTypes();
   }
 
   /** Initialize Bank Form */
@@ -67,7 +62,23 @@ export class EmployeeBankDetailsComponent {
       upiid: ['', [Validators.maxLength(100)]]
     });
   }
+loadAccountTypes() {
+  this.adminService.getAccountTypes(this.companyId, this.regionId)
+    .subscribe({
+      next: (res) => {
+        console.log("API Response:", res);
 
+        // 🔥 MAP API → UI FORMAT
+        this.accountTypes = res.map((x: any) => ({
+          id: x.accountTypeId,
+          name: x.accountType1
+        }));
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to load account types', 'error');
+      }
+    });
+}
   /** Load Bank Details */
   loadBankDetails() {
     if (!this.userId) {

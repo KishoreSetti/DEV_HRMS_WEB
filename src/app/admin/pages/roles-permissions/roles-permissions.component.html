@@ -4,10 +4,10 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-       <h4 class="fw-semibold mb-0">
-  <i class="fa-solid fa-users-gear me-2 text-danger"></i>
-  Role Management
-</h4>
+        <h4 class="fw-semibold mb-0">
+          <i class="fa-solid fa-users-gear me-2 text-danger"></i>
+          Role Management
+        </h4>
         <small class="text-muted ms-4">Create, update, and manage user roles.</small>
       </div>
       <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addRoleModal">
@@ -22,8 +22,8 @@
 
         <!-- Page size selector -->
         <div>
-          <select class="form-select form-select-sm" style="width: auto;"
-            [(ngModel)]="pageSize" (change)="onPageSizeChange(pageSize)">
+          <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="pageSize"
+            (change)="onPageSizeChange(pageSize)">
             <option *ngFor="let size of pageSizes" [value]="size">{{ size }}</option>
           </select>
         </div>
@@ -52,7 +52,8 @@
                 </span>
               </td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addRoleModal" (click)="editRole(r)">
+                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal"
+                  data-bs-target="#addRoleModal" (click)="editRole(r)">
                   <i class="fa fa-edit"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" (click)="deleteRole(r)">
@@ -81,11 +82,8 @@
               <a class="page-link" (click)="onPageChange(pageNumber - 1)">Previous</a>
             </li>
 
-            <li
-              class="page-item"
-              *ngFor="let page of [].constructor(Math.ceil(totalCount / pageSize)); let p = index"
-              [class.active]="pageNumber === p + 1"
-            >
+            <li class="page-item" *ngFor="let page of [].constructor(Math.ceil(totalCount / pageSize)); let p = index"
+              [class.active]="pageNumber === p + 1">
               <a class="page-link" (click)="onPageChange(p + 1)">{{ p + 1 }}</a>
             </li>
 
@@ -112,21 +110,19 @@
             <div class="modal-body">
               <div class="mb-3">
                 <label class="form-label fw-semibold">Role Name</label>
-                <input type="text" class="form-control"
-                  [(ngModel)]="role.roleName" name="roleName"
+                <input type="text" class="form-control" [(ngModel)]="role.roleName" name="roleName"
                   placeholder="Enter role name" required />
               </div>
 
               <div class="mb-3">
                 <label class="form-label fw-semibold">Description</label>
-                <textarea class="form-control" rows="2"
-                  [(ngModel)]="role.roleDescription" name="roleDescription"
+                <textarea class="form-control" rows="2" [(ngModel)]="role.roleDescription" name="roleDescription"
                   placeholder="Enter description"></textarea>
               </div>
 
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="roleActive"
-                  [(ngModel)]="role.isActive" name="isActive" />
+                <input class="form-check-input" type="checkbox" id="roleActive" [(ngModel)]="role.isActive"
+                  name="isActive" />
                 <label class="form-check-label" for="roleActive"> Active </label>
               </div>
             </div>
@@ -155,155 +151,132 @@
       </div>
 
       <div class="card-body">
-     <div class="card-body">
-  <div class="table-responsive">
-    <table class="table table-bordered align-middle text-center permission-table">
-      <thead class="table-secondary">
-        <tr>
-          <th style="width: 250px;">Module</th>
-          <th style="width: 250px;">Submodule</th>
-          <th *ngFor="let action of actions">{{ action | titlecase }}</th>
-        </tr>
-      </thead>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center permission-table">
+              <thead class="table-secondary">
+                <tr>
+                  <th style="width: 250px;">Module</th>
+                  <th style="width: 250px;">Submodule</th>
+                  <th *ngFor="let action of actions">{{ action | titlecase }}</th>
+                </tr>
+              </thead>
 
-      <tbody>
-        <ng-container *ngFor="let module of permissions">
-          <!-- MODULE ROW -->
-          <tr [class.expanded-row]="module.expanded">
-            <!-- Module Column -->
-            <td class="text-start">
-              <div class="d-flex align-items-center justify-content-between">
-                <div>
-                  <input
-                    type="checkbox"
-                    class="form-check-input me-2"
-                  
-                     [checked]="hasAnyPermission(module)"
-                    (change)="toggleModulePermissionsWithSelect(module, $event)"
-                  />
-                  <strong>{{ module.name }}</strong>
-                </div>
+              <tbody>
+                <ng-container *ngFor="let module of permissions">
+                  <!-- MODULE ROW -->
+                  <tr [class.expanded-row]="module.expanded">
+                    <!-- Module Column -->
+                    <td class="text-start">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                          <input type="checkbox" class="form-check-input me-2" [checked]="hasAnyPermission(module)"
+                            (change)="toggleModulePermissionsWithSelect(module, $event)" />
+                          <strong>{{ module.name }}</strong>
+                        </div>
 
-                <!-- Arrow only if children exist -->
-                <button
-                  *ngIf="module.children?.length"
-                  class="btn btn-sm btn-outline-secondary"
-                  (click)="toggleModule(module)"
-                >
-                  <i
-                    class="fas"
-                    [ngClass]="{
+                        <!-- Arrow only if children exist -->
+                        <button *ngIf="module.children?.length" class="btn btn-sm btn-outline-secondary"
+                          (click)="toggleModule(module)">
+                          <i class="fas" [ngClass]="{
                       'fa-chevron-down': module.expanded,
                       'fa-chevron-right': !module.expanded
-                    }"
-                  ></i>
-                </button>
-              </div>
-            </td>
+                    }"></i>
+                        </button>
+                      </div>
+                    </td>
 
-            <!-- Submodule Column -->
-            <td *ngIf="!module.children?.length"></td>
+                    <!-- Submodule Column -->
+                    <td *ngIf="!module.children?.length"></td>
 
-            <!-- Permissions for modules without children -->
-            <ng-container *ngIf="!module.children?.length">
-              <td *ngFor="let action of actions">
-                <input
-                  type="checkbox"
-                   class="form-check-input me-2"
-                  [(ngModel)]="module.permissions[action]"
-                     [checked]="hasAnyPermission(module)"
-                  (change)="updateParentStatus(module)"
-                />
-              </td>
-            </ng-container>
+                    <!-- Permissions for modules without children -->
+                    <td *ngFor="let action of actions">
+                      <ng-container *ngIf="module.allowedActions.includes(action); else emptyCell">
+                        <input type="checkbox" [(ngModel)]="module.permissions[action]"
+                          (change)="updateParentStatus(module)" />
+                      </ng-container>
 
-            <!-- If has children and not expanded: show message -->
-            <td [attr.colspan]="actions.length + 1" class="text-center text-muted small" *ngIf="module.children?.length && !module.expanded">
-              Click arrow to expand submodules
-            </td>
-          </tr>
+                      <ng-template #emptyCell>
+                        <!-- empty cell to maintain alignment -->
+                      </ng-template>
+                    </td>
 
-          <!-- Submodules / Under-submodules -->
-          <ng-container *ngIf="module.expanded && module.children?.length">
-            <ng-container *ngTemplateOutlet="menuLevel; context: { menus: module.children, parent: module, level: 1 }"></ng-container>
-          </ng-container>
-        </ng-container>
-      </tbody>
-    </table>
-  </div>
+                    <!-- If has children and not expanded: show message -->
+                    <!-- <td [attr.colspan]="actions.length + 1" class="text-center text-muted small"
+                      *ngIf="module.children?.length && !module.expanded">
+                      Click arrow to expand submodules
+                    </td> -->
+                  </tr>
 
-  <div class="text-end mt-3">
-    <button class="btn btn-secondary me-2" (click)="resetPermissions()">Reset</button>
-    <button class="btn btn-danger" (click)="savePermissions()">Save Permissions</button>
-  </div>
-</div>
-
-<!-- Recursive Template -->
-<ng-template #menuLevel let-menus="menus" let-parent="parent" let-level="level">
-  <ng-container *ngFor="let menu of menus">
-    <tr [class.expanded-row]="menu.expanded">
-      <!-- Module Column (shows parent name) -->
-      <td *ngIf="level === 1" class="text-start text-muted">
-       
-      </td>
-      <td *ngIf="level > 1"></td>
-
-      <!-- Submodule Column -->
-      <td [style.paddingLeft.px]="level * 25" class="text-start">
-        <div class="d-flex align-items-center justify-content-between">
-          <div>
-            <input
-              type="checkbox"
-              class="form-check-input me-2"
-             
-               [checked]="hasAnyPermission(menu)"
-               (change)="toggleModulePermissionsWithSelect(menu, $event)"
-            />
-            {{ menu.name }}
+                  <!-- Submodules / Under-submodules -->
+                  <ng-container *ngIf="module.expanded && module.children?.length">
+                    <ng-container
+                      *ngTemplateOutlet="menuLevel; context: { menus: module.children, parent: module, level: 1 }"></ng-container>
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
           </div>
 
-          <!--  [(ngModel)]="menu.selected" Show expand button only if children -->
-          <button
-            *ngIf="menu.children?.length"
-            class="btn btn-sm btn-outline-secondary"
-            (click)="toggleModule(menu)"
-          >
-            <i
-              class="fas"
-              [ngClass]="{
+          <div class="text-end mt-3">
+            <button class="btn btn-secondary me-2" (click)="resetPermissions()">Reset</button>
+            <button class="btn btn-danger" (click)="savePermissions()">Save Permissions</button>
+          </div>
+        </div>
+
+        <!-- Recursive Template -->
+        <ng-template #menuLevel let-menus="menus" let-parent="parent" let-level="level">
+          <ng-container *ngFor="let menu of menus">
+            <tr [class.expanded-row]="menu.expanded">
+              <!-- Module Column (shows parent name) -->
+              <td *ngIf="level === 1" class="text-start text-muted">
+
+              </td>
+              <td *ngIf="level > 1"></td>
+
+              <!-- Submodule Column -->
+              <td [style.paddingLeft.px]="level * 25" class="text-start">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <input type="checkbox" class="form-check-input me-2" [checked]="hasAnyPermission(menu)"
+                      (change)="toggleModulePermissionsWithSelect(menu, $event)" />
+                    {{ menu.name }}
+                  </div>
+
+                  <!--  [(ngModel)]="menu.selected" Show expand button only if children -->
+                  <button *ngIf="menu.children?.length" class="btn btn-sm btn-outline-secondary"
+                    (click)="toggleModule(menu)">
+                    <i class="fas" [ngClass]="{
                 'fa-chevron-down': menu.expanded,
                 'fa-chevron-right': !menu.expanded
-              }"
-            ></i>
-          </button>
-        </div>
-      </td>
+              }"></i>
+                  </button>
+                </div>
+              </td>
 
-      <!-- If no children: show checkboxes -->
-      <ng-container *ngIf="!menu.children?.length">
-        <td *ngFor="let action of actions">
-          <input
-            type="checkbox"
-             class="form-check-input me-2"
-            [(ngModel)]="menu.permissions[action]"
-               [checked]="hasAnyPermission(menu)"
-            (change)="updateParentStatus(menu)"
-          />
-        </td>
-      </ng-container>
+              <!-- If no children: show checkboxes -->
+              <td *ngFor="let action of actions">
+                <ng-container *ngIf="menu.allowedActions.includes(action); else emptyCell">
+                  <input type="checkbox" [(ngModel)]="menu.permissions[action]" (change)="updateParentStatus(menu)" />
+                </ng-container>
 
-      <!-- If has children and not expanded: show message -->
-      <td [attr.colspan]="actions.length" class="text-center text-muted small" *ngIf="menu.children?.length && !menu.expanded">
-        Click arrow to expand submodules
-      </td>
-    </tr>
+                <ng-template #emptyCell></ng-template>
+              </td>
 
-    <!-- Recursive call -->
-    <ng-container *ngIf="menu.expanded && menu.children?.length">
-      <ng-container *ngTemplateOutlet="menuLevel; context: { menus: menu.children, parent: parent, level: level + 1 }"></ng-container>
-    </ng-container>
-  </ng-container>
-</ng-template>
+              <!-- If has children and not expanded: show message -->
+              <!-- <td [attr.colspan]="actions.length" class="text-center text-muted small"
+                *ngIf="menu.children?.length && !menu.expanded">
+                Click arrow to expand submodules
+              </td> -->
+            </tr>
+
+            <!-- Recursive call -->
+            <ng-container *ngIf="menu.expanded && menu.children?.length">
+              <ng-container
+                *ngTemplateOutlet="menuLevel; context: { menus: menu.children, parent: parent, level: level + 1 }"></ng-container>
+            </ng-container>
+          </ng-container>
+        </ng-template>
 
       </div>
     </div>

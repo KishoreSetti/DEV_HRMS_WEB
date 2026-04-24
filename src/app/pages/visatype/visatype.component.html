@@ -1,0 +1,136 @@
+<div class="card shadow-sm">
+  <div class="container-fluid p-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-semibold mb-0">
+        <i class="fa-solid fa-passport me-2 text-danger"></i>
+        Visa Type Management
+      </h4>
+    </div>
+
+    <hr class="mb-4" />
+
+    <!-- Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form (ngSubmit)="onSubmit()" #visaForm="ngForm">
+
+          <div class="row g-3">
+
+            <!-- Visa Type -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Visa Type</label>
+              <input
+                type="text"
+                class="form-control"
+                name="visaType1"
+                [(ngModel)]="visa.visaType1"
+                placeholder="Enter Visa Type"
+                required
+              />
+            </div>
+
+            <!-- Description -->
+            <div class="col-md-6">
+              <label>Description</label>
+              <input type="text" class="form-control"
+                     [(ngModel)]="visa.description"
+                     name="description">
+            </div>
+
+            <!-- Company -->
+            <div class="col-md-6">
+              <label>Company</label>
+              <select class="form-select"
+                      [(ngModel)]="visa.companyId"
+                      name="companyId" (change)="onCompanyChange()">
+                <option value="">Select</option>
+                <option *ngFor="let c of companies"
+                        [value]="c.companyId">
+                  {{ c.companyName }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Region -->
+            <div class="col-md-6">
+              <label>Region</label>
+              <select class="form-select"
+                      [(ngModel)]="visa.regionId"
+                      name="regionId">
+                <option value="">Select</option>
+                <option *ngFor="let r of filteredRegions"
+                        [value]="r.regionID">
+                  {{ r.regionName }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="form-check form-switch mt-3">
+                <input class="form-check-input"
+                       type="checkbox"
+                       [(ngModel)]="visa.isActive"
+                       name="isActive">
+                <label class="ms-2">
+                  {{ visa.isActive ? 'Active' : 'Inactive' }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-6 d-flex gap-2">
+              <button class="btn btn-danger w-100" type="button" (click)="resetForm()">Cancel</button>
+              <button class="btn btn-dark w-100" type="submit">
+                {{ isEditMode ? 'Update' : 'Save' }}
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Visa Type</th>
+            <th>Description</th>
+            <th>Company</th>
+            <th>Region</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let v of visaTypes; let i=index">
+            <td>{{ i+1 }}</td>
+            <td>{{ v.visaType1 }}</td>
+            <td>{{ v.description }}</td>
+            <td>{{ getCompanyName(v.companyId) }}</td>
+            <td>{{ getRegionName(v.regionId) }}</td>
+            <td>
+              <span class="badge"
+                    [ngClass]="v.isActive ? 'bg-success':'bg-secondary'">
+                {{ v.isActive ? 'Active':'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary"
+                      (click)="editVisa(v)">Edit</button>
+              <button class="btn btn-sm btn-danger"
+                      (click)="deleteVisa(v)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

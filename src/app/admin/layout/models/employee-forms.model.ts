@@ -6,6 +6,6 @@ export interface EmployeeForm {
   date: string;
   remarks: string;
   confidential: boolean;
-  fileName: string;
-
+ fileNames?: string[];   // ✅ make optional
+  filePaths?: string[];   // ✅ make optional
 }

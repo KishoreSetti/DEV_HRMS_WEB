@@ -1,5 +1,9 @@
 <div class="form-container">
-
+  <div *ngIf="(!editMode && !canCreate) || (editMode && !canEdit)" style="color:red;">
+  {{ editMode 
+      ? "You don't have permission to update certification details"
+      : "You don't have permission to add certification details" }}
+</div>
   <form [formGroup]="certificationForm" (ngSubmit)="onSubmit()"
         style="display:flex; flex-wrap:wrap; gap:20px;">
 
@@ -23,7 +27,7 @@
       <label>Certification Type<span class="required">*</span></label>
       <select formControlName="certificationTypeId">
         <option value="">Select Type</option>
-        <option *ngFor="let type of certificationTypeList" [value]="type.certificationTypeID">
+        <option *ngFor="let type of certificationTypeList || []" [value]="type.certificationTypeId">
           {{ type.certificationTypeName }}
         </option>
       </select>
@@ -57,9 +61,17 @@
 
     <!-- Submit -->
     <div class="form-group" style="flex:1 1 100%; text-align:right;">
-      <button type="submit">
+     
+        <button 
+        type="submit"
+        *ngIf="(editMode && canEdit) || (!editMode && canCreate)">
+        
         {{ editMode ? 'Update Certification' : 'Add Certification' }}
+        
       </button>
+      <!-- <button type="submit" *ngIf="canCreate">
+        {{ editMode ? 'Update Certification' : 'Add Certification' }}
+      </button> -->
     </div>
 
   </form>
@@ -95,7 +107,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let item of filteredCertifications()">
+          <tr *ngFor="let item of filteredCertifications() || []">
             <td>{{ item.certificationName }}</td>
             <td>{{ item.certificationTypeId }}</td>
             <td>{{ item.description }}</td>
@@ -108,8 +120,8 @@
             </td>
 
             <td>
-              <i class="fa-solid fa-pen" style="cursor:pointer" (click)="edit(item)"></i>
-              <i class="fa-solid fa-trash ms-2" style="cursor:pointer" (click)="delete(item.certificationId)"></i>
+              <i class="fa-solid fa-pen" style="cursor:pointer" *ngIf="canEdit" (click)="edit(item)"></i>
+              <i class="fa-solid fa-trash ms-2" style="cursor:pointer" *ngIf="canDelete" (click)="delete(item.certificationId)"></i>
             </td>
           </tr>
 

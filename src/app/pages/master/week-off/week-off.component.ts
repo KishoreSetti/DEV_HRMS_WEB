@@ -361,12 +361,20 @@ weekoffDates: { value: string, display: string }[] = [
       : this.adminService.createWeekoff(this.weekoff);
 
     obs.subscribe({
-      next: () => {
+     next: (res: any) => {
+
         this.spinner.hide();
 
+        // 🔴 HANDLE DUPLICATE / FAILURE
+        if (!res.success) {
+          Swal.fire('Warning', res.message, 'warning');
+          return;
+        }
+
+        // ✅ SUCCESS
         Swal.fire(
           this.isEditMode ? 'Updated!' : 'Added!',
-          `Weekoff ${this.isEditMode ? 'updated' : 'created'} successfully.`,
+          res.message,
           'success'
         );
 

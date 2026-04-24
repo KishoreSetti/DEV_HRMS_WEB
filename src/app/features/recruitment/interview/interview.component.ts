@@ -16,6 +16,7 @@ export class InterviewComponent {
   screeningSelectedCandidates: any[] = [];
   interviewer: any[] = [];
   candidates: any[] = [];
+showDropdown = false;
 
   tabs = ['Resume Upload', 'Screening', 'Interview', 'Appointment', 'Offer', 'Onboarding'];
   totalStages = this.tabs.length;
@@ -27,9 +28,16 @@ export class InterviewComponent {
 
   designations: any[] = [];
   departments: any[] = [];
-  interviewForm: any = { level: 1, interviewer: '', dt: '', location: '', cabin: '', result: 'Pending', feedback: '' };
   levels: any[] = [];
-
+interviewForm: any = {
+  level: '',
+  interviewerIds: [],   // ✅ multiple
+  dt: '',
+  location: '',
+  meetingLink: '',
+  feedback: '',
+  result: 'Pending'
+};
   // -------------------- SORTING --------------------
   topSortColumn: string | null = null;
   topSortDirection: 'asc' | 'desc' = 'asc';
@@ -77,7 +85,14 @@ export class InterviewComponent {
         }
       });
   }
-
+onInterviewerChange(user: any, event: any) {
+  if (event.target.checked) {
+    this.interviewForm.interviewerIds.push(user.userId);
+  } else {
+    this.interviewForm.interviewerIds =
+      this.interviewForm.interviewerIds.filter((id: number) => id !== user.userId);
+  }
+}
   loadDesignations() {
     this.recruitmentService
       .getDesignations(this.companyId, this.regionId)
@@ -126,24 +141,27 @@ export class InterviewComponent {
       return;
     }
 
-    const interviewerObj = this.interviewer.find(
-      x => x.userId == this.interviewForm.interviewerId
-    );
+   const selectedInterviewers = this.interviewer
+  .filter(x => this.interviewForm.interviewerIds.includes(x.userId));
 
-    const payload = {
+
+      const payload = {
       interviewId: this.interviewForm.interviewId,
       regionId: this.regionId,
       companyId: this.companyId,
       userId: this.userId,
       candidateId: this.editingCandidateId,
       levelNo: this.interviewForm.level,
-      interviewerId: this.interviewForm.interviewerId,
-      interviewerName: interviewerObj?.fullName,
+
+      interviewerIds: this.interviewForm.interviewerIds, // ✅ array
+      interviewerName: selectedInterviewers.map(x => x.fullName).join(', '),
+
       interviewDate: this.interviewForm.dt,
       location: this.interviewForm.location,
       meetingLink: this.interviewForm.meetingLink,
       description: this.interviewForm.feedback,
-      result: this.interviewForm.result
+      result: this.interviewForm.result,
+      hrEmail: this.interviewForm.hrEmail
     };
 
     console.log("Update Payload:", payload);
@@ -175,8 +193,8 @@ export class InterviewComponent {
       Swal.fire('Warning', 'Select Level', 'warning');
       return;
     }
-    if (!this.interviewForm.interviewerId) {
-      Swal.fire('Warning', 'Select Interviewer', 'warning');
+   if (!this.interviewForm.interviewerIds || this.interviewForm.interviewerIds.length === 0) {
+      Swal.fire('Warning', 'Select at least one Interviewer', 'warning');
       return;
     }
     if (!this.interviewForm.dt) {
@@ -185,8 +203,8 @@ export class InterviewComponent {
     }
 
     const selectedCandidate = this.screeningSelectedCandidates[0];
-    const selectedInterviewer = this.interviewer
-      .find(x => x.userId == this.interviewForm.interviewerId);
+   const selectedInterviewers = this.interviewer
+  .filter(x => this.interviewForm.interviewerIds.includes(x.userId));
 
     const payload = {
       regionId: this.regionId,
@@ -194,13 +212,14 @@ export class InterviewComponent {
       userId: this.userId,
       candidateId: selectedCandidate.candidateId,
       levelNo: this.interviewForm.level,
-      interviewerId: this.interviewForm.interviewerId,
-      interviewerName: selectedInterviewer?.fullName,
+      interviewerIds: this.interviewForm.interviewerIds,
+      interviewerName: selectedInterviewers.map(i => i.fullName).join(', '),
       interviewDate: this.interviewForm.dt,
       location: this.interviewForm.location,
       meetingLink: this.interviewForm.meetingLink,
       description: this.interviewForm.feedback,
-      result: 'Pending'
+      result: 'Pending',
+      hrEmail: this.interviewForm.hrEmail   // ✅ ADD THIS
     };
 
     this.recruitmentService.saveCandidateInterview(payload).subscribe({
@@ -237,7 +256,7 @@ export class InterviewComponent {
   }
   resetForm() {
     this.interviewForm.level = '';
-    this.interviewForm.interviewerId = '';
+    this.interviewForm.interviewerIds = [];
     this.interviewForm.dt = '';
     this.interviewForm.location = '';
     this.interviewForm.meetingLink = '';
@@ -262,7 +281,10 @@ export class InterviewComponent {
     this.interviewForm.interviewId = row.interviewId;
     this.interviewForm.interviewId = row.interviewId;
     this.interviewForm.level = row.levelNo;
-    this.interviewForm.interviewerId = row.interviewerId;
+    this.interviewForm.hrEmail = row.hrEmail;
+    this.interviewForm.interviewerIds = this.interviewer
+    .filter(x => row.interviewerName.split(', ').includes(x.fullName))
+    .map(x => x.userId);
     this.interviewForm.dt = this.toDateTimeLocal(row.interviewDate);
     this.interviewForm.location = row.location;
     this.interviewForm.meetingLink = row.meetingLink;
@@ -297,10 +319,11 @@ export class InterviewComponent {
 
     this.recruitmentService
       .getScreeningCandidatesTopTableInterview(
-        this.companyId,
-        this.regionId,
-        this.interviewForm.department,
-        this.interviewForm.designation
+        // this.companyId,
+        // this.regionId,
+        // this.interviewForm.department,
+        // this.interviewForm.designation
+        this.userId
       )
       .subscribe({
         next: (res: any) => {
@@ -462,4 +485,9 @@ export class InterviewComponent {
     this.editingCandidateId = null;
     this.resetForm(); // reuse your existing method
   }
+
+
+  toggleDropdown() {
+  this.showDropdown = !this.showDropdown;
+}
 }

@@ -1,4 +1,10 @@
  <div class="form-container">
+    <!-- <div *ngIf="!canCreate" style="color:red;">
+        You don't have permission to add employee family details
+      </div> -->
+      <div *ngIf="!canCreate" style="color:red;">
+  You don't have permission to add emergency contact
+</div>
     <!-- Form Section -->
     <form [formGroup]="emergencyForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
@@ -39,7 +45,7 @@
       </div>
 
      <div style="flex-basis: 100%;">
-      <button type="submit" class="submit-btn">
+       <button type="submit" class="submit-btn"  *ngIf="canCreate || isEdit">
         {{ isEdit ? 'Update' : 'Save' }}
       </button>
     </div>
@@ -69,8 +75,8 @@
           <td>{{ f.email || '-' }}</td>
           <td>{{ f.address || '-' }}</td>
          <td class="action-icons">
-          <i class="fa-solid fa-pen" (click)="edit(f)"></i>
-          <i class="fa-solid fa-trash" (click)="delete(f.emergencyContactId)"></i>
+          <i class="fa-solid fa-pen" (click)="edit(f)" *ngIf="canEdit"></i>
+          <i class="fa-solid fa-trash" (click)="delete(f.emergencyContactId)" *ngIf="canDelete"></i>
         </td>
          </tr>
       

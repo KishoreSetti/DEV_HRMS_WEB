@@ -273,7 +273,7 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
     }
 
     // Load weekoffs (used in calendar rendering and leave-day calculations)
-    this.loadWeekoffs(userId);
+    this.loadWeekoffs(this.companyId, this.regionId);
 
     // generate month grid
     this.generateMonthDates(this.currentYear, this.currentMonth);
@@ -304,7 +304,8 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
     this.leaveService.getUserLeaves(userId).subscribe({
       next: (res: any[]) => {
         // backend returns LeaveRequestDto style - map to our model
-        this.leaveData = (res || []).map(x => this.mapBackendToModel(x));
+        this.leaveData = (res || []).map(x => this.mapBackendToModel(x))
+        .filter(l => l.status === 'Approved');
         // employee dropdown remains single employee (self)
         const name = this.leaveData.length ? this.leaveData[0].employeeName : (sessionStorage.getItem('UserName') || 'You');
         this.employees = [{ userId, employeeName: name }];
@@ -314,21 +315,28 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
     });
   }
 
-  private loadWeekoffs(userId: number) {
-    this.adminService.getWeekoffLists(this.companyId, this.regionId).subscribe({
+  private loadWeekoffs(companyId: number, regionId: number) {
+    this.weekoffDays = new Set();
+
+    this.adminService.getWeekoffs(companyId, regionId).subscribe({
       next: (res: any) => {
-        const data = res?.data || [];
-        const days: string[] = [];
+        const weekoffDays = (res?.data || [])
+          .filter((x: any) => x.isActive && (x.weekoffDate ?? x.WeekoffDate))
+          .map((x: any) => (x.weekoffDate ?? x.WeekoffDate).toString().trim())
+          .filter((d: string) => d.length > 0);
 
-        data.forEach((w: any) => {
-          const value = (w.weekoffDate ?? w.WeekoffDate ?? '').toString().trim();
-          if (!value) return;
-
-          days.push(value);
-          if (value.length >= 3) days.push(value.substring(0, 3));
+        const normalized: string[] = [];
+        weekoffDays.forEach((day: string) => {
+          const value = day.toLowerCase();
+          normalized.push(value);
+          if (value.length >= 3) {
+            normalized.push(value.substring(0, 3));
+          }
         });
 
-        this.weekoffDays = new Set(days.map(d => d.toLowerCase()));
+        if (normalized.length > 0) {
+          this.weekoffDays = new Set(normalized);
+        }
       },
       error: (err:any) => {
         console.error('Weekoffs load error', err);
@@ -338,7 +346,8 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
 
   processManagerLeaves(raw: any[]) {
     // Map leaves
-    this.leaveData = (raw || []).map(x => this.mapBackendToModel(x));
+    this.leaveData = (raw || []).map(x => this.mapBackendToModel(x))
+    .filter(l => l.status === 'Approved');
 
     // Build unique employee list
     const map = new Map<number, string>();
@@ -408,7 +417,9 @@ regionId = Number(sessionStorage.getItem('RegionId') || 0);
 if (this.isWeekendForDay(day)) return [];
     const dateStr = `${this.currentYear}-${(this.currentMonth+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
     return this.leaveData.filter(l => {
-      return l.startDate <= dateStr && l.endDate >= dateStr &&
+          return l.status === 'Approved' &&   // ✅ ADD THIS LINE
+
+       l.startDate <= dateStr && l.endDate >= dateStr &&
         (this.selectedEmployee === 0 || l.userId === this.selectedEmployee);
     });
   }
@@ -418,18 +429,18 @@ if (this.isWeekendForDay(day)) return [];
     return this.getDayLeavesByNumber(day).length > 0;
   }
 
-  private isWeekoffName(dayName: string): boolean {
+   isWeekoffName(dayName: string): boolean {
     const name = (dayName || '').toString().trim().toLowerCase();
 
-    // default to Sat/Sun when weekoff configuration not loaded yet
-    if (!this.weekoffDays || this.weekoffDays.size === 0) {
-      return name === 'saturday' || name === 'sunday' || name === 'sat' || name === 'sun';
-    }
+    if (!name) return false;
+    // if (!this.weekoffDays || this.weekoffDays.size === 0) {
+    //   return name === 'saturday' || name === 'sat' || name === 'sunday' || name === 'sun';
+    // }
 
     return this.weekoffDays.has(name);
   }
 
-  private isWeekoffDate(date: Date): boolean {
+   isWeekoffDate(date: Date): boolean {
     const weekdayLong = date.toLocaleString('en-US', { weekday: 'long' });
     const weekdayShort = date.toLocaleString('en-US', { weekday: 'short' });
     return this.isWeekoffName(weekdayLong) || this.isWeekoffName(weekdayShort);
@@ -468,7 +479,7 @@ if (this.isWeekendForDay(day)) return [];
       return [];
     }
 
-    return this.leaveData.filter(l => l.startDate <= dateStr && l.endDate >= dateStr &&
+    return this.leaveData.filter(l =>l.status === 'Approved' && l.startDate <= dateStr && l.endDate >= dateStr &&
       (this.selectedEmployee === 0 || l.userId === this.selectedEmployee));
   }
 

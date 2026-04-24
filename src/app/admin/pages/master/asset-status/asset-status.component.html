@@ -1,146 +1,126 @@
 <div class="card shadow-sm">
   <div class="container-fluid p-4">
 
-    <!-- Header -->
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h4 class="fw-semibold mb-0">
-        <i class="fa-solid fa-boxes-stacked me-2 text-danger"></i> Asset Status Management
+        <i class="fa-solid fa-info-circle me-2 text-primary"></i>
+        Asset Status
       </h4>
-
-      <div class="d-flex gap-2">
-        <div class="dropdown">
-          <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <i class="fa-solid fa-download me-2"></i> Export
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
-            <li><a class="dropdown-item" (click)="exportAs('pdf')">Download PDF</a></li>
-            <li><a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a></li>
-          </ul>
-        </div>
-
-        <button class="btn btn-danger" (click)="openUploadPopup()">
-          <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-        </button>
-      </div>
     </div>
 
-    <hr class="mb-4" />
+    <hr />
 
-    <!-- Form -->
+    <!-- FORM -->
     <div class="card shadow-sm mb-4">
       <div class="card-body">
-        <form (ngSubmit)="onSubmit()" #statusForm="ngForm" novalidate>
+        <form #f="ngForm" (ngSubmit)="onSubmit()" novalidate>
           <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Asset Status</label>
-              <input type="text" class="form-control" name="AssetStatusName"
-                [(ngModel)]="status.AssetStatusName"
-                placeholder="Enter Asset Status"
-                required
-              />
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Asset Status *</label>
+              <input type="text" class="form-control" [(ngModel)]="model.assetStatusName" name="name" required>
             </div>
-            <div class="col-md-6 d-flex align-items-center">
-              <div class="form-check form-switch mt-3">
-                <input class="form-check-input" type="checkbox" id="isActiveSwitch"
-                  [(ngModel)]="status.IsActive" name="IsActive">
-                <label class="form-check-label ms-2" for="isActiveSwitch">
-                  {{ status.IsActive ? 'Active' : 'Inactive' }}
-                </label>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Description</label>
+              <input type="text" class="form-control" [(ngModel)]="model.description" name="desc">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Company *</label>
+              <select class="form-select" [(ngModel)]="model.companyId" name="company" (change)="onCompanyChange()"
+                required>
+
+                <option [ngValue]="0">-- Select Company --</option>
+                <option *ngFor="let c of companies" [ngValue]="c.companyId">
+                  {{ c.companyName }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Region *</label>
+              <select class="form-select" [(ngModel)]="model.regionId" name="region" required>
+
+                <option [ngValue]="0">-- Select Region --</option>
+                <option *ngFor="let r of regions" [ngValue]="r.regionID">
+                  {{ r.regionName }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-center mt-4">
+              <label class="me-2 fw-semibold">Is Active</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" [(ngModel)]="model.isActive" name="active">
               </div>
             </div>
-            <div class="col-md-12 d-flex justify-content-start mt-3">
-              <button type="submit" class="btn btn-dark px-4" [disabled]="!statusForm.valid">
-                <i class="fa-solid fa-save me-2"></i>
-                {{ isEditMode ? 'Update Status' : 'Save Status' }}
+
+            <div class="col-md-10 mt-4 text-end">
+              <button class="btn btn-success me-2" [disabled]="!f.valid">
+                {{ isEditMode ? 'Update' : 'Save' }}
               </button>
+              <button type="button" class="btn btn-secondary" (click)="reset()">Reset</button>
             </div>
+
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- TABLE -->
     <div class="card shadow-sm">
       <div class="card-body">
 
-        <!-- Filters -->
-        <div class="mb-3 row g-3 align-items-end">
-          <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="Search Status" [(ngModel)]="searchText" />
-          </div>
-          <div class="col-md-4">
-            <select class="form-select" [(ngModel)]="statusFilter">
-              <option value="">All</option>
-              <option [ngValue]="true">Active</option>
-              <option [ngValue]="false">Inactive</option>
-            </select>
-          </div>
+        <div class="mb-3 d-flex justify-content-end">
+          <input class="form-control w-25" placeholder="Search" [(ngModel)]="searchText">
         </div>
 
-        <!-- Table -->
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>#</th>
-                <th (click)="sortTable('AssetStatusName')" class="sortable">
-                  Asset Status <i class="fa" [ngClass]="getSortIcon('AssetStatusName')"></i>
-                </th>
-                <th>Status</th>
-                <th class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let s of pagedStatuses; let i = index">
-                <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-                <td>{{ s.AssetStatusName }}</td>
-                <td>
-                  <span class="badge" [ngClass]="s.IsActive ? 'bg-success' : 'bg-secondary'">
-                    {{ s.IsActive ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
-                <td class="text-center">
-                  <button class="btn btn-sm btn-outline-primary me-2" (click)="editStatus(s)">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteStatus(s)">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="pagedStatuses.length === 0">
-                <td colspan="4" class="text-center text-muted">No records found</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>S.No</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Company</th>
+              <th>Region</th>
+              <th class="text-center">Active</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
 
-        <!-- Pagination -->
-        <nav *ngIf="totalPages > 1" class="d-flex justify-content-end mt-3">
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item" [class.disabled]="currentPage === 1">
-              <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
-            </li>
-            <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
-              [class.active]="currentPage === i + 1">
-              <a class="page-link" (click)="goToPage(i + 1)">{{ i + 1 }}</a>
-            </li>
-            <li class="page-item" [class.disabled]="currentPage === totalPages">
-              <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
-            </li>
-          </ul>
-        </nav>
+          <tbody>
+            <tr *ngFor="let x of filtered(); let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ x.assetStatusName }}</td>
+              <td>{{ x.description }}</td>
+              <td>{{ companyMap[x.companyId] || '—' }}</td>
+              <td>{{ regionMap[x.regionId] || '—' }}</td>
+
+              <td class="text-center">
+                <i class="fa-solid"
+                  [ngClass]="x.isActive ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'"></i>
+              </td>
+
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="edit(x)">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="delete(x)">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="filtered().length === 0">
+              <td colspan="7" class="text-center text-muted">No records found</td>
+            </tr>
+          </tbody>
+        </table>
+
       </div>
     </div>
 
   </div>
 </div>
-
-<!-- Bulk Upload Component -->
-<app-common-upload
-  [visible]="showUploadPopup"
-  [screenName]="'Asset Status'"
-  [model]="statusesModel"
-  (close)="closeUploadPopup()"
-  (uploadComplete)="onBulkUploadComplete($event)">
-</app-common-upload>

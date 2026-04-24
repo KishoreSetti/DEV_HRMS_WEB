@@ -4,14 +4,14 @@
       <label class="form-label">
         Form / Document Type <span class="text-danger">*</span>
       </label>
-     <select class="form-select" required [(ngModel)]="documentTypeId" name="documentTypeId">
+      <select class="form-select" required [(ngModel)]="documentTypeId" name="documentTypeId">
 
-      <option value="">Select Document Type</option>
-      <option *ngFor="let doc of documentTypes" [value]="doc.id">
-        {{ doc.typeName }}
-      </option>
+        <option value="">Select Document Type</option>
+        <option *ngFor="let doc of documentTypes" [value]="doc.id">
+          {{ doc.typeName }}
+        </option>
 
-    </select>
+      </select>
 
     </div>
 
@@ -19,29 +19,36 @@
       <label class="form-label">
         Form / Document Name <span class="text-danger">*</span>
       </label>
-      <input type="text"
-             class="form-control"
-             [(ngModel)]="documentName"
-             name="documentName"
-             required
-             maxlength="150"
-             placeholder="Enter document name">
+      <input type="text" class="form-control" [(ngModel)]="documentName" name="documentName" required maxlength="150"
+        placeholder="Enter document name">
       <div *ngIf="showValidation && !documentName" class="text-danger small mt-1">Document name is required.</div>
     </div>
 
     <div class="col-md-4">
       <label class="form-label">
+        Employee Name <span class="text-danger">*</span>
+      </label>
+
+      <div class="form-control" (click)="showEmpDropdown = !showEmpDropdown">
+        {{ selectedEmployees.length ? selectedEmployees.length + ' Selected' : 'Select Employees' }}
+      </div>
+
+      <div *ngIf="showEmpDropdown" class="border p-2 position-absolute w-100 bg-white">
+        <div *ngFor="let emp of employees">
+          <input type="checkbox" [checked]="isEmployeeSelected(emp)" (change)="onEmployeeToggle(emp, $event)">
+          {{ emp.employeeName }} ({{ emp.employeeCode }})
+        </div>
+      </div>
+
+
+    </div>
+    <!-- <div class="col-md-4">
+      <label class="form-label">
         Employee Code / ID <span class="text-danger">*</span>
       </label>
-      <input type="text"
-             class="form-control"
-             [(ngModel)]="employeeCode"
-             name="employeeCode"
-             required
-             maxlength="50"
-             placeholder="Enter employee code">
-      <div *ngIf="showValidation && !employeeCode" class="text-danger small mt-1">Employee code is required.</div>
-    </div>
+
+      <input type="text" class="form-control" [(ngModel)]="form.empCode" name="empCode" readonly>
+    </div> -->
   </div>
 
   <div class="row mb-3">
@@ -49,13 +56,8 @@
       <label class="form-label">
         Issued / Submitted Date <span class="text-danger">*</span>
       </label>
-      <input type="date"
-             class="form-control"
-             [(ngModel)]="issuedDate"
-             name="issuedDate"
-             required
-             (change)="onDateChange()"
-             placeholder="Select issued / submitted date">
+      <input type="date" class="form-control" [(ngModel)]="issuedDate" name="issuedDate" required
+        (change)="onDateChange()" placeholder="Select issued / submitted date">
       <div *ngIf="showValidation && !issuedDate" class="text-danger small mt-1">Issued date is required.</div>
       <div *ngIf="dateError" class="text-danger small mt-1">{{ dateError }}</div>
     </div>
@@ -64,10 +66,14 @@
       <label class="form-label">
         Upload File <span class="text-danger">*</span>
       </label>
-      <input type="file"
-             class="form-control"
-             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-             (change)="onFileSelect($event)">
+      <input type="file" multiple (change)="onFilesSelected($event)">
+
+      
+
+      <div *ngFor="let file of selectedFiles; let i = index">
+        {{ file.name }}
+        <button (click)="removeFile(i)">❌</button>
+      </div>
       <small class="text-muted">Allowed: PDF, DOC, DOCX, JPG, PNG — Max 5 MB</small>
       <div *ngIf="showValidation && !fileName" class="text-danger small mt-1">File is required.</div>
       <div *ngIf="fileError" class="text-danger small mt-1">{{ fileError }}</div>
@@ -75,14 +81,16 @@
 
     <div class="col-md-4">
       <label class="form-label">Remarks / Notes</label>
-      <textarea class="form-control" [(ngModel)]="remarks" name="remarks" maxlength="500" placeholder="Additional details..."></textarea>
+      <textarea class="form-control" [(ngModel)]="remarks" name="remarks" maxlength="500"
+        placeholder="Additional details..."></textarea>
     </div>
   </div>
 
   <div class="row mb-3">
     <div class="col-md-4 d-flex align-items-center">
       <div class="form-check mt-2">
-        <input class="form-check-input" type="checkbox" [(ngModel)]="confidential" name="confidential" id="confidentialCheck">
+        <input class="form-check-input" type="checkbox" [(ngModel)]="confidential" name="confidential"
+          id="confidentialCheck">
         <label class="form-check-label" for="confidentialCheck">Mark as Confidential</label>
       </div>
     </div>
@@ -111,7 +119,7 @@
           <th (click)="sortBy('name')" style="cursor:pointer">Name
             <span *ngIf="sortColumn==='name'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
           </th>
-          <th (click)="sortBy('employee')" style="cursor:pointer">Employee
+          <th (click)="sortBy('employee')" style="cursor:pointer">Employee Name and Code
             <span *ngIf="sortColumn==='employee'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
           </th>
           <th (click)="sortBy('date')" style="cursor:pointer">Date
@@ -130,13 +138,21 @@
           <td>{{ f.employee }}</td>
           <td>{{ formatDate(f.date) }}</td>
 
-          
-            <td>
-            <a *ngIf="f.fileName"
-              style="cursor:pointer; color:#0d6efd; font-weight:500;"
-              (click)="viewDocument(f.fileName)">
-              View
-            </a>
+
+          <td>
+            <ng-container *ngIf="f.filePaths && f.filePaths.length > 0; else noFiles">
+
+              <div *ngFor="let path of f.filePaths">
+                <a (click)="viewDocument(path)" style="cursor:pointer; color:#0d6efd; font-weight:500;">
+                  View
+                </a>
+              </div>
+
+            </ng-container>
+
+            <ng-template #noFiles>
+              <span class="text-muted">No Files</span>
+            </ng-template>
           </td>
           <td class="action-icons">
             <i class="fa-solid fa-pen me-2" style="color: black;" (click)="editRecord(f)" title="Edit"></i>
@@ -165,10 +181,12 @@
   </div>
 
   <div>
-    <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+    <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage - 1)"
+      [disabled]="currentPage === 1">Previous</button>
 
     <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-    <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+    <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage + 1)"
+      [disabled]="currentPage === totalPages">Next</button>
   </div>
 </div>
