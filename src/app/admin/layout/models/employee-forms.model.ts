@@ -8,4 +8,5 @@ export interface EmployeeForm {
   confidential: boolean;
  fileNames?: string[];   // ✅ make optional
   filePaths?: string[];   // ✅ make optional
+    employeeUploadedFiles?: string[];
 }

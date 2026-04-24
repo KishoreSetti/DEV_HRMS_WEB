@@ -1,1 +1,49 @@
-<p>employee-myforms works!</p>
+<div class="dashboard-tables full-row mt-4">
+  <div class="table-card">
+    <h3>My Forms</h3>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Document Type</th>
+          <th>Name</th>
+          <th>Issued Date</th>
+          <th>Files</th>
+          <th>Upload</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let f of forms; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ getDocumentTypeName(f.documentType) }}</td>
+          <td>{{ f.name }}</td>
+          <td>{{ f.issuedDate }}</td>
+
+          <td>
+            <span *ngIf="f.filePaths?.length > 0">
+              <div *ngFor="let path of f.filePaths">
+                <a style="cursor:pointer;color:blue" (click)="viewDocument(path)">
+                  View / Download
+                </a>
+              </div>
+            </span>
+
+            <span *ngIf="!f.filePaths || f.filePaths.length === 0">
+              No Files
+            </span>
+          </td>
+          <td>
+            <input type="file" multiple (change)="onFileSelect($event, f.id)">
+
+            <button class="btn btn-sm btn-primary mt-1" (click)="uploadFiles(f.id)">
+              Upload
+            </button>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

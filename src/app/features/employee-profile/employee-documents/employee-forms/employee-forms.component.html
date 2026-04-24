@@ -68,7 +68,15 @@
       </label>
       <input type="file" multiple (change)="onFilesSelected($event)">
 
-      
+      <div *ngIf="existingFiles.length > 0">
+        <label>Existing Files:</label>
+        <div *ngFor="let file of existingFiles; let i = index">
+          <a (click)="viewDocument(file)" style="cursor:pointer; color:#0d6efd;">
+            View File
+          </a>
+          <button (click)="removeExistingFile(i)">❌</button>
+        </div>
+      </div>
 
       <div *ngFor="let file of selectedFiles; let i = index">
         {{ file.name }}
@@ -126,6 +134,7 @@
             <span *ngIf="sortColumn==='date'">{{ sortDirection==='asc' ? '▲' : '▼' }}</span>
           </th>
           <th>File</th>
+          <th>Employee Uploads</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -154,7 +163,24 @@
               <span class="text-muted">No Files</span>
             </ng-template>
           </td>
+          <td>
+            <ng-container *ngIf="f.employeeUploadedFiles && f.employeeUploadedFiles.length > 0; else noEmpFiles">
+
+              <div *ngFor="let file of f.employeeUploadedFiles">
+                <a (click)="viewDocument(file)" style="cursor:pointer; color:green; font-weight:500;">
+                  View
+                </a>
+              </div>
+
+            </ng-container>
+
+            <ng-template #noEmpFiles>
+              <span class="text-muted">No Uploads</span>
+            </ng-template>
+          </td>
           <td class="action-icons">
+            <i class="fa-solid fa-eye me-2" style="color: green; cursor:pointer" (click)="viewDetails(f)"
+              title="View Details"></i>
             <i class="fa-solid fa-pen me-2" style="color: black;" (click)="editRecord(f)" title="Edit"></i>
             <i class="fa-solid fa-trash" style="color: black;" (click)="deleteRecord(f.id)" title="Delete"></i>
           </td>

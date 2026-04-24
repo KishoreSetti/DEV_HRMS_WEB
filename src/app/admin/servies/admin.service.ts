@@ -1752,6 +1752,20 @@ updateEmployeeForms(id: number, formData: FormData): Observable<any> {
 deleteEmployeeForms(id: number): Observable<any> {
   return this.http.post(`${this.baseUrl}/employee/DeleteForm?id=${id}`, {});
 }
+getMyForms(employeeCode: string) {
+  return this.http.get<any[]>(
+    `${this.baseUrl}/employee/GetMyForms/${employeeCode}`
+  );
+}
+uploadEmployeeFiles(formData: FormData) {
+  return this.http.post(
+    `${this.baseUrl}/employee/UploadEmployeeFiles`,
+    formData
+  );
+}
+updateFormStatus(data: any) {
+  return this.http.post(`${environment.apiUrl}/EmployeeForms/UpdateStatus`, data);
+}
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Document  OPERATIONS
 // -------------------------------------------------------------
