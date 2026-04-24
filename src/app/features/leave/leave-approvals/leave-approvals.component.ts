@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { EmployeeResignation } from '../../employee-profile/employee-models/EmployeeResignation';
 import Swal from 'sweetalert2';
 import { EmployeeResignationService } from '../../employee-profile/employee-services/employee-resignation.service';
+import { AdminService } from '../../../admin/servies/admin.service';
 
 @Component({
   selector: 'app-leave-approvals',
@@ -13,13 +14,18 @@ export class LeaveApprovalsComponent {
 selectAll = false;
   selectedLeave: any = null;
   leaveList: any[] = [];
+  hrEmailAddresses: string[] = [];
+  hrRoleId: number | null = null;
 
   canApprove: boolean = false;
 canReject: boolean = false;
 
   // Sorting
-sortColumn: keyof any | null = null;
-sortDirection: 'asc' | 'desc' = 'asc';
+// sortColumn: keyof any | null = null;
+// sortDirection: 'asc' | 'desc' = 'asc';
+
+sortColumn: keyof any | null = 'id';
+sortDirection: 'asc' | 'desc' = 'desc';
 
 // Pagination
 pageSize = 5;
@@ -28,11 +34,15 @@ pageSizeOptions = [5, 10, 20, 50];
 
   managerId!: number;
 
-  constructor(private leaveService: EmployeeResignationService) {}
+  constructor(
+    private leaveService: EmployeeResignationService,
+    private adminService: AdminService 
+  ) {}
 
   ngOnInit(): void {
     this.managerId = Number(sessionStorage.getItem("UserId")); // Logged in manager
     this.loadLeaves();
+    this.loadHrEmailRecipients();
     this.loadPermission();
   }
 
@@ -51,6 +61,52 @@ pageSizeOptions = [5, 10, 20, 50];
           selected: false
         }));
       }
+    });
+  }
+
+   loadHrEmailRecipients(): void {
+    this.adminService.getroles(this.managerId).subscribe({
+      next: (roles: any[]) => {
+        const hrRole = roles.find((r: any) => (r.roleName || '').toString().trim().toLowerCase() === 'hr');
+        if (!hrRole || !hrRole.roleId) {
+          return;
+        }
+
+        this.hrRoleId = hrRole.roleId;
+        this.adminService.GetcmpregAllUsers().subscribe({
+          next: (users: any[]) => {
+            this.hrEmailAddresses = users
+              .filter(u => u.roleId === this.hrRoleId && u.email)
+              .map(u => u.email);
+          },
+          error: (err) => {
+            console.error('Failed loading HR user emails', err);
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed loading roles', err);
+      }
+    });
+  }
+
+   notifyHrForLeave(leave: any, action: 'Approved' | 'Rejected'): void {
+    if (!this.hrEmailAddresses.length) {
+      return;
+    }
+
+    const subject = `Leave ${action}: ${leave.employeeName}`;
+    const body = `Leave request for ${leave.employeeName} (${leave.leaveType}) from ${leave.from} to ${leave.to} has been ${action.toLowerCase()}. Reason: ${leave.reason}`;
+
+    this.hrEmailAddresses.forEach(email => {
+      this.adminService.sendHrNotification(email, subject, body).subscribe({
+        next: () => {
+          console.log(`HR notification sent to ${email}`);
+        },
+        error: (err) => {
+          console.error('HR notification failed', err);
+        }
+      });
     });
   }
 
@@ -130,11 +186,12 @@ changePageSize(size: number): void {
   this.leaveService.bulkApprove(ids).subscribe({
     next: () => {
        Swal.fire("Approved!", "Selected leaves approved.", "success");
+      const approvedLeaves = this.leaveList.filter(l => l.selected);
       this.leaveList = this.leaveList.map(l => 
         l.selected ? { ...l, status: 'Approved', selected: false } : l
       );
       this.selectAll = false;
-     
+      approvedLeaves.forEach(l => this.notifyHrForLeave(l, 'Approved'));
     }
   });
 }
@@ -159,10 +216,12 @@ rejectSelected() {
       if (result.isConfirmed) {
         this.leaveService.bulkReject(ids).subscribe({
           next: () => {
+            const rejectedLeaves = this.leaveList.filter(l => l.selected);
             this.leaveList = this.leaveList.map(l =>
               l.selected ? { ...l, status: 'Rejected', selected: false } : l
             );
             this.selectAll = false;
+            rejectedLeaves.forEach(l => this.notifyHrForLeave(l, 'Rejected'));
 
             Swal.fire("Rejected!", "Selected leaves rejected.", "success");
           }
@@ -196,6 +255,7 @@ rejectSelected() {
             l.id === this.selectedLeave.id ? { ...l, status: 'Approved' } : l
           );
           this.selectedLeave.status = "Approved";
+          this.notifyHrForLeave(this.selectedLeave, 'Approved');
 
           Swal.fire("Approved!", "Leave approved successfully.", "success");
         }
@@ -221,6 +281,7 @@ rejectSelected() {
             l.id === this.selectedLeave.id ? { ...l, status: 'Rejected' } : l
           );
           this.selectedLeave.status = "Rejected";
+          this.notifyHrForLeave(this.selectedLeave, 'Rejected');
 
           Swal.fire("Rejected!", "Leave rejected successfully.", "success");
         }

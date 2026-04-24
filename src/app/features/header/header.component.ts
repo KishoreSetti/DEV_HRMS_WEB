@@ -351,102 +351,10 @@ getSystemTime24(): string {
   const mm = now.getMinutes().toString().padStart(2, '0');
   return `${hh}:${mm}`;   // HH:mm
 }
-// toggleClock() {
-//   const now = this.getSystemTime();
-
-//   if (!this.isClockedIn) {
-//     // 🟢 CLOCK IN
-//     this.isClockedIn = true;
-//     this.clockInTime = now;
-
-//     sessionStorage.setItem('clockInTime', now.toISOString());
-
-//     this.clockStatus = 'Clocked In';
-//     this.clockInDisplay = this.formatTime(now);
-//     this.totalHoursDisplay = '00:00:00';
-
-//     this.startTimer();
-
-//     this.employeeResignationService.addClockInOut({
-//       employeeCode: this.employeeCode,
-//       employeeName: sessionStorage.getItem('Name') || '',
-//       department: 0,
-//       attendanceDate: new Date(),
-//       actionType: 'ClockIn',
-//       actionTime: this.getSystemTime24(),
-//       clockInTime: this.getSystemTime24(),
-//       clockOutTime: '',
-//       companyId: this.companyId,
-//       regionId: this.regionId
-//     }).subscribe(() => {
-//       this.loadAttendance();
-//     });
-
-//   } else {
-//     // 🔴 CLOCK OUT
-//     this.isClockedIn = false;
-
-//     sessionStorage.removeItem('clockInTime');
-
-//     this.clockStatus = 'Clocked Out';
-//     this.stopTimer();
-
-//     this.employeeResignationService.addClockInOut({
-//       employeeCode: this.employeeCode,
-//       employeeName: sessionStorage.getItem('Name') || '',
-//       department: 0,
-//       attendanceDate: new Date(),
-//       actionType: 'ClockOut',
-//       actionTime: this.getSystemTime24(),
-//       clockInTime: '',
-//       clockOutTime: this.getSystemTime24(),
-//       companyId: this.companyId,
-//       regionId: this.regionId
-//     }).subscribe(() => {
-//       this.loadAttendance();
-//     });
-//   }
-// }
-async toggleClock() {
-
-  const permission = await navigator.permissions.query({
-    name: 'geolocation' as PermissionName
-  });
-
-  if (permission.state === 'denied') {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Location Blocked',
-      text: 'Please enable location permission from browser settings'
-    });
-    return;
-  }
-
-  const locationStatus = await this.checkIfInsideOffice();
-
-  if (locationStatus === 'NO_LOCATION') {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Location Required',
-      text: 'Please enable location services'
-    });
-    return;
-  }
-
-  if (locationStatus === 'OUTSIDE') {
-    Swal.fire({
-      icon: 'error',
-      title: 'Not Allowed',
-      text: 'Outside office premises'
-    });
-    return;
-  }
-
-  // ✅ NOW EXECUTE CLOCK LOGIC
+toggleClock() {
   const now = this.getSystemTime();
 
   if (!this.isClockedIn) {
-
     // 🟢 CLOCK IN
     this.isClockedIn = true;
     this.clockInTime = now;
@@ -471,11 +379,10 @@ async toggleClock() {
       companyId: this.companyId,
       regionId: this.regionId
     }).subscribe(() => {
-      this.loadAttendance(); // 🔥 refresh
+      this.loadAttendance();
     });
 
   } else {
-
     // 🔴 CLOCK OUT
     this.isClockedIn = false;
 
@@ -496,10 +403,103 @@ async toggleClock() {
       companyId: this.companyId,
       regionId: this.regionId
     }).subscribe(() => {
-      this.loadAttendance(); // 🔥 refresh
+      this.loadAttendance();
     });
   }
 }
+// async toggleClock() {
+
+//   const permission = await navigator.permissions.query({
+//     name: 'geolocation' as PermissionName
+//   });
+
+//   if (permission.state === 'denied') {
+//     Swal.fire({
+//       icon: 'warning',
+//       title: 'Location Blocked',
+//       text: 'Please enable location permission from browser settings'
+//     });
+//     return;
+//   }
+
+//   const locationStatus = await this.checkIfInsideOffice();
+
+//   if (locationStatus === 'NO_LOCATION') {
+//     Swal.fire({
+//       icon: 'warning',
+//       title: 'Location Required',
+//       text: 'Please enable location services'
+//     });
+//     return;
+//   }
+
+//   if (locationStatus === 'OUTSIDE') {
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'Not Allowed',
+//       text: 'Outside office premises'
+//     });
+//     return;
+//   }
+
+//   // ✅ NOW EXECUTE CLOCK LOGIC
+//   const now = this.getSystemTime();
+
+//   if (!this.isClockedIn) {
+
+//     // 🟢 CLOCK IN
+//     this.isClockedIn = true;
+//     this.clockInTime = now;
+
+//     sessionStorage.setItem('clockInTime', now.toISOString());
+
+//     this.clockStatus = 'Clocked In';
+//     this.clockInDisplay = this.formatTime(now);
+//     this.totalHoursDisplay = '00:00:00';
+
+//     this.startTimer();
+
+//     this.employeeResignationService.addClockInOut({
+//       employeeCode: this.employeeCode,
+//       employeeName: sessionStorage.getItem('Name') || '',
+//       department: 0,
+//       attendanceDate: new Date(),
+//       actionType: 'ClockIn',
+//       actionTime: this.getSystemTime24(),
+//       clockInTime: this.getSystemTime24(),
+//       clockOutTime: '',
+//       companyId: this.companyId,
+//       regionId: this.regionId
+//     }).subscribe(() => {
+//       this.loadAttendance(); // 🔥 refresh
+//     });
+
+//   } else {
+
+//     // 🔴 CLOCK OUT
+//     this.isClockedIn = false;
+
+//     sessionStorage.removeItem('clockInTime');
+
+//     this.clockStatus = 'Clocked Out';
+//     this.stopTimer();
+
+//     this.employeeResignationService.addClockInOut({
+//       employeeCode: this.employeeCode,
+//       employeeName: sessionStorage.getItem('Name') || '',
+//       department: 0,
+//       attendanceDate: new Date(),
+//       actionType: 'ClockOut',
+//       actionTime: this.getSystemTime24(),
+//       clockInTime: '',
+//       clockOutTime: this.getSystemTime24(),
+//       companyId: this.companyId,
+//       regionId: this.regionId
+//     }).subscribe(() => {
+//       this.loadAttendance(); // 🔥 refresh
+//     });
+//   }
+// }
 records:any;
  loadTodayAttendance() {
     this.employeeResignationService

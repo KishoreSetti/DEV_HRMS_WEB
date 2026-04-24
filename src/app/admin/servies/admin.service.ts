@@ -967,6 +967,16 @@ export class AdminService {
     return this.http.post(`${this.baseUrl}/UserManagement/SendEmail`, user);
   }
 
+  sendHrNotification(email: string, subject: string, body: string): Observable<any> {
+    const payload = {
+      Email: email,
+      Subject: subject,
+      Body: body,
+      FullName: 'HR Team'
+    };
+    return this.http.post(`${this.baseUrl}/UserManagement/SendEmail`, payload);
+  }
+
   // -------------------------------------------------------------
   // 🔹 MENU MASTER OPERATIONS
   // -------------------------------------------------------------
@@ -1159,10 +1169,12 @@ deleteGender(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeleteGender?id=${id}`, {});
 }
  getBloodGroupsbyID(userID: number): Observable<any> {
+  debugger;
     return this.http.get(`${this.baseUrl}/MasterData/GetBloodGroupsById/${userID}`);
   }
 //   // ✅ CREATE
   createBloodGroup(data: BloodGroup): Observable<any> {
+    debugger;
     return this.http.post(`${this.baseUrl}/MasterData/AddBloodGroups`, data);
   }
 

@@ -67,6 +67,7 @@ export class AdminLayoutComponent {
      { title: 'Account Type', route: '/admin/accounttype' },
      { title: 'Project Master', route: '/admin/project-master'},
      { title: 'Late Login Policy', route: '/admin/late-login-policy' }
+     { title: 'Birthday List', route: '/admin/birthday-list'},
     ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },

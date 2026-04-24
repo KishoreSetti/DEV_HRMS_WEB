@@ -77,6 +77,7 @@ import { CurrencyComponent } from './pages/master/currency/currency.component';
 import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
 import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-policy.component';
+import { BirthdayMasterComponent } from './pages/birthday/birthday-master/birthday-master.component';
 
 @NgModule({
   declarations: [
@@ -156,6 +157,7 @@ import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-
     ModeofstudyComponent,
     AccounttypeComponent,
     LateLoginPolicyComponent
+    BirthdayMasterComponent
  
   
 
