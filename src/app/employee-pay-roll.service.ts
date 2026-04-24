@@ -57,7 +57,7 @@ export interface EmployeeSalary {
   providedIn: 'root'
 })
 export class EmployeePayRollService {
-private baseUrl = environment.apiUrl;
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -75,12 +75,17 @@ private baseUrl = environment.apiUrl;
     return this.http.post(`${this.baseUrl}/EmployeePayRoll/components/${userId}`, model);
   }
 
-  updateComponent(id: number, userId: number, model: SalaryComponent): Observable<any> {
-    return this.http.put(`${this.baseUrl}/EmployeePayRoll/components/${id}/${userId}`, model);
+  // ✅ UPDATE (POST)
+  updateComponent(model: SalaryComponent): Observable<any> {
+    return this.http.post(`${this.baseUrl}/EmployeePayRoll/components/update`, model);
   }
 
-  deleteComponent(id: number, userId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/EmployeePayRoll/components/${id}/${userId}`);
+  // ✅ DELETE (POST)
+  deleteComponent(componentId: number, userId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/EmployeePayRoll/components/delete`, {
+      componentId,
+      userId
+    });
   }
 
   // ================= Company Dropdown =================
@@ -136,75 +141,110 @@ private baseUrl = environment.apiUrl;
   }
 
 
-// ================= Department Dropdown =================
-// Department
-getDepartments(userId: number): Observable<any> {
-  return this.http.get<any>(
-    `${environment.apiUrl}/MasterData/GetDepartments?userId=${userId}`
-  );
-}
+  // ================= Department Dropdown =================
+  // Department
+  getDepartments(userId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.apiUrl}/MasterData/GetDepartments?userId=${userId}`
+    );
+  }
 
-// ================= Designation Dropdown =================
-// Designation
-getDesignations(userId: number): Observable<any> {
-  return this.http.get<any>(
-    `${environment.apiUrl}/MasterData/GetDesignations?userId=${userId}`
-  );
-}
+  // ================= Designation Dropdown =================
+  // Designation
+  getDesignations(userId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.apiUrl}/MasterData/GetDesignations?userId=${userId}`
+    );
+  }
 
-// ================= Employee Dropdown =================
+  // ================= Employee Dropdown =================
 
-getEmployees(userId: number): Observable<any[]> {
-  return this.http.get<any[]>(
-    `${environment.apiUrl}/UserManagement/GetAllUsers/${userId}`
-  );
-}
-
-
-// ================= Assign Salary =================
+  getEmployees(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/UserManagement/GetAllUsers/${userId}`
+    );
+  }
 
 
-// 🔥 Get All Assigned Salaries
-getAllAssignedSalaries(userId: number): Observable<any[]> {
-  return this.http.get<any[]>(
-    `${environment.apiUrl}/EmployeePayRoll/employee-salary/${userId}`
-  );
-}
+  // ================= Assign Salary =================
 
-assignSalary(userId: number, data: EmployeeSalary): Observable<EmployeeSalary> {
-  return this.http.post<EmployeeSalary>(
-    `${environment.apiUrl}/EmployeePayRoll/employee-salary/${userId}`,
-    data
-  );
-}
 
-getEmployeeSalary(employeeId: number, userId: number): Observable<EmployeeSalary[]> {
-  return this.http.get<EmployeeSalary[]>(
-    `${environment.apiUrl}/EmployeePayRoll/employee-salary/${employeeId}/${userId}`
-  );
-}
+  // 🔥 Get All Assigned Salaries
+  getAllAssignedSalaries(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/EmployeePayRoll/employee-salary/${userId}`
+    );
+  }
 
-// ================= Payroll Processing =================
+  assignSalary(userId: number, data: EmployeeSalary): Observable<EmployeeSalary> {
+    return this.http.post<EmployeeSalary>(
+      `${environment.apiUrl}/EmployeePayRoll/employee-salary/${userId}`,
+      data
+    );
+  }
 
-// 🔥 Process Payroll
-processPayroll(userId: number, data: any): Observable<any> {
-  return this.http.post(
-    `${environment.apiUrl}/EmployeePayRoll/process/${userId}`,
-    data
-  );
-}
+  getEmployeeSalary(employeeId: number, userId: number): Observable<EmployeeSalary[]> {
+    return this.http.get<EmployeeSalary[]>(
+      `${environment.apiUrl}/EmployeePayRoll/employee-salary/${employeeId}/${userId}`
+    );
+  }
 
-// 🔥 Get Payroll By Month
-getPayrollByMonth(month: number, year: number, userId: number): Observable<any[]> {
-  return this.http.get<any[]>(
-    `${environment.apiUrl}/EmployeePayRoll/${month}/${year}/${userId}`
-  );
-}
+  // ================= Payroll Processing =================
 
-previewPayroll(userId: number, data: any) {
+  // 🔥 Process Payroll
+  processPayroll(userId: number, data: any): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/EmployeePayRoll/process/${userId}`,
+      data
+    );
+  }
+
+  // 🔥 Get Payroll By Month
+  getPayrollByMonth(month: number, year: number, userId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.apiUrl}/EmployeePayRoll/${month}/${year}/${userId}`
+    );
+  }
+
+  previewPayroll(userId: number, data: any) {
+    return this.http.post<any[]>(
+      `${environment.apiUrl}/EmployeePayRoll/preview/${userId}`,
+      data
+    );
+  }
+
+//============================== Employee Pay Slip Screen ===================================
+// 🔥 GET PAYSLIPS BY RANGE
+getPayslipsByRange(data: any) {
   return this.http.post<any[]>(
-    `${environment.apiUrl}/EmployeePayRoll/preview/${userId}`,
+    `${environment.apiUrl}/EmployeePayRoll/payslip-range`,
     data
   );
 }
+
+// 🔥 SINGLE API FOR BOTH SINGLE & RANGE
+requestPayslipEmail(data: any) {
+  return this.http.post(
+    `${environment.apiUrl}/EmployeePayRoll/request-payslip`,
+    data
+  );
+}
+
+getPendingRequests(data: any) {
+  console.log('📤 API Payload (Pending):', data);
+
+  return this.http.post<any[]>(
+    `${environment.apiUrl}/EmployeePayRoll/hr/pending`,
+    data
+  );
+}
+
+approveReject(data: any) {
+  return this.http.post(`${environment.apiUrl}/EmployeePayRoll/hr/action`, data);
+}
+
+getAllPayrolls(data: any) {
+  return this.http.post<any[]>(`${environment.apiUrl}/EmployeePayRoll/hr/all`, data);
+}
+
 }

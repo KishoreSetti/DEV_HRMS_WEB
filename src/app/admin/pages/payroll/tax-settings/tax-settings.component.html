@@ -28,7 +28,7 @@
                 <option [ngValue]="null">Select Department</option>
 
                 <option *ngFor="let d of departments" [ngValue]="d.departmentId">
-                  {{ d.description }}
+                  {{ d.departmentName }}
                 </option>
               </select>
             </div>
@@ -36,7 +36,7 @@
             <!-- Designation -->
             <div class="col-md-4">
               <label class="form-label">Designation</label>
-              <select class="form-select" [(ngModel)]="structure.designationId" name="designationId">
+              <select class="form-select" [(ngModel)]="structure.designationId" name="designationId" (change)="onDesignationChange()">
 
                 <option [ngValue]="null">Select Designation</option>
 
@@ -49,13 +49,13 @@
             <!-- Grade -->
             <div class="col-md-4">
               <label class="form-label">Grade</label>
-              <input type="number" class="form-control" [(ngModel)]="structure.gradeId" name="gradeId">
+              <input type="text" class="form-control" [(ngModel)]="structure.gradeName" name="gradeName" readonly>
             </div>
 
             <!-- Company -->
             <div class="col-md-4">
               <label class="form-label">Company</label>
-            <select class="form-select" [(ngModel)]="structure.companyId" name="companyId">
+            <select class="form-select" [(ngModel)]="structure.companyId" (change)="onCompanyChange()" name="companyId">
 
   <option [ngValue]="null">Select Company</option>
 
@@ -73,7 +73,7 @@
 
   <option [ngValue]="null">Select Region</option>
 
-  <option *ngFor="let r of regions" [ngValue]="r.regionId">
+  <option *ngFor="let r of filteredRegions" [ngValue]="r.regionId">
     {{ r.regionName }}
   </option>
 

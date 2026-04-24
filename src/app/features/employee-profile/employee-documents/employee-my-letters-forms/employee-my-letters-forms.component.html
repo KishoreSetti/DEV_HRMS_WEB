@@ -1,0 +1,39 @@
+<div class="dashboard-tables full-row mt-4">
+  <div class="table-card">
+    <h3>My Letters</h3>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Document Type</th>
+          <th>Title</th>
+          <th>Issued Date</th>
+          <th>Validity</th>
+          <th>Files</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let l of letters; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ getDocumentTypeName(l.documentType) }}</td>
+          <td>{{ l.title }}</td>
+          <td>{{ l.issuedDate }}</td>
+          <td>{{ l.validityDate || '-' }}</td>
+
+          <td>
+            <span *ngIf="l.fileName">
+              <span *ngFor="let f of l.fileName.split(',')">
+                <a style="cursor:pointer;color:blue"
+                   (click)="viewDocument(f)">
+                  View / Download
+                </a><br>
+              </span>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

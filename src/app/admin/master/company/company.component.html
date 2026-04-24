@@ -7,26 +7,6 @@
 </h4>
     <!-- Header -->
    <div class="d-flex gap-2">
-    <!-- Export Dropdown -->
-    <div class="dropdown">
-      <button
-        class="btn btn-outline-secondary dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        <i class="fa-solid fa-download me-2"></i> Export
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end animate__animated animate__fadeIn">
-        <li><a class="dropdown-item" (click)="exportAs('pdf')">Download PDF</a></li>
-        <li><a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a></li>
-      </ul>
-    </div>
-
-    <!-- Bulk Upload -->
-    <button class="btn btn-danger" (click)="openUploadPopup()">
-    <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-  </button>
   </div>
 </div>
     <hr class="mb-4" />
@@ -66,6 +46,63 @@
                 [(ngModel)]="company.companyCode"
                 placeholder="Enter company code"
               />
+            </div>
+            <!-- Company Email -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company Email</label>
+              <input
+                type="email"
+                class="form-control"
+                name="CompanyEmail"
+                [(ngModel)]="company.companyEmail"
+                placeholder="Enter company email"
+              />
+            </div>
+
+            <!-- Company Contact -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company Contact</label>
+              <input
+                type="text"
+                class="form-control"
+                name="CompanyContact"
+                [(ngModel)]="company.companyContact"
+                placeholder="Enter contact number"
+              />
+            </div>
+
+            <!-- Company Address -->
+            <div class="col-md-12">
+              <label class="form-label fw-semibold">Company Address</label>
+              <textarea
+                class="form-control"
+                name="CompanyAddress"
+                [(ngModel)]="company.companyAddress"
+                rows="2"
+                placeholder="Enter company address"
+              ></textarea>
+            </div>
+
+              <!-- Company Logo -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company Logo</label>
+
+              <input
+                type="file"
+                class="form-control"
+                (change)="onLogoSelected($event)"
+                accept="image/*"
+              />
+
+              <!-- Preview -->
+              <div *ngIf="logoPreview" class="mt-2">
+                <img 
+                  [src]="logoPreview" 
+                  width="120" 
+                  height="60" 
+                  style="object-fit: contain; border:1px solid #ddd; padding:4px; border-radius:6px;"
+                />
+              </div>
             </div>
 
             <!-- Industry Type -->
@@ -109,7 +146,15 @@
             </div>
 
             <!-- Submit Button -->
-            <div class="col-md-6 d-flex align-items-end">
+            <div class="col-md-6 d-flex align-items-end gap-4">
+                <button
+                type="button"
+                class="btn btn-danger px-6 w-100"
+                (click)="onCancel()"
+              >
+                <i class="fa-solid fa-xmark me-2"></i>
+                Cancel
+              </button>
               <button
                 type="submit"
                 class="btn btn-dark w-100"
@@ -118,6 +163,7 @@
                 <i class="fa-solid fa-save me-2"></i>
                 {{ isEditMode ? 'Update Company' : 'Save Company' }}
               </button>
+              
             </div>
           </div>
         </form>
@@ -203,6 +249,8 @@
          class="fa-solid" 
          [ngClass]="{'fa-sort-up': sortDirection==='asc', 'fa-sort-down': sortDirection==='desc'}"></i>
     </th>
+    <th>Contact</th>
+    <th>Email</th>
 
     <th class="text-center" (click)="toggleSort('isActive')" style="cursor:pointer;">
       Status
@@ -222,6 +270,8 @@
         <td>{{ c.companyCode || '-' }}</td>
         <td>{{ c.industryType || '-' }}</td>
         <td>{{ c.headquarters || '-' }}</td>
+        <td>{{ c.companyContact || '-' }}</td>
+        <td>{{ c.companyEmail || '-' }}</td>
         <td class="text-center">
           <div class="form-check form-switch d-inline-flex align-items-center justify-content-center">
             <!-- <input

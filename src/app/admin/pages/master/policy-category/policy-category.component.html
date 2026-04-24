@@ -26,16 +26,18 @@
 
             <div class="col-md-4">
               <label class="fw-semibold">Company *</label>
-              <select class="form-select"
-                [(ngModel)]="companyId"
-                name="CompanyId"
-                (change)="loadRegions()"
-                required>
-                <option value="">-- Select Company --</option>
-                <option *ngFor="let c of companies" [value]="c.companyId">
-                  {{ c.companyName }}
-                </option>
-              </select>
+               <select class="form-select"
+              [(ngModel)]="companyId"
+              name="CompanyId"
+              (change)="loadRegions()"
+              required>
+
+              <option [ngValue]="null">-- Select Company --</option>
+
+              <option *ngFor="let c of companies" [ngValue]="c.companyId">
+                {{ c.companyName }}
+              </option>
+            </select>
             </div>
 
             <div class="col-md-4">
@@ -44,8 +46,9 @@
                 [(ngModel)]="regionId"
                 name="RegionId"
                 required>
-                <option value="">-- Select Region --</option>
-                <option *ngFor="let r of regions" [value]="r.regionID">
+                <option [ngValue]="null">-- Select Region --</option>
+
+                <option *ngFor="let r of regions" [ngValue]="r.regionID">
                   {{ r.regionName }}
                 </option>
               </select>
@@ -111,8 +114,8 @@
               <td>{{ i + 1 }}</td>
               <td>{{ c.PolicyCategoryName }}</td>
               <td>{{ c.Description || '—' }}</td>
-              <td>{{ companyMap[c.CompanyID] }}</td>
-              <td>{{ regionMap[c.RegionID] }}</td>
+              <td>{{ c.companyName}}</td>
+              <td>{{ c.regionName}}</td>
               <td class="text-center">
                 <i class="fa-solid"
                   [ngClass]="c.IsActive ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'"></i>

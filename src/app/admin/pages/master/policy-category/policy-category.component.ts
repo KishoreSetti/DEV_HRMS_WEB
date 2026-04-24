@@ -12,8 +12,7 @@ import autoTable from 'jspdf-autotable';
   styleUrl: './policy-category.component.css'
 })
 export class PolicyCategoryComponent {
-   
-  searchText = '';
+    searchText = '';
   categories: PolicyCategory[] = [];
   category!: PolicyCategory;
 
@@ -38,8 +37,10 @@ export class PolicyCategoryComponent {
 
     this.category = {
       PolicyCategoryID: 0,
-      CompanyID: this.companyId,
-      RegionID: this.regionId,
+      CompanyId: this.companyId,
+      RegionId: this.regionId,
+        companyName: "",  // ✅ add
+  regionName: '',
       PolicyCategoryName: '',
       Description: '',
       IsActive: true
@@ -55,14 +56,21 @@ export class PolicyCategoryComponent {
     this.adminService.getPolicyCategories(this.userId).subscribe({
       next: (res: any) => {
         const data = res.data || [];
-        this.categories = data.map((x: any) => ({
-          PolicyCategoryId: x.policyCategoryId,
-          CompanyId: x.companyId,
-          RegionId: x.regionId,
-          PolicyCategoryName: x.policyCategoryName,
-          Description: x.description,
-          IsActive: x.isActive
-        }));
+      this.categories = data.map((x: any) => ({
+  PolicyCategoryId: x.policyCategoryId,
+
+  // 🔥 FIX HERE (case-sensitive)
+  CompanyId: x.companyId ?? x.CompanyId,
+  RegionId: x.regionId ?? x.RegionId,
+
+  companyName: x.companyName,
+  regionName: x.regionName,
+  userId: x.userId,
+
+  PolicyCategoryName: x.policyCategoryName,
+  Description: x.description,
+  IsActive: x.isActive
+}));
         this.spinner.hide();
       },
       error: () => {
@@ -73,8 +81,8 @@ export class PolicyCategoryComponent {
   }
 
   onSubmit() {
-    this.category.CompanyID= this.companyId;
-    this.category.RegionID = this.regionId;
+    this.category.CompanyId= this.companyId;
+    this.category.RegionId = this.regionId;
     this.category.UserId = this.userId;
 
     this.spinner.show();
@@ -101,39 +109,91 @@ export class PolicyCategoryComponent {
     });
   }
 
-  editCategory(c: PolicyCategory) {
-    this.category = { ...c };
+  // editCategory(c: PolicyCategory) {
+  //   this.category = { ...c };
 
-    this.companyId = c.CompanyID;
-    this.regionId = c.RegionID;
+  //   this.companyId = c.CompanyID;
+  //   this.regionId = c.RegionID;
+    
 
-    this.loadRegions();
-    this.isEditMode = true;
-  }
+  //   this.loadRegions();
+  //   this.isEditMode = true;
+  // }
 
-  deleteCategory(c: PolicyCategory) {
-    Swal.fire({
-      title: `Delete "${c.PolicyCategoryName}"?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33'
-    }).then(result => {
-      if (result.isConfirmed) {
-        this.spinner.show();
-        this.adminService.deletePolicyCategory(c.PolicyCategoryID).subscribe({
-          next: () => {
-            this.spinner.hide();
-            Swal.fire('Deleted!', 'Deleted successfully.', 'success');
-            this.loadCategories();
-          },
-          error: () => {
-            this.spinner.hide();
-            Swal.fire('Error', 'Delete failed.', 'error');
-          }
-        });
-      }
-    });
-  }
+//   editCategory(c: PolicyCategory) {
+//     debugger;
+//   this.category = { ...c };
+//   c.companyName,
+//   c.regionName,
+
+//   // this.companyId = c.companyName;   // ✅ FIX
+//   // this.regionId = c.regionName;     // ✅ FIX
+
+//   this.loadRegions();
+//   this.isEditMode = true;
+// }
+
+editCategory(c: any) {
+  this.category = { ...c };
+
+  // 🔥 MUST match property name
+  this.companyId = c.CompanyId;
+  this.regionId = c.RegionId;
+
+  this.loadRegions();
+  this.isEditMode = true;
+}
+  // deleteCategory(c: PolicyCategory) {
+  //   Swal.fire({
+  //     title: `Delete "${c.PolicyCategoryName}"?`,
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonColor: '#d33'
+  //   }).then(result => {
+  //     if (result.isConfirmed) {
+  //       this.spinner.show();
+  //       this.adminService.deletePolicyCategory(c.PolicyCategoryID).subscribe({
+  //         next: () => {
+  //           this.spinner.hide();
+  //           Swal.fire('Deleted!', 'Deleted successfully.', 'success');
+  //           this.loadCategories();
+  //         },
+  //         error: () => {
+  //           this.spinner.hide();
+  //           Swal.fire('Error', 'Delete failed.', 'error');
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+
+  deleteCategory(c: any) {
+  Swal.fire({
+    title: `Delete "${c.PolicyCategoryName}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33'
+  }).then(result => {
+    if (result.isConfirmed) {
+      this.spinner.show();
+
+      // 🔥 FIX HERE
+      console.log("Deleting ID:", c.PolicyCategoryId);
+
+      this.adminService.deletePolicyCategory(c.PolicyCategoryId).subscribe({
+        next: () => {
+          this.spinner.hide();
+          Swal.fire('Deleted!', 'Deleted successfully.', 'success');
+          this.loadCategories();
+        },
+        error: () => {
+          this.spinner.hide();
+          Swal.fire('Error', 'Delete failed.', 'error');
+        }
+      });
+    }
+  });
+}
 
   filteredCategories(): PolicyCategory[] {
     const s = this.searchText.toLowerCase();
@@ -152,33 +212,61 @@ export class PolicyCategoryComponent {
       }
     });
   }
-
   loadRegions() {
-    this.adminService.getRegions(null, this.userId).subscribe({
-      next: (res: Region[]) => {
-        const all = res || [];
-        this.regionMap = {};
-        all.forEach(r => this.regionMap[r.regionID] = r.regionName);
+  this.adminService.getRegions(null, this.userId).subscribe({
+    next: (res: Region[]) => {
+      const all = res || [];
 
-        this.regions = all.filter(r => r.companyID == this.companyId);
+      this.regions = all.filter(r => r.companyID == this.companyId);
 
-        if (!this.regionId && this.regions.length > 0)
-          this.regionId = this.regions[0].regionID;
-
-        this.category.RegionID = this.regionId;
+      // ✅ important for edit
+      if (this.isEditMode) {
+        this.category.RegionId = this.regionId;
+      } else if (!this.regionId && this.regions.length > 0) {
+        this.regionId = this.regions[0].regionID;
+        this.category.RegionId = this.regionId;
       }
-    });
-  }
+    }
+  });
+}
 
-  clearForm() {
-    this.category = {
-      PolicyCategoryID: 0,
-      CompanyID: this.companyId,
-      RegionID: this.regionId,
-      PolicyCategoryName: '',
-      Description: '',
-      IsActive: true
-    };
-    this.isEditMode = false;
-  }
+  // loadRegions() {
+  //   this.adminService.getRegions(null, this.userId).subscribe({
+  //     next: (res: Region[]) => {
+  //       const all = res || [];
+  //       this.regionMap = {};
+  //       all.forEach(r => this.regionMap[r.regionID] = r.regionName);
+
+  //       this.regions = all.filter(r => r.companyID == this.companyId);
+
+  //       if (!this.regionId && this.regions.length > 0)
+  //         this.regionId = this.regions[0].regionID;
+
+  //       this.category.RegionID = this.regionId;
+  //     }
+  //   });
+  // }
+
+clearForm() {
+
+  // ✅ RESET dropdown variables
+  this.companyId = null as any;
+  this.regionId = null as any;
+
+  this.category = {
+    PolicyCategoryID: 0,
+    CompanyId: this.companyId,   // ✅ reset
+    RegionId: this.regionId,    // ✅ reset
+    companyName: '',
+    regionName: '',
+    PolicyCategoryName: '',
+    Description: '',
+    IsActive: true,
+    UserId: this.userId
+  };
+
+  this.regions = []; // ✅ clear dependent dropdown
+
+  this.isEditMode = false;
+}
 }

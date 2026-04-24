@@ -7,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrl: './layout.component.css'
 })
 export class LayoutComponent {
+ isOpen: boolean = false;
 
+  toggleChat() {
+    this.isOpen = !this.isOpen;
+  }
 }

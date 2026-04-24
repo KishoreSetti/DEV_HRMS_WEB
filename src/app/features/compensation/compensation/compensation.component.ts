@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
 })
 export class CompensationComponent {
    activeTab: string = '';
+   selectedTab: string = '';
       setTab(tab: string) {
     this.activeTab = tab;
   }
@@ -83,5 +84,31 @@ Net Salary: ${slip.net}
     a.download = `Payslip-${slip.month}.txt`;
     a.click();
     window.URL.revokeObjectURL(url);
+  }
+  canViewPayslip: boolean = false;
+  canViewHRDashboard: boolean = false;
+
+  ngOnInit() {
+    this.loadCompensationPermissions();
+  }
+
+  loadCompensationPermissions() {
+    const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+    // Employee Payslip
+    const payslipMenu = menus.find(
+      (m: any) => m.menuName?.trim().toLowerCase() === "employee payslip"
+    );
+
+    // HR Payslip Dashboard
+    const hrMenu = menus.find(
+      (m: any) => m.menuName?.trim().toLowerCase() === "hr payslip dashboard"
+    );
+
+    this.canViewPayslip = payslipMenu?.canView ?? false;
+    this.canViewHRDashboard = hrMenu?.canView ?? false;
+
+    if (this.canViewPayslip) this.selectedTab = 'tab1';
+  else if (this.canViewHRDashboard) this.selectedTab = 'tab2';
   }
 }

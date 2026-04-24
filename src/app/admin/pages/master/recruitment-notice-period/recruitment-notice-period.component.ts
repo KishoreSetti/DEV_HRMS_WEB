@@ -19,7 +19,7 @@ export interface RecruitmentNoticePeriod {
   styleUrl: './recruitment-notice-period.component.css'
 })
 export class RecruitmentNoticePeriodComponent {
-searchText = '';
+  searchText = '';
   noticePeriodList: RecruitmentNoticePeriod[] = [];
   noticePeriod!: RecruitmentNoticePeriod;
 
@@ -106,24 +106,33 @@ searchText = '';
       : this.adminService.createRecruitmentNoticePeriod(this.noticePeriod);
 
     obs.subscribe({
-      next: () => {
+      next: (res: any) => {
 
         this.spinner.hide();
 
+        // ✅ HANDLE DUPLICATE / FAILURE
+        if (!res.success) {
+          Swal.fire('Warning', 'Record is exist with the same name', 'warning');
+          return;
+        }
+
+        // ✅ SUCCESS MESSAGE
         Swal.fire(
           this.isEditMode ? 'Updated!' : 'Added!',
-          `Notice Period ${this.isEditMode ? 'updated' : 'created'} successfully.`,
+          res.message,
           'success'
         );
 
         this.loadNoticePeriods();
         this.clearForm();
       },
+
       error: () => {
         this.spinner.hide();
         Swal.fire('Error', 'Operation failed.', 'error');
       }
     });
+
   }
 
   // ================= EDIT =================
@@ -183,19 +192,27 @@ searchText = '';
   }
 
   // ================= LOAD COMPANIES =================
-
   loadCompanies(): void {
 
     this.adminService.getCompanies(null, this.userId).subscribe({
-      next: (res: Company[]) => {
+      next: (res: any) => {
 
-        this.companies = res || [];
+        console.log('All Companies 👉', res);
 
+        const data = res?.data ?? res ?? [];
+
+        // 🔥 Only active companies
+        this.companies = data.filter((c: any) => c.isActive === true);
+
+        // ✅ Build company map
         this.companyMap = {};
-        this.companies.forEach(c =>
-          this.companyMap[c.companyId] = c.companyName
-        );
+        this.companies.forEach((c: any) => {
+          this.companyMap[c.companyId] = c.companyName;
+        });
 
+        console.log('Active Companies 👉', this.companies);
+
+        // ✅ Load regions if company already selected
         if (this.companyId) {
           this.loadRegions();
         }
@@ -209,23 +226,34 @@ searchText = '';
   loadRegions(): void {
 
     this.adminService.getRegions(null, this.userId).subscribe({
-      next: (res: Region[]) => {
+      next: (res: any) => {
 
-        const allRegions = res || [];
+        console.log('All Regions 👉', res);
 
+        const data = res?.data ?? res ?? [];
+
+        // 🔥 Only active regions
+        const activeRegions = data.filter((r: any) => r.isActive === true);
+
+        // ✅ Build full region map (for display)
         this.regionMap = {};
-        allRegions.forEach(r =>
-          this.regionMap[r.regionID] = r.regionName
-        );
+        activeRegions.forEach((r: any) => {
+          this.regionMap[r.regionID] = r.regionName;
+        });
 
-        this.regions = allRegions.filter(r =>
+        // ✅ Filter regions by selected company
+        this.regions = activeRegions.filter((r: any) =>
           r.companyID == this.companyId
         );
 
+        console.log('Filtered Regions 👉', this.regions);
+
+        // ✅ Auto-select region
         if (!this.regionId && this.regions.length > 0) {
           this.regionId = this.regions[0].regionID;
         }
 
+        // ✅ Bind to model
         this.noticePeriod.RegionID = this.regionId;
       },
       error: () => Swal.fire('Error', 'Failed to load regions', 'error')

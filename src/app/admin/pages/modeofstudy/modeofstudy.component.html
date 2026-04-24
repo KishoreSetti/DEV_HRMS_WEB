@@ -1,0 +1,136 @@
+<div class="card shadow-sm">
+  <div class="container-fluid p-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-semibold mb-0">
+        <i class="fa-solid fa-book me-2 text-danger"></i>
+        Mode Of Study
+      </h4>
+    </div>
+
+    <hr class="mb-4" />
+
+    <!-- Form -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form (ngSubmit)="onSubmit()" #formRef="ngForm" novalidate>
+          <div class="row g-3">
+
+            <!-- Mode Name -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Mode Name</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="form.modeName"
+                name="modeName"
+                placeholder="Enter Mode Name"
+                required
+              />
+            </div>
+
+            <!-- Company -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company</label>
+              <select class="form-select"
+                [(ngModel)]="form.companyId"
+                name="companyId" (change)="onCompanyChange()"
+                required>
+                <option value="">Select Company</option>
+                <option *ngFor="let c of companies" [value]="c.companyId">
+                  {{ c.companyName }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Region -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Region</label>
+              <select class="form-select"
+                [(ngModel)]="form.regionId"
+                name="regionId">
+                <option value="">Select Region</option>
+                <option *ngFor="let r of filteredRegions" [value]="r.regionID">
+                  {{ r.regionName }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="form-check form-switch mt-3">
+                <input class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="form.isActive"
+                  name="isActive" />
+                <label class="form-check-label ms-2">
+                  {{ form.isActive ? 'Active' : 'Inactive' }}
+                </label>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-6 d-flex gap-2">
+              <button type="button" class="btn btn-danger w-100" (click)="onCancel()">
+                Cancel
+              </button>
+
+              <button type="submit" class="btn btn-dark w-100" [disabled]="!formRef.valid">
+                {{ isEditMode ? 'Update' : 'Save' }}
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Mode Name</th>
+                <th>Company</th>
+                <th>Region</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let m of modes; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ m.modeName }}</td>
+                <td>{{ m.companyName }}</td>
+                <td>{{ m.regionName }}</td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="m.isActive ? 'bg-success' : 'bg-secondary'">
+                    {{ m.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary" (click)="edit(m)">Edit</button>
+                  <button class="btn btn-sm btn-danger" (click)="delete(m)">Delete</button>
+                </td>
+              </tr>
+
+              <tr *ngIf="modes.length === 0">
+                <td colspan="6" class="text-center">No Data</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -15,7 +15,7 @@
             <!-- Company -->
             <div class="col-md-4">
               <label class="form-label">Company</label>
-              <select class="form-select" [(ngModel)]="salary.companyId" name="companyId">
+              <select class="form-select" [(ngModel)]="salary.companyId" name="companyId" (change)="onCompanyChange()">
                 <option value="null">Select Company</option>
                 <option *ngFor="let c of companies" [value]="c.companyId">
                   {{ c.companyName }}
@@ -28,7 +28,7 @@
               <label class="form-label">Region</label>
               <select class="form-select" [(ngModel)]="salary.regionId" name="regionId">
                 <option value="null">Select Region</option>
-                <option *ngFor="let r of regions" [value]="r.regionId">
+                <option *ngFor="let r of filteredRegions" [value]="r.regionId">
                   {{ r.regionName }}
                 </option>
               </select>
@@ -110,31 +110,24 @@
           </thead>
 
           <tbody>
-            <tr *ngFor="let s of salaries; let i = index">
+            <tr *ngFor="let s of paginatedSalaries; let i = index">
               <td>{{ i + 1 }}</td>
               <td>{{ getEmployeeName(s.employeeId) }}</td>
               <td>{{s.effectiveFrom}}</td>
               <td>{{ getStructureName(s.structureId) }}</td>
               <td>{{ companyMap[s.companyId] }}</td>
-              <td>{{ regionMap[s.regionId] }}</td>
+              <td>{{ regionMap[s.regionId?.toString()] || '-' }}</td>
               <td>{{ s.isActive ? 'Yes' : 'No' }}</td>
             </tr>
           </tbody>
         </table>
-        <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="pagination" *ngIf="salaries.length > pageSize">
 
-          <button class="btn btn-sm btn-outline-primary" (click)="currentPage = currentPage - 1"
-            [disabled]="currentPage === 1">
-            Previous
-          </button>
+          <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i+1)"
+            [class.active]="currentPage === (i+1)">
 
-          <span>
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
+            {{ i + 1 }}
 
-          <button class="btn btn-sm btn-outline-primary" (click)="currentPage = currentPage + 1"
-            [disabled]="currentPage === totalPages">
-            Next
           </button>
 
         </div>
