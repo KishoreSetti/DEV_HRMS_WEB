@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { EmployeePayRollService } from '../../../../employee-pay-roll.service';
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
+import { AdminService } from '../../../../admin/servies/admin.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-employee-payslip',
@@ -24,12 +26,80 @@ export class EmployeePayslipComponent {
   selectedRange: any[] = [];
   today: Date = new Date();
   hrEmail: string = '';
+  companyLogo: string = '';
+  companyLogoBase64: string = '';
+  companyName: string = '';
+  companyAddress: string = '';
 
   // 🔥 Separate flags
   showViewPopup: boolean = false;
   showRequestPopup: boolean = false;
 
-  constructor(private payrollService: EmployeePayRollService) { }
+  constructor(private payrollService: EmployeePayRollService, private adminService: AdminService) { }
+  ngOnInit() {
+  this.loadCompanyDetails();
+}
+loadCompanyDetails() {
+
+  const companyId = Number(sessionStorage.getItem('CompanyId'));
+
+  this.adminService.getCompanyById(companyId).subscribe({
+    next: async (company: any) => {
+
+      this.companyName = company?.companyName || 'Company';
+      this.companyAddress = company?.companyAddress || 'Hyderabad, Telangana';
+
+      const logo = company?.companyLogo;
+
+      if (logo && logo.trim() !== '') {
+
+        if (logo.startsWith('data:')) {
+          this.companyLogoBase64 = logo;
+        } else {
+          const logoPath = logo.replace(/\\/g, '/');
+          const fullUrl = `${environment.baseurl}/${logoPath}`;
+
+          this.companyLogoBase64 =
+            await this.getBase64ImageFromURL(fullUrl);
+        }
+
+      } else {
+        this.setDefaultLogo();
+      }
+    },
+
+    error: () => {
+      this.setDefaultLogo();
+    }
+  });
+}
+setDefaultLogo() {
+  const defaultLogo = '/assets/images/cor-logo.png';
+
+  this.getBase64ImageFromURL(defaultLogo)
+    .then(base64 => this.companyLogoBase64 = base64)
+    .catch(() => this.companyLogoBase64 = '');
+}
+getBase64ImageFromURL(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = url;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+
+      resolve(canvas.toDataURL('image/png'));
+    };
+
+    img.onerror = err => reject(err);
+  });
+}
 
   months = [
     { value: 1, name: 'January' },
@@ -173,6 +243,42 @@ export class EmployeePayslipComponent {
 
     const doc = new jsPDF('p', 'mm', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    /* 🔴 FULL PAGE RED BORDER */
+doc.setDrawColor(200, 0, 0); // red color
+doc.setLineWidth(1);         // border thickness
+doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // margin border
+    /* ================= WATERMARK LOGO ================= */
+if (this.companyLogoBase64) {
+
+  const imgWidth = 120;
+  const imgHeight = 120;
+
+  const x = (pageWidth - imgWidth) / 2;
+  const y = 40;
+
+  try {
+    doc.saveGraphicsState?.();
+
+    // fade effect (if supported)
+    doc.setGState?.(new (doc as any).GState({ opacity: 0.08 }));
+
+    doc.addImage(
+      this.companyLogoBase64,
+      'PNG',
+      x,
+      y,
+      imgWidth,
+      imgHeight
+    );
+
+    doc.restoreGraphicsState?.();
+
+  } catch (e) {
+    // fallback (if opacity not supported)
+    doc.addImage(this.companyLogoBase64, 'PNG', x, y, imgWidth, imgHeight);
+  }
+}
 
     const currency = (val: any) =>
       Number(val || 0).toLocaleString('en-IN');
@@ -182,26 +288,28 @@ export class EmployeePayslipComponent {
 
     let y = 20;
 
-    /* ================= WATERMARK ================= */
-    doc.setTextColor(230, 230, 230);
-    doc.setFontSize(40);
-    doc.text('CORTRACKER IT SOLUTIONS', 20, 150, {
-      angle: 30
-    });
-
     doc.setTextColor(0);
 
     /* ================= HEADER ================= */
 
+   if (this.companyLogoBase64) {
+  doc.addImage(this.companyLogoBase64, 'PNG', pageWidth / 2 - 20, 5, 40, 15);
+}
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(200, 0, 0);
-    doc.text('CORTRACKER IT SOLUTIONS PVT LTD', 20, y);
-
+    doc.text(this.companyName?.toUpperCase() || 'COMPANY NAME', 20, y);
     doc.setFontSize(9);
     doc.setTextColor(100);
-    doc.text('Flat No. 1101, 11th Floor, B-Block Asian Sun City', 20, y + 5);
-    doc.text('Hyderabad, Telangana 500084', 20, y + 9);
+    if (this.companyAddress) {
+
+  const addressLines = this.companyAddress.split(',');
+
+  addressLines.forEach((line: string, index: number) => {
+    doc.text(line.trim(), 20, y + 5 + (index * 4));
+  });
+
+}
 
     doc.setTextColor(0);
     doc.setFontSize(10);
@@ -299,11 +407,11 @@ export class EmployeePayslipComponent {
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(
-      '© CORTRACKER IT SOLUTIONS PVT LTD — This is a system generated payslip.',
-      pageWidth / 2,
-      finalY + 25,
-      { align: 'center' }
-    );
+        `© ${this.companyName || 'Company'} — This is a system generated payslip.`,
+        pageWidth / 2,
+        finalY + 25,
+        { align: 'center' }
+      );
 
     doc.save(`Payslip_${p.monthName}_${p.year}.pdf`);
   }
