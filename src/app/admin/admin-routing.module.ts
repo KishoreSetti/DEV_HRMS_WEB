@@ -74,6 +74,7 @@ import { VisatypeComponent } from '../pages/visatype/visatype.component';
 import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
 import { ProjectMasterComponent } from '../features/project-master/project-master.component';
+import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-policy.component';
 const routes: Routes = [
   {
     path: '',
@@ -155,6 +156,7 @@ const routes: Routes = [
       { path: 'modeofstudy', component: ModeofstudyComponent },
       { path: 'accounttype', component: AccounttypeComponent },
       { path: 'project-master', component: ProjectMasterComponent },
+      { path: 'late-login-policy', component: LateLoginPolicyComponent }
     ]
   }
 ];

@@ -76,6 +76,7 @@ import { AssetCategoryComponent } from './pages/master/asset-category/asset-cate
 import { CurrencyComponent } from './pages/master/currency/currency.component';
 import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
+import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-policy.component';
 
 @NgModule({
   declarations: [
@@ -153,7 +154,8 @@ import { AccounttypeComponent } from './pages/accounttype/accounttype.component'
     AssetCategoryComponent,
     CurrencyComponent,
     ModeofstudyComponent,
-    AccounttypeComponent
+    AccounttypeComponent,
+    LateLoginPolicyComponent
  
   
 

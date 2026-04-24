@@ -788,6 +788,23 @@ export interface ManagerDropdown {
   userId: number;
   fullName: string;
 }
+
+//----------------------- Late Login Policy Interface--------------------//
+
+export interface LateLoginPolicy {
+  policyId: number;
+  companyId: number;
+  regionId: number;
+  userId: number;
+
+  lateLoginCount: number;
+  lopdays: number;
+  loptype: string;
+
+  isActive: boolean;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -2796,4 +2813,50 @@ getProjectNames(companyId: number, regionId: number) {
     return this.http.get<any>(`${this.baseUrl}/MasterData/GetProjectsByCompanyRegion?companyId=${companyId}&regionId=${regionId}`);
   }
 
+
+  //----------------------------------------- Late Login Policy Master Screen Code API's ---------------------------------------//
+
+// ================= GET ALL =================
+getLateLoginPolicies(userId: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/UserManagement/GetLateLoginPolicy`,
+    {
+      params: { userId: userId }
+    }
+  );
+}
+
+// ================= GET BY ID =================
+getLateLoginPolicyById(id: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/UserManagement/GetLateLoginPolicyById`,
+    {
+      params: { id: id }
+    }
+  );
+}
+
+// ================= CREATE =================
+createLateLoginPolicy(data: any) {
+  return this.http.post<any>(
+    `${this.baseUrl}/UserManagement/SaveLateLoginPolicy`,
+    data
+  );
+}
+
+// ================= UPDATE =================
+updateLateLoginPolicy(id: number, data: any) {
+  return this.http.post<any>(
+    `${this.baseUrl}/UserManagement/UpdateLateLoginPolicy/${id}`,
+    data
+  );
+}
+
+// ================= DELETE =================
+deleteLateLoginPolicy(id: number) {
+  return this.http.post<any>(
+    `${this.baseUrl}/UserManagement/DeleteLateLoginPolicy/${id}`,
+    {}
+  );
+}
 }
