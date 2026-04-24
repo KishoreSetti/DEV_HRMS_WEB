@@ -46,7 +46,7 @@
           </div>
         </div>
 
-        <form #jobForm="ngForm" (ngSubmit)="onSubmit()">
+        <form  (ngSubmit)="onSubmit()">
 
           <!-- Name -->
           <div class="form-group">
@@ -133,7 +133,7 @@
 
           <!-- Submit -->
           <button class="btn-submit"
-                  [disabled]="!jobForm.valid">
+                  >
             <i class="fa-solid fa-paper-plane"></i>
             Apply Now
           </button>

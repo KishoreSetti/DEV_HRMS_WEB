@@ -20,7 +20,7 @@ export class HeaderComponent {
  roleName:any='';
  userName:any='';
  superadmin:any;
-
+ selectedFile: File | null = null;
 officeLat = 17.458637;
 officeLng = 78.363151;
 allowedRadius: number = 500; // meters (recommended)
@@ -728,22 +728,40 @@ addMessage(type: string, text: string, buttons: any[] = []) {
 
 // Send message
 sendMessage() {
-  if (!this.userInput.trim()) return;
+  // allow text OR file
+  if (!this.userInput.trim() && !this.selectedFile) return;
 
   const input = this.userInput.trim();
 
-  // Show user message
-  this.addMessage('user', input);
-  this.userInput = '';
+  // show text
+  if (input) {
+    this.addMessage('user', input);
+  }
 
-  // Show typing
+  this.userInput = '';
   this.isTyping = true;
-  this.scrollToBottom();
 
   setTimeout(() => {
+
     this.isTyping = false;
-    this.handleUserQuery(input.toLowerCase());
-  }, 1200);
+
+    // 📎 FILE LOGIC
+    if (this.selectedFile) {
+      this.addMessage(
+        'bot',
+        `📄 File "${this.selectedFile.name}" received successfully ✅`
+      );
+
+      this.selectedFile = null;
+      return;
+    }
+
+    // 🤖 EXISTING CHATBOT
+    if (input) {
+      this.handleUserQuery(input.toLowerCase());
+    }
+
+  }, 1000);
 }
 
 
@@ -1194,5 +1212,14 @@ formatDisplayTime(date: Date): string {
   minutes = minutes.toString().padStart(2, '0');
 
   return `${hours}:${minutes} ${ampm}`;
+}
+onFileSelected(event: any) {
+  const file = event.target.files[0];
+  if (file) {
+    this.selectedFile = file;
+
+    // show in chat
+    this.addMessage('user', `📎 ${file.name}`);
+  }
 }
 }
