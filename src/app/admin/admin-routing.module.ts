@@ -157,7 +157,7 @@ const routes: Routes = [
       { path: 'modeofstudy', component: ModeofstudyComponent },
       { path: 'accounttype', component: AccounttypeComponent },
       { path: 'project-master', component: ProjectMasterComponent },
-      { path: 'late-login-policy', component: LateLoginPolicyComponent }
+      { path: 'late-login-policy', component: LateLoginPolicyComponent },
       { path: 'project-master', component: ProjectMasterComponent },      
       {path: 'birthday-list', component: BirthdayMasterComponent },
     ]
