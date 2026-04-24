@@ -62,6 +62,7 @@ form = {
 selectedFiles: File[] = [];
 showEmpDropdown = false;
 existingFiles: string[] = [];
+//removeExistingFile: string[] = [];
   constructor(private adminService: AdminService) {}
  ngOnInit() {
    
@@ -72,6 +73,10 @@ existingFiles: string[] = [];
     // this.loadEmployeeForms();
       this.loadEmployees();
  }
+
+ removeExistingFile(index: number) {
+  this.existingFiles.splice(index, 1);
+}
  onEmployeeToggle(emp: any, event: any) {
   if (event.target.checked) {
     this.selectedEmployees.push(emp);
@@ -128,7 +133,8 @@ loadEmployees() {
 
 filePaths: Array.isArray(api.filePaths || api.FilePaths) 
   ? (api.filePaths || api.FilePaths) 
-  : []
+  : [],
+   employeeUploadedFiles: api.employeeUploadedFiles || []
 
 
         };
@@ -137,7 +143,73 @@ filePaths: Array.isArray(api.filePaths || api.FilePaths)
     error: (err) => console.error(err)
   });
 }
+viewDetails(f: any) {
 
+  let employeeDetails = `
+    <b>Employee:</b> ${f.employee} <br/>
+    <b>Document:</b> ${f.name} <br/>
+    <b>Type:</b> ${f.type} <br/>
+    <b>Date:</b> ${this.formatDate(f.date)} <br/>
+    <b>Remarks:</b> ${f.remarks || '-'} <br/><br/>
+  `;
+
+  let employeeFiles = '';
+
+  if (f.employeeUploadedFiles && f.employeeUploadedFiles.length > 0) {
+    employeeFiles = f.employeeUploadedFiles.map((file: string) => {
+      return `<a href="#" onclick="window.open('${this.getFileUrl(file)}','_blank')">View File</a>`;
+    }).join('<br/>');
+  } else {
+    employeeFiles = 'No employee uploads';
+  }
+
+  Swal.fire({
+    title: 'Employee Submission',
+    html: `
+      ${employeeDetails}
+      <b>Employee Uploaded Files:</b><br/>
+      ${employeeFiles}
+    `,
+    width: 600,
+    showCancelButton: true,
+    confirmButtonText: 'Approve',
+    cancelButtonText: 'Reject',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#dc3545'
+  }).then((result) => {
+
+    if (result.isConfirmed) {
+      this.updateStatus(f.id, 'Approved');
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      this.updateStatus(f.id, 'Rejected');
+    }
+
+  });
+
+}
+updateStatus(id: number, status: string) {
+
+  const payload = {
+    id: id,
+    status: status
+  };
+
+  this.adminService.updateFormStatus(payload).subscribe({
+    next: () => {
+      Swal.fire('Success', `Form ${status}`, 'success');
+      this.loadEmployeeForms();
+    },
+    error: (err) => {
+      console.error(err);
+      Swal.fire('Error', 'Failed to update status', 'error');
+    }
+  });
+
+}
+getFileUrl(path: string): string {
+  const baseUrl = environment.apiUrl.replace('/api', '');
+  return `${baseUrl}/${path}`;
+}
 
 //  loadDocumentTypes() {
 //    this.adminService.getActiveDocumentTypes().subscribe({
@@ -220,7 +292,11 @@ onSubmit() {
   this.dateError = '';
   this.fileError = '';
 
- if (!this.documentTypeId || !this.documentName || this.selectedEmployees.length === 0 || !this.issuedDate || this.selectedFiles.length === 0){
+ if ( !this.documentTypeId ||
+  !this.documentName ||
+  this.selectedEmployees.length === 0 ||
+  !this.issuedDate ||
+  (this.selectedFiles.length === 0 && this.existingFiles.length === 0)){
 
 
     Swal.fire({ icon: 'warning', title: 'Required fields missing', text: 'Please fill all required fields.' });
