@@ -22,13 +22,14 @@ bloodGroups: BloodGroup[] = [];
   pageSize = 5;
   currentPage = 1;
 
-  companyID = sessionStorage.getItem('CompanyId') ? +sessionStorage.getItem('CompanyId')! : 0;
-  regionID = sessionStorage.getItem('RegionId') ? +sessionStorage.getItem('RegionId')! : 0;
   roleId = 0;
-  userId = sessionStorage.getItem('UserId') ? +sessionStorage.getItem('UserId')! : 0;
+  userId: number = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId')) : 0;
 
   sortColumn = 'bloodGroupID';
   sortDirection: 'asc' | 'desc' = 'desc';
+  companies: any[] = [];
+  regions: any[] = [];
+  filteredRegions: any[] = [];
 
   constructor(
     private adminService: AdminService,
@@ -39,21 +40,21 @@ bloodGroups: BloodGroup[] = [];
     const user = sessionStorage.getItem('currentUser');
     if (user) {
       const currentUser = JSON.parse(user);
-     // this.companyID = currentUser.companyId;
-      //this.regionID = currentUser.regionId;
       this.userId = currentUser.userId;
       this.roleId = currentUser.roleId;
     }
 
     this.resetForm();
     this.loadBloodGroups();
+    this.loadCompanies();
+    this.loadRegions();
   }
 
   getEmptyBloodGroup(): BloodGroup {
     return {
       bloodGroupID: 0,
-      companyID: this.companyID,
-      regionID: this.regionID,
+      companyID: 0,
+      regionID: 0,
       bloodGroupName: '',
       description: '',
       isActive: true,
@@ -69,21 +70,71 @@ onBloodGroupInput() {
 
 
   loadBloodGroups(): void {
-    debugger
     this.spinner.show();
     this.adminService.getBloodGroupsbyID(this.userId).subscribe({
       next: (res: any) => {
-        this.bloodGroups = res.data;
-        this.spinner.hide();
-      },
-      error: () => this.spinner.hide()
-    });
-  }
+       this.bloodGroups = res.data.map((b: any) => ({
+        ...b,
+        companyName: this.getCompanyName(b.companyID),
+        regionName: this.getRegionName(b.regionID)
+      }));
 
+      this.spinner.hide();
+    },
+    error: () => this.spinner.hide()
+  });
+  }
+  loadCompanies(): void {
+  this.adminService.getCompanies(null, this.userId).subscribe({
+    next: (res: any) => {
+      console.log('COMPANIES 👉', res);
+      this.companies = res;
+    },
+    error: () => Swal.fire('Error', 'Failed to load companies', 'error')
+  });
+}
+
+loadRegions(): void {
+  this.adminService.getRegions(null, this.userId).subscribe({
+    next: (res: any) => {
+      console.log('REGIONS 👉', res);
+      this.regions = res;
+    },
+    error: () => Swal.fire('Error', 'Failed to load regions', 'error')
+  });
+}
+
+onCompanyChange(): void {
+  this.bloodGroup.regionID = 0;
+
+  this.filteredRegions = this.bloodGroup.companyID
+    ? this.regions.filter(r => Number(r.companyID) === Number(this.bloodGroup.companyID))
+    : [];
+}
+getCompanyName(companyId: number): string {
+  const c = this.companies.find((x: any) =>
+    Number(x.companyId ?? x.companyID) === Number(companyId)
+  );
+
+  return c ? c.companyName : '-';
+}
+
+getRegionName(regionId: number): string {
+  const r = this.regions.find((x: any) =>
+    Number(x.regionID ?? x.regionId) === Number(regionId)
+  );
+
+  return r ? r.regionName : '-';
+}
+mapNames(): void {
+  this.bloodGroups = this.bloodGroups.map(b => ({
+    ...b,
+    companyName: this.getCompanyName(b.companyID),
+    regionName: this.getRegionName(b.regionID)
+  }));
+}
  onSubmit(form: any): void {
 
-  this.bloodGroup.companyID = this.companyID;
-  this.bloodGroup.regionID = this.regionID;
   this.bloodGroup.userID = this.userId;
 
   this.spinner.show();
@@ -115,16 +166,15 @@ onBloodGroupInput() {
 }
 
 
-  // editBloodGroup(b: BloodGroup): void {
-  //   this.bloodGroup = { ...b };
-  //   this.isEditMode = true;
-  // }
   editBloodGroup(b: BloodGroup): void {
   this.bloodGroup = {
     ...b,
-    description: b.description || ''   // ✅ avoid null
+    description: b.description || ''  
   };
   this.isEditMode = true;
+  this.filteredRegions = this.regions.filter(r =>
+    Number(r.companyID) === Number(this.bloodGroup.companyID)
+  );
 }
 
   deleteBloodGroup(b: BloodGroup): void {

@@ -26,7 +26,7 @@ export class AppComponent {
  checkSession() {
   const user = sessionStorage.getItem('UserId');
 
-  const publicRoutes = ['/login', '/Welcomedemo'];
+  const publicRoutes = ['/login', '/Welcomedemo','/jobapply'];
 
   if (!user && !publicRoutes.includes(this.router.url)) {
     this.logout();

@@ -626,8 +626,8 @@ canCreate: boolean = false;
   weekoffDays: Set<string> = new Set();
 
   // Sorting
-  sortColumn: keyof LeaveRequest | null = null;
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortColumn: keyof LeaveRequest | null = 'appliedDate';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   // Pagination
   pageSize = 5;
@@ -844,6 +844,10 @@ dedupeLeaves(leaves: LeaveRequest[]): LeaveRequest[] {
 
   loadMyLeaves() {
     this.leaveService.getMyLeaves(this.userId).subscribe({
+      next: (data) => {
+        this.leaveList = data
+        .slice()
+        .map(x => ({
       next: (data: any) => {
         const response = data as any;
         const records = Array.isArray(response) ? response : response?.data || [];
@@ -858,6 +862,8 @@ dedupeLeaves(leaves: LeaveRequest[]): LeaveRequest[] {
           fileName: x.fileName,
           status: x.status,
           isHalfDay: x.isHalfDay ?? false
+        }))
+        .sort((a, b) => new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime());
         })));
 
         this.calculateLeaveSummary();
@@ -872,9 +878,22 @@ dedupeLeaves(leaves: LeaveRequest[]): LeaveRequest[] {
     });
   }
 
-
-
-
+shouldCountLeaveForBalance(leave: LeaveRequest): boolean {
+  // Rejected leaves don't count
+  if (leave.status === 'Rejected') {
+    return false;
+  }
+  
+  // For pending leaves, only count if toDate is today or in the future
+  if (leave.status === 'Pending') {
+    const toDate = new Date(leave.toDate);
+    const todayDate = new Date(this.today);
+    return !isNaN(toDate.getTime()) && toDate >= todayDate;
+  }
+  
+  // Approved leaves always count
+  return true;
+}
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
@@ -902,9 +921,9 @@ onHalfDayChange() {
       return;
     }
 
-    // Calculate used leaves for selected type
+    // Calculate used leaves for selected type (exclude expired pending leaves)
     this.usedLeaves = this.leaveList
-      .filter(l => l.leaveType === this.leaveType)
+      .filter(l => l.leaveType === this.leaveType && this.shouldCountLeaveForBalance(l))
       .reduce((sum, l) => sum + l.totalDays, 0);
     // Available = Total - Used
     this.availableLeaves =
@@ -914,6 +933,16 @@ onHalfDayChange() {
 
 
  leavedays:any;
+  calculateLeaveSummary() {
+    this.leavedays= this.leaveList
+    .filter(l => this.shouldCountLeaveForBalance(l)).reduce((sum, l) => sum + l.totalDays, 0);
+    this.sickUsed = this.leaveList
+      .filter(l => l.leaveType === "Sick Leave" && this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => sum + l.totalDays, 0);
+
+    this.casualUsed = this.leaveList
+      .filter(l => l.leaveType === "Casual Leave" && this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => sum + l.totalDays, 0);
  calculateLeaveSummary() {
   this.leavedays = this.leaveList.reduce((sum, l) => sum + (l.totalDays || 0), 0);
 
@@ -1156,6 +1185,16 @@ if (isDuplicate) {
       },
       error: (err: any) => {
         console.error("Submit failed", err);
+        
+        // Check for duplicate leave error
+        const errorMessage = err?.error?.message || err?.error?.error || '';
+        if (errorMessage.toLowerCase().includes('duplicate') || 
+            errorMessage.toLowerCase().includes('already exists') ||
+            errorMessage.toLowerCase().includes('already applied')) {
+          Swal.fire('Duplicate Leave', 'You have already applied for leave on these dates. Please choose different dates.', 'warning');
+        } else {
+          Swal.fire('Error', 'Error while submitting leave.', 'error');
+        }
         const msg = err?.error?.message || "Something went wrong";
 Swal.fire('Error', msg, 'error');
 
@@ -1229,6 +1268,7 @@ Swal.fire('Error', msg, 'error');
     this.pageSize = size;
     this.currentPage = 1;
   }
+}
 loadPermission() {
   const userId = Number(sessionStorage.getItem("UserId"));
   const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");

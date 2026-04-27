@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-attendance-list',
@@ -20,7 +21,8 @@ export class AttendanceListComponent {
   unsavedDates: string[] = [];
   fromDate: string = '';
   toDate: string = '';
-
+  companyLogo: string = '';
+  companyLogoBase64: string = '';
   todayDate: Date = new Date();
 
   employees: any[] = [];
@@ -104,8 +106,46 @@ export class AttendanceListComponent {
       Swal.fire("Access Denied", "You don't have permission", "error");
       return;
     }
+    this.loadCompanyLogo();
 
   }
+  loadCompanyLogo() {
+  const companyId = Number(sessionStorage.getItem('CompanyId'));
+
+  this.adminService.getCompanyById(companyId).subscribe({
+    next: async (company: any) => {
+
+      const logo = company?.companyLogo;
+
+      if (logo && logo.trim() !== '') {
+
+        if (logo.startsWith('data:')) {
+          this.companyLogo = logo;
+          this.companyLogoBase64 = logo;
+        } else {
+          const logoPath = logo.replace(/\\/g, '/');
+          this.companyLogo = `${environment.baseurl}/${logoPath}`;
+
+          this.companyLogoBase64 =
+            await this.getBase64ImageFromURL(this.companyLogo);
+        }
+
+      } else {
+        this.setDefaultLogo();
+      }
+    },
+    error: () => {
+      this.setDefaultLogo();
+    }
+  });
+}
+setDefaultLogo() {
+  this.companyLogo = '/assets/images/cor-logo.png';
+
+  this.getBase64ImageFromURL(this.companyLogo)
+    .then(base64 => this.companyLogoBase64 = base64)
+    .catch(() => this.companyLogoBase64 = '');
+}
 
   // ================= checkUnsavedDates =================
 
@@ -475,7 +515,7 @@ async generatePDF() {
 
   const doc = new jsPDF();
 
-  const logoBase64 = await this.getBase64ImageFromURL('/assets/images/cor-logo.png');
+  const logoBase64 = this.companyLogoBase64;
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -677,10 +717,10 @@ autoTable(doc, {
     saveAs(blob, `Attendance_Report_${this.fromDate}_to_${this.toDate}_${today}.xlsx`);
   }
 
-  getBase64ImageFromURL(url: string): Promise<string> {
+ getBase64ImageFromURL(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'Anonymous';
+    img.crossOrigin = 'anonymous';
     img.src = url;
 
     img.onload = () => {
@@ -691,13 +731,12 @@ autoTable(doc, {
       const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0);
 
-      const dataURL = canvas.toDataURL('image/png');
-      resolve(dataURL);
+      resolve(canvas.toDataURL('image/png'));
     };
 
-    img.onerror = error => reject(error);
+    img.onerror = err => reject(err);
   });
- }
+}
 
 
   canView: boolean = false;

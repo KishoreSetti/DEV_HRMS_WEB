@@ -788,6 +788,23 @@ export interface ManagerDropdown {
   userId: number;
   fullName: string;
 }
+
+//----------------------- Late Login Policy Interface--------------------//
+
+export interface LateLoginPolicy {
+  policyId: number;
+  companyId: number;
+  regionId: number;
+  userId: number;
+
+  lateLoginCount: number;
+  lopdays: number;
+  loptype: string;
+
+  isActive: boolean;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -948,6 +965,16 @@ export class AdminService {
 
   sendWelcomeEmail(user: User): Observable<any> {
     return this.http.post(`${this.baseUrl}/UserManagement/SendEmail`, user);
+  }
+
+  sendHrNotification(email: string, subject: string, body: string): Observable<any> {
+    const payload = {
+      Email: email,
+      Subject: subject,
+      Body: body,
+      FullName: 'HR Team'
+    };
+    return this.http.post(`${this.baseUrl}/UserManagement/SendEmail`, payload);
   }
 
   // -------------------------------------------------------------
@@ -1142,10 +1169,12 @@ deleteGender(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeleteGender?id=${id}`, {});
 }
  getBloodGroupsbyID(userID: number): Observable<any> {
+  debugger;
     return this.http.get(`${this.baseUrl}/MasterData/GetBloodGroupsById/${userID}`);
   }
 //   // ✅ CREATE
   createBloodGroup(data: BloodGroup): Observable<any> {
+    debugger;
     return this.http.post(`${this.baseUrl}/MasterData/AddBloodGroups`, data);
   }
 
@@ -1740,6 +1769,9 @@ uploadEmployeeFiles(formData: FormData) {
   );
 }
 
+updateFormStatus(data: any) {
+  return this.http.post(`${environment.apiUrl}/Employee/UpdateStatus`, data);
+}
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Document  OPERATIONS
 // -------------------------------------------------------------
@@ -2813,4 +2845,50 @@ getProjectNames(companyId: number, regionId: number) {
     return this.http.get<any>(`${this.baseUrl}/MasterData/GetProjectsByCompanyRegion?companyId=${companyId}&regionId=${regionId}`);
   }
 
+
+  //----------------------------------------- Late Login Policy Master Screen Code API's ---------------------------------------//
+
+// ================= GET ALL =================
+getLateLoginPolicies(userId: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/UserManagement/GetLateLoginPolicy`,
+    {
+      params: { userId: userId }
+    }
+  );
+}
+
+// ================= GET BY ID =================
+getLateLoginPolicyById(id: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/UserManagement/GetLateLoginPolicyById`,
+    {
+      params: { id: id }
+    }
+  );
+}
+
+// ================= CREATE =================
+createLateLoginPolicy(data: any) {
+  return this.http.post<any>(
+    `${this.baseUrl}/UserManagement/SaveLateLoginPolicy`,
+    data
+  );
+}
+
+// ================= UPDATE =================
+updateLateLoginPolicy(id: number, data: any) {
+  return this.http.post<any>(
+    `${this.baseUrl}/UserManagement/UpdateLateLoginPolicy/${id}`,
+    data
+  );
+}
+
+// ================= DELETE =================
+deleteLateLoginPolicy(id: number) {
+  return this.http.post<any>(
+    `${this.baseUrl}/UserManagement/DeleteLateLoginPolicy/${id}`,
+    {}
+  );
+}
 }

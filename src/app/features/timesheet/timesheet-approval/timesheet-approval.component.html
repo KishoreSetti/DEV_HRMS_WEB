@@ -89,7 +89,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let ts of filteredTimesheets()">
+          <tr *ngFor="let ts of getPaginatedTimesheets()">
             <td>
               <input *ngIf="ts.status === 'Pending' || ts.status==='Submitted'"
                      type="checkbox"
