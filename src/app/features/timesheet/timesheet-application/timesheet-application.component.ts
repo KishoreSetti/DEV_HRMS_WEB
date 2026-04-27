@@ -49,6 +49,7 @@ model: TimesheetModel = {
   regionId!: number;
 
   submittedTimesheets: any[] = [];
+  selectedTimesheet: any = null;
 
   // Sorting
   sortColumn: keyof TimesheetModel | 'totalHoursText' | 'otHoursText' | 'timesheetDate' | null = null;
@@ -301,4 +302,10 @@ model: TimesheetModel = {
     this.pageSize = size;
     this.currentPage = 1;
   }
+  openViewModal(row: any) {
+  this.selectedTimesheet = row;
+}
+closeViewModal() {
+  this.selectedTimesheet = null;
+}
 }
