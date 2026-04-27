@@ -1769,9 +1769,7 @@ uploadEmployeeFiles(formData: FormData) {
   );
 }
 
-updateFormStatus(data: any) {
-  return this.http.post(`${environment.apiUrl}/Employee/UpdateStatus`, data);
-}
+
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Document  OPERATIONS
 // -------------------------------------------------------------
