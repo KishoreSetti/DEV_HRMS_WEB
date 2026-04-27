@@ -418,11 +418,16 @@ updateTodayHoursCard() {
 updateChartTodayHours(totalHours: number) {
   if (!this.attendanceChart) return;
 
-  const todayIndex = this.attendanceChart.data.labels.length - 1;
+  const today = new Date();
+  const todayLabel = today.toLocaleDateString('en-US', { weekday: 'short' });
 
-  this.attendanceChart.data.datasets[0].data[todayIndex] = totalHours;
+  const index = this.attendanceChart.data.labels.indexOf(todayLabel);
 
-  this.attendanceChart.update();
+  if (index !== -1) {
+    this.attendanceChart.data.datasets[0].data[index] = totalHours;
+    this.attendanceChart.data.datasets[0].backgroundColor[index] = '#28a745'; // GREEN
+    this.attendanceChart.update();
+  }
 }
   // ================= LEAVES =================
   loadLeaves() {
