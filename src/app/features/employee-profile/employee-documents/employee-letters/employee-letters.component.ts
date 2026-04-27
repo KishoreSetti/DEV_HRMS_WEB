@@ -61,7 +61,7 @@ export class EmployeeLettersComponent {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
-      const allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+      const allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'ppt', 'pptx', 'xls', 'xlsx', 'txt'];
       const ext = file.name.split('.').pop()?.toLowerCase() || '';
 
       if (!allowed.includes(ext)) {

@@ -13,6 +13,6 @@ export const environment = {
   ddcopies : 'https://rdw.cortracker360.com/DDCopies/',
   //companyNewsUrl : 'https://localhost:44370/api/CompanyNews',
   isDebugMode: true,
-  LettersPath: 'https://localhost:44370/uploads/EmployeeLetters/',
+  LettersPath: 'Uploads/EmployeeLetters/',
   leaveDocumentPath: '/uploads/LeaveDocuments/'
 };
