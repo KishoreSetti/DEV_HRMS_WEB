@@ -1695,11 +1695,12 @@ updateEmployeeLetter(id: number, formData: FormData): Observable<any> {
 deleteEmployeeLetter(id: number): Observable<any> {
   return this.http.post(`${this.baseUrl}/employee/deleteletters?id=${id}`, {});
 }
-getMyLetters(employeeCode: string) {
+getMyLetters(employeeCode: string, companyId: number, regionId: number) {
   return this.http.get<any[]>(
-    `${this.baseUrl}/employee/GetMyLetters/${employeeCode}`
+    `${this.baseUrl}/employee/GetMyLetters/${employeeCode}/${companyId}/${regionId}`
   );
 }
+
 
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Forms  OPERATIONS
@@ -1723,20 +1724,22 @@ updateEmployeeForms(id: number, formData: FormData): Observable<any> {
 deleteEmployeeForms(id: number): Observable<any> {
   return this.http.post(`${this.baseUrl}/employee/DeleteForm?id=${id}`, {});
 }
-getMyForms(employeeCode: string) {
+updateFormStatus(data: any) {
+  return this.http.post(`${environment.apiUrl}/employee/UpdateStatus`, data);
+}
+getMyForms(employeeCode: string, companyId: number, regionId: number) {
   return this.http.get<any[]>(
-    `${this.baseUrl}/employee/GetMyForms/${employeeCode}`
+    `${this.baseUrl}/employee/GetMyForms/${employeeCode}/${companyId}/${regionId}`
   );
 }
+
 uploadEmployeeFiles(formData: FormData) {
   return this.http.post(
     `${this.baseUrl}/employee/UploadEmployeeFiles`,
     formData
   );
 }
-updateFormStatus(data: any) {
-  return this.http.post(`${environment.apiUrl}/EmployeeForms/UpdateStatus`, data);
-}
+
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Document  OPERATIONS
 // -------------------------------------------------------------

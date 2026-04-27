@@ -13,10 +13,15 @@ export class EmployeeMyformsComponent {
   employeeCode: string = '';
   documentTypes: any[] = [];
 employeeFilesMap: { [key: number]: File[] } = {};
+companyId: number = 0;
+regionId: number = 0;
+
   constructor(private adminService: AdminService) {}
 
   ngOnInit() {
     this.employeeCode = sessionStorage.getItem("EmployeeCode") || '';
+     this.companyId = Number(sessionStorage.getItem("CompanyId"));
+  this.regionId = Number(sessionStorage.getItem("RegionId"));
     this.loadDocumentTypes();
     this.loadMyForms();
   }
@@ -37,21 +42,22 @@ employeeFilesMap: { [key: number]: File[] } = {};
   }
   
 
-  loadMyForms() {
-    this.adminService.getMyForms(this.employeeCode).subscribe({
-      next: (res: any[]) => {
-        this.forms = res.map(x => ({
-          id: x.id,
-          documentType: x.documentTypeId,
-          name: x.documentName,
-          issuedDate: x.issueDate,
-          remarks: x.remarks,
-          filePaths: x.filePaths || []
-        }));
-      },
-      error: (err) => console.error(err)
-    });
-  }
+ loadMyForms() {
+  this.adminService.getMyForms(this.employeeCode, this.companyId, this.regionId).subscribe({
+    next: (res: any[]) => {
+      this.forms = res.map(x => ({
+        id: x.id,
+        documentType: x.documentTypeId,
+        name: x.documentName,
+        issuedDate: x.issueDate,
+        remarks: x.remarks,
+        filePaths: x.filePaths || []
+      }));
+    },
+    error: (err) => console.error(err)
+  });
+}
+
 uploadFiles(formId: number) {
   const files = this.employeeFilesMap[formId];
 
