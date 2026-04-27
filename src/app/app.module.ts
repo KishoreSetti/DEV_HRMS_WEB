@@ -116,6 +116,8 @@ import { MainUsersComponent } from './main-users/main-users.component';
 import { SuperAdminDashboardComponent } from './superAdmin/super-admin-dashboard/super-admin-dashboard.component';
 import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers/super-admin-demousers.component';
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
+
+import { TimesheetReportComponent } from './timesheet-report/timesheet-report.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -226,6 +228,7 @@ import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subs
     
     SuperAdminDemousersComponent,
           SubscriptionPlansComponent,
+          TimesheetReportComponent,
    
     
     
