@@ -138,23 +138,34 @@ getPaginatedTimesheets() {
 
   // ================= VIEW MODAL =================
   openViewModal(ts: any) {
-  this.selectedTimesheet = null;
+    debugger;
+  this.selectedTimesheet = ts;
 
   this.timesheetService.getTimesheetDetail(ts.timesheetId).subscribe(res => {
-    const apiData = res.data ?? res;  // Use API response
+    const apiData = res?.data ?? res;
+
+   const projects = (apiData.projects || []).map((p: any) => ({
+  ...p,
+  description: p.description 
+    || 'No description available'
+}));
 
     // Only take requests for this timesheet
     const relatedRequests = (apiData.requests || []).map((r: any) => ({
       ...r,
       fileUrl: r.filePath ? `${environment.baseurl}/${r.filePath}` : null,
-      fileName: r.fileName ?? 'Attachment'
+      fileName: r.fileName
+  ? r.fileName.replace(/^[a-f0-9-]+_/, '')
+  : (r.filePath ? r.filePath.split('/').pop() : 'Attachment')
     }));
+    
 
     this.selectedTimesheet = {
       ...apiData,
+      projects,
       requests: relatedRequests
     };
-
+   
     // Calculate total and OT hours
     const totalMinutes = this.selectedTimesheet.projects?.reduce(
       (sum: number, p: any) => sum + (Number(p.totalMinutes) || 0), 0
@@ -449,6 +460,7 @@ async downloadPDF() {
     // ✅ PROJECT TABLE (RED HEADER)
     const projectRows = (ts.projects || []).map((p: any) => [
       p.projectName,
+      p.description,
       p.startTime,
       p.endTime,
       p.totalHoursText,
@@ -457,7 +469,7 @@ async downloadPDF() {
 
     autoTable(doc, {
       startY: y,
-      head: [['Project', 'Start', 'End', 'Hours', 'OT']],
+      head: [['Project', 'Description', 'Start', 'End', 'Hours', 'OT']],
       body: projectRows,
       headStyles: {
         fillColor: [220, 53, 69], // 🔴 RED
@@ -570,6 +582,7 @@ async downloadExcel() {
           ts.status,
           ts.comments || '',
           p.projectName,
+          p.description,
           p.startTime,
           p.endTime,
           p.totalHoursText,
