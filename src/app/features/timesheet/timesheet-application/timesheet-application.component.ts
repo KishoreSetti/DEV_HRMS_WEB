@@ -4,6 +4,7 @@ import { TimesheetService } from '../service/timesheet.service';
 
 export interface TimesheetProject {
   projectName: string;
+  description?: string;
   startTime: string;
   endTime: string;
 
@@ -24,6 +25,7 @@ export interface TimesheetModel {
   attachment?: File | null;
   projects: TimesheetProject[];
   status: string;
+   hrEmail?: string;
 }
 @Component({
   selector: 'app-timesheet-application',
@@ -56,10 +58,12 @@ model: TimesheetModel = {
   pageSize = 5;
   currentPage = 1;
   pageSizeOptions = [5, 10, 20, 50];
-
+ todayDate: string = '';
   constructor(private timesheetService: TimesheetService) {}
 
   ngOnInit(): void {
+    const today = new Date();
+  this.todayDate = today.toISOString().split('T')[0];
     this.userId = Number(sessionStorage.getItem("UserId"));
     this.companyId = Number(sessionStorage.getItem("CompanyId"));
     this.regionId = Number(sessionStorage.getItem("RegionId"));
@@ -91,6 +95,7 @@ model: TimesheetModel = {
   addProject() {
     this.model.projects.push({
       projectName: '',
+      description: '',
       startTime: '',
       endTime: '',
       totalHours: '00:00',
@@ -154,6 +159,7 @@ model: TimesheetModel = {
     formData.append('TimesheetDate', this.model.date);
     formData.append('Comments', this.model.comments ?? '');
     formData.append('Status', 'Pending');
+    formData.append('HrEmail', this.model.hrEmail || '');
 
     if (this.model.attachment) {
       formData.append('Attachment', this.model.attachment);
@@ -162,6 +168,7 @@ model: TimesheetModel = {
     this.model.projects.forEach((p, i) => {
       this.calculateProjectHours(p);
       formData.append(`Projects[${i}].ProjectName`, p.projectName);
+      formData.append(`Projects[${i}].Description`, p.description || '');
       formData.append(`Projects[${i}].StartTime`, p.startTime);
       formData.append(`Projects[${i}].EndTime`, p.endTime);
       formData.append(`Projects[${i}].TotalMinutes`, String(p.totalMinutes ?? 0));
@@ -183,6 +190,23 @@ model: TimesheetModel = {
       }
     });
   }
+  isFormValid(): boolean {
+
+  if (!this.model.date) return false;
+
+  if (!this.model.projects || this.model.projects.length === 0) return false;
+
+  for (let p of this.model.projects) {
+
+    if (!p.projectName) return false;
+    if (!p.description) return false;
+    if (!p.startTime) return false;
+    if (!p.endTime) return false;
+
+  }
+
+  return true;
+}
 
   onFileSelect(event: any) {
     this.model.attachment = event.target.files[0];

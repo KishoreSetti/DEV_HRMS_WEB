@@ -19,7 +19,8 @@ userId!: number;
   categories: any[] = [];
   countries: string[] = [];
   statuses: string[] = ['Pending', 'Approved', 'Rejected', 'Reimbursed'];
-
+companyId!: number;
+regionId!: number;
   // UI
   noRecordsFound = false;
 
@@ -41,9 +42,12 @@ userId!: number;
   // 🔹 INIT
   // ============================================================
   ngOnInit(): void {
-      this.userId = Number(localStorage.getItem('userId')); // logged in user
+      this.userId = sessionStorage.getItem('UserId') ? Number(sessionStorage.getItem('UserId'))
+      : 0;
+      this.companyId = sessionStorage.getItem('CompanyId') ? Number(sessionStorage.getItem('CompanyId')) : 0;
+      this.regionId = sessionStorage.getItem('RegionId') ? Number(sessionStorage.getItem('RegionId')) : 0;
     this.buildForm();
-    this.loadCategories();
+    //this.loadCategories();
     this.loadAllExpenses();
   }
 
@@ -63,7 +67,14 @@ userId!: number;
   // 🔹 LOAD ALL EXPENSES (ONLY API CHANGE)
   // ============================================================
   loadAllExpenses(): void {
-    this.expenseService.getAllExpenses().subscribe(res => {
+        debugger;
+
+  const companyId = this.companyId;
+  const regionId = this.regionId;
+
+    this.expenseService.getAllExpenses(companyId, regionId).subscribe(res => {
+          debugger;
+
       if (res.success) {
         this.expenses = res.data.map((e: any) => ({
           ...e,
@@ -86,13 +97,13 @@ userId!: number;
   // ============================================================
   // 🔹 LOAD CATEGORIES
   // ============================================================
-  loadCategories(): void {
-    this.expenseService.getExpenseCategories().subscribe(res => {
-      if (res.success) {
-        this.categories = res.data;
-      }
-    });
-  }
+  // loadCategories(): void {
+  //   this.expenseService.getExpenseCategories().subscribe(res => {
+  //     if (res.success) {
+  //       this.categories = res.data;
+  //     }
+  //   });
+  // }
 
   // ============================================================
   // 🔹 APPLY FILTERS (SAME AS APPROVE)

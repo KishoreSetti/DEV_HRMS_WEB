@@ -230,10 +230,11 @@ closeEmployeeModal() {
    
      this.recruitmentService
        .getOfferCandidatesTable(
-         this.companyId,
-         this.regionId,
-         this.candidate.department,
-         this.candidate.designation
+        //  this.companyId,
+        //  this.regionId,
+        //  this.candidate.department,
+        //  this.candidate.designation
+        this.userId
        )
        .subscribe({
          next: (res:any) => {

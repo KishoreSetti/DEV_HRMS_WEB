@@ -27,15 +27,14 @@ export class PayGroupsComponent {
   searchText = '';
 
 
-  currentPage = 1;
-  pageSize = 5;
+  filteredRegions: any[] = [];
   constructor(private payrollService: EmployeePayRollService) { }
 
   // ================= Init =================
 
   ngOnInit(): void {
 
-    this.userId = Number(sessionStorage.getItem('userCompanyIdpay'));
+    this.userId = Number(sessionStorage.getItem('UserId'));
     this.companyId = sessionStorage.getItem('CompanyId') || '';
     this.regionId = sessionStorage.getItem('RegionId') || '';
 
@@ -68,8 +67,10 @@ export class PayGroupsComponent {
     this.payrollService.getAllAssignedSalaries(this.userId)
       .subscribe({
         next: (res:any) => {
-          console.log("API Response:", res);   // 🔥 ADD THIS
+          console.log("loadAllAssignedSalaries:", res);   // 🔥 ADD THIS
           this.salaries = res || [];
+
+            this.currentPage = 1; 
         },
         error: (err:any) => {
           console.error(err);
@@ -99,15 +100,38 @@ export class PayGroupsComponent {
       });
   }
 
-  loadRegions() {
-    this.payrollService.getRegions(this.userId)
-      .subscribe((res:any) => {
-        this.regions = res || [];
-        this.regions.forEach(r => {
-          this.regionMap[r.regionId] = r.regionName;
-        });
+loadRegions() {
+  this.payrollService.getRegions(this.userId)
+    .subscribe((res: any) => {
+
+      const raw = res?.data ?? res ?? [];
+
+      this.regions = raw.map((r: any) => ({
+        regionId: String(r.regionID),   // ✅ MAKE STRING
+        regionName: r.regionName,
+        companyId: String(r.companyID)
+      }));
+
+      // ✅ IMPORTANT: Map keys also as STRING
+      this.regionMap = {};
+      this.regions.forEach(r => {
+        this.regionMap[String(r.regionId)] = r.regionName;
       });
+
+      console.log("Region Map:", this.regionMap);
+    });
+}
+onCompanyChange() {
+  this.salary.regionId = null;
+
+  if (this.salary.companyId) {
+    this.filteredRegions = this.regions.filter(r =>
+      String(r.companyId) === String(this.salary.companyId)
+    );
+  } else {
+    this.filteredRegions = [];
   }
+}
 
   loadEmployees() {
     this.payrollService.getEmployees(this.userId)
@@ -198,12 +222,19 @@ export class PayGroupsComponent {
 
   //====================== Pagination Code ========================
 
-  get paginatedSalaries() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.salaries.slice(start, start + this.pageSize);
-  }
+currentPage = 1;
+pageSize = 5;
 
-  get totalPages() {
-    return Math.ceil(this.salaries.length / this.pageSize);
-  }
+get paginatedSalaries() {
+  const start = (this.currentPage - 1) * this.pageSize;
+  return this.salaries.slice(start, start + this.pageSize);
+}
+
+get totalPages() {
+  return Math.ceil(this.salaries.length / this.pageSize);
+}
+
+changePage(page: number) {
+  this.currentPage = page;
+}
 }

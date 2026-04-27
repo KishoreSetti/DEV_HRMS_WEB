@@ -16,7 +16,7 @@
 
       <div class="col-md-4">
         <label class="form-label">Date</label>
-        <input type="date" class="form-control" [(ngModel)]="model.date" name="date" required>
+        <input type="date" class="form-control" [(ngModel)]="model.date" name="date" [max]="todayDate" required>
       </div>
 
       <div class="col-md-8">
@@ -29,47 +29,57 @@
         <input type="file" class="form-control" (change)="onFileSelect($event)">
       </div>
 
+
+      <div class="mb-3">
+        <label class="form-label">HR Email (CC)</label>
+        <input type="email" class="form-control" [(ngModel)]="model.hrEmail" name="hrEmail">
+      </div>
+
+
     </div>
 
     <h6 class="mt-2">Projects</h6>
 
     <div *ngFor="let p of model.projects; let i = index" class="row g-2 align-items-end mb-2">
 
-      <div class="col-md-3">
-        <label>Project {{ i + 1 }}</label>
+      <div class="col-md-2">
+        <label>Task {{ i + 1 }}</label>
         <input class="form-control" [(ngModel)]="p.projectName" name="project{{i}}" required>
       </div>
 
-      <div class="col-md-2">
+     <div class="col-md-5">
+  <label>Description</label>
+  <textarea class="form-control w-100"
+            [(ngModel)]="p.description"
+            name="desc{{i}}"
+            rows="1"
+            placeholder="Enter description"
+            style="min-width: 250px;"></textarea>
+</div>
+
+      <div class="col-md-1">
         <label>Start Time</label>
-        <input type="time" class="form-control"
-               [(ngModel)]="p.startTime"
-               name="start{{i}}"
-               (change)="calculateProjectHours(p)">
+        <input type="time" class="form-control" [(ngModel)]="p.startTime" name="start{{i}}"
+          (change)="calculateProjectHours(p)">
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>End Time</label>
-        <input type="time" class="form-control"
-               [(ngModel)]="p.endTime"
-               name="end{{i}}"
-               (change)="calculateProjectHours(p)">
+        <input type="time" class="form-control" [(ngModel)]="p.endTime" name="end{{i}}"
+          (change)="calculateProjectHours(p)">
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>Total Hours</label>
         <input class="form-control" [value]="p.totalHoursText" readonly>
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>OT Hours</label>
-        <input class="form-control"
-               [(ngModel)]="p.overtimeHours"
-               name="ot{{i}}"
-               placeholder="HH:MM or 1.5"
-               (change)="calculateProjectHours(p)">
+        <input class="form-control" [(ngModel)]="p.overtimeHours" name="ot{{i}}" placeholder="HH:MM or 1.5"
+          (change)="calculateProjectHours(p)">
       </div>
-
+      
       <div class="col-md-1 text-center">
         <button type="button" class="btn btn-danger btn-sm" (click)="removeProject(i)">
           <i class="fa-solid fa-trash"></i>
@@ -83,7 +93,7 @@
     </button>
 
     <div class="text-end mt-4">
-      <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+      <button class="btn btn-success" type="submit" [disabled]="!isFormValid()">
         Save Timesheet
       </button>
     </div>
@@ -139,6 +149,8 @@
             <ul class="list-group list-group-flush">
               <li class="list-group-item py-1" *ngFor="let p of row.projects; let pi = index">
                 Project {{ pi + 1 }}: {{ p.projectName }}
+                <br>
+               <small class="text-muted">{{ p.description }}</small>
               </li>
             </ul>
           </td>
@@ -178,9 +190,11 @@
         </label>
       </div>
       <div>
-        <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage-1)" [disabled]="currentPage===1">Previous</button>
+        <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage-1)"
+          [disabled]="currentPage===1">Previous</button>
         <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage+1)" [disabled]="currentPage===totalPages">Next</button>
+        <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage+1)"
+          [disabled]="currentPage===totalPages">Next</button>
       </div>
     </div>
   </div>

@@ -12,26 +12,28 @@
 
 <div class="tab-container">
   <!-- Radios -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
-  <input type="radio" id="tab3" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+  <!-- <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'"> -->
 
 
   <!-- Tab Header -->
   <div class="tab-header">
-    <label class="tab-label" for="tab1">Employee Resignation Details</label>
-    <label class="tab-label" for="tab2">Manager Approval</label>
+    <!-- <label class="tab-label" for="tab1">Employee Resignation Details</label>
+    <label class="tab-label" for="tab2">Manager Approval</label> -->
+      <label class="tab-label" *ngIf="canViewResignation" for="tab1">Employee Resignation Details</label>
+    <label class="tab-label" *ngIf="canViewApproval" for="tab2">Manager Approval</label>
     <!-- <label class="tab-label" for="tab3">HR Approval</label> -->
 
   </div>
 
   <div class="content">
-    <div id="content1" class="tab-content">
+    <div id="content1" class="tab-content" *ngIf="canViewResignation">
       <app-employee-resignation-details></app-employee-resignation-details>
     </div>
   </div>
   <!-- 🟦 TAB 2: MANAGER APPROVAL -->
-  <div id="content2" class="tab-content">
+  <div id="content2" class="tab-content" *ngIf="canViewApproval">
    <app-employee-resignation-manager-approval></app-employee-resignation-manager-approval>
   </div>
 

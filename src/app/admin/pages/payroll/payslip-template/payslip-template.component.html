@@ -4,6 +4,18 @@
     <h4 class="fw-semibold mb-3">Payroll Processing</h4>
 
     <div class="row g-3">
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-danger" (click)="downloadPayrollPDF()">
+          Download PDF
+        </button>
+
+        <button class="btn btn-success" (click)="downloadPayrollExcel()">
+          Download Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="row g-3">
 
       <div class="col-md-3">
         <label class="form-label">Month *</label>
@@ -17,7 +29,14 @@
 
       <div class="col-md-3">
         <label class="form-label">Year *</label>
-        <input type="number" class="form-control" [(ngModel)]="year">
+        <select class="form-select" [(ngModel)]="year" name="year" required>
+          <option value="">Select Year</option>
+          <option [ngValue]="2026">2026</option>
+          <option [ngValue]="2027">2027</option>
+          <option [ngValue]="2028">2028</option>
+          <option [ngValue]="2029">2029</option>
+          <option [ngValue]="2030">2030</option>
+        </select>
       </div>
 
       <div class="col-md-6 d-flex align-items-end gap-2">
@@ -26,14 +45,17 @@
           Preview Payrolls
         </button>
 
-        <button class="btn btn-success w-100" (click)="processPayroll()"
-          [disabled]="!isPreviewDone || isProcessed || isLoading">
-          Process Payrolls
-        </button>
+        <span [title]="isPayrollAlreadyProcessed() ? 'Payroll already processed for selected month and year' : ''"
+          style="display:block; width:100%">
 
-        <!-- <button class="btn btn-secondary w-100" (click)="loadPayroll()" [disabled]="isLoading">
-          Load Saved Payrolls
-        </button> -->
+          <button class="btn btn-success w-100" (click)="processPayroll()"
+            [disabled]="!isPreviewDone || isProcessed || isLoading || isPayrollAlreadyProcessed()">
+
+            Process Payrolls
+
+          </button>
+
+        </span>
 
       </div>
 
@@ -49,16 +71,14 @@
         <tr>
           <th>Employee ID</th>
           <th>Employee Name</th>
-          <!-- <th>Department</th>
-          <th>Designation</th> -->
           <th>Working Days</th>
-<th>Present</th>
-<th>Leave</th>
-<th>Half Day</th>
-<th>Expenses</th>
+          <th>Present</th>
+          <th>Leave</th>
+          <th>Half Day</th>
+          <th>Late Count</th>
+          <th>Expenses</th>
           <th>Status</th>
           <th>View</th>
-          <th>PDF</th>
         </tr>
       </thead>
 
@@ -67,18 +87,17 @@
 
           <td>{{ getEmployee(p.employeeId)?.employeeCode }}</td>
           <td>{{ getEmployee(p.employeeId)?.fullName }}</td>
-          <!-- <td>
-            {{ departmentMap[getEmployee(p.employeeId)?.departmentId] || '-' }}
-          </td>
-
-          <td>
-            {{ designationMap[getEmployee(p.employeeId)?.designationId] || '-' }}
-          </td> -->
           <td>{{p.workingDays}}</td>
-<td>{{p.presentDays}}</td>
-<td>{{p.leaveDays}}</td>
-<td>{{p.halfDays}}</td>
-<td>{{p.expenses}}</td>
+          <td>{{p.presentDays}}</td>
+          <td>{{p.leaveDays}}</td>
+          <td>{{p.halfDays}}</td>
+          <td>
+            {{p.lateCount || 0}}
+            <small class="text-muted">
+              ({{ getLateHalfDays(p.lateCount) }} Half)
+            </small>
+          </td>
+          <td>{{p.expenses}}</td>
 
           <td>
             <span class="badge bg-info">
@@ -92,11 +111,7 @@
             </button>
           </td>
 
-          <td>
-            <button class="btn btn-sm btn-danger" (click)="downloadPDF(p)">
-              PDF
-            </button>
-          </td>
+
 
         </tr>
 
@@ -108,9 +123,20 @@
 
       </tbody>
     </table>
+
+    <div class="pagination" *ngIf="payrollList.length > pageSize">
+
+      <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i+1)"
+        [class.active]="currentPage === (i+1)">
+
+        {{ i + 1 }}
+
+      </button>
+
+    </div>
   </div>
 </div>
-<!-- VIEW MODAL -->
+
 <div class="modal fade show d-block" *ngIf="selectedPayroll" style="background: rgba(0,0,0,0.5); padding-top: 150px;">
 
   <div class="modal-dialog modal-lg">
@@ -179,36 +205,36 @@
 
         <hr>
 
-<hr>
+        <hr>
 
-<div class="row mt-3">
+        <div class="row mt-3">
 
-  <div class="col-md-6">
-    <div class="border rounded p-2 text-center bg-light">
-      <strong>Attendance Deduction</strong>
-      <div class="text-danger fw-bold">
-        ₹ {{ selectedPayroll.attendanceDeduction | number:'1.2-2' }}
-      </div>
-    </div>
-  </div>
+          <div class="col-md-6">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong>Attendance Deduction</strong>
+              <div class="text-danger fw-bold">
+                ₹ {{ selectedPayroll.attendanceDeduction | number:'1.2-2' }}
+              </div>
+            </div>
+          </div>
 
-  <div class="col-md-6">
-    <div class="border rounded p-2 text-center bg-light">
-      <strong>Expenses Added</strong>
-      <div class="text-success fw-bold">
-        ₹ {{ selectedPayroll.expenses | number:'1.2-2' }}
-      </div>
-    </div>
-  </div>
+          <div class="col-md-6">
+            <div class="border rounded p-2 text-center bg-light">
+              <strong>Expenses Added</strong>
+              <div class="text-success fw-bold">
+                ₹ {{ selectedPayroll.expenses | number:'1.2-2' }}
+              </div>
+            </div>
+          </div>
 
-</div>
+        </div>
 
-<hr>
+        <hr>
 
-<div class="bg-success text-white text-center py-2 fw-bold">
-  Net Salary :
-  {{ selectedPayroll.netSalary | number:'1.2-2' }}
-</div>
+        <div class="bg-success text-white text-center py-2 fw-bold">
+          Net Salary :
+          {{ selectedPayroll.netSalary | number:'1.2-2' }}
+        </div>
 
       </div>
 

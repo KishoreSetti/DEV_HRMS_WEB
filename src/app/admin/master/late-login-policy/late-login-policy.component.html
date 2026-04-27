@@ -1,0 +1,107 @@
+<div class="card shadow-sm">
+    <div class="container-fluid p-4">
+
+        <h4 class="mb-3">Late Login Policy</h4>
+
+        <!-- FORM -->
+        <form (ngSubmit)="onSubmit()" #form="ngForm">
+            <div class="row g-3">
+
+                <!-- ✅ Company -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Company *</label>
+                    <select class="form-select" [(ngModel)]="policy.companyId" name="companyId"
+                        (change)="onCompanyChange()" required>
+                        <option value="0">Select Company</option>
+                        <option *ngFor="let c of companies" [value]="c.companyId">
+                            {{ c.companyName }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- ✅ Region -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Region *</label>
+                    <select class="form-select" [(ngModel)]="policy.regionId" name="regionId" required>
+                        <option value="0">Select Region</option>
+                        <option *ngFor="let r of filteredRegions" [value]="r.regionID">
+                            {{ r.regionName }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label>Late Login Count *</label>
+                    <input type="number" class="form-control" [(ngModel)]="policy.lateLoginCount" name="lateLoginCount"
+                        required>
+                </div>
+
+                <div class="col-md-4">
+                    <label>LOP Days *</label>
+                    <input type="number" class="form-control" [(ngModel)]="policy.lopdays" name="lopdays" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label>LOP Type *</label>
+                    <select class="form-select" [(ngModel)]="policy.loptype" name="loptype" required>
+                        <option value="">Select</option>
+                        <option>Half Day</option>
+                        <option>Full Day</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-center">
+                    <input type="checkbox" [(ngModel)]="policy.isActive" name="isActive">
+                    <label class="ms-2">Active</label>
+                </div>
+
+                <div class="col-md-8 d-flex gap-2">
+                    <button class="btn btn-success w-100" [disabled]="!form.valid">
+                        {{ isEditMode ? 'Update' : 'Save' }}
+                    </button>
+
+                    <button type="button" class="btn btn-danger w-100" (click)="resetForm()">
+                        Cancel
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <hr>
+
+        <!-- TABLE -->
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <TH>S.NO</TH>
+                    <th>Company</th> 
+                    <th>Region</th> 
+                    <th>Count</th>
+                    <th>LOP Days</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let p of policies, let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ getCompanyName(p.companyId) }}</td>
+                    <td>{{ getRegionName(p.regionId) }}</td>
+                    <td>{{p.lateLoginCount}}</td>
+                    <td>{{p.lopdays}}</td>
+                    <td>{{p.loptype}}</td>
+                    <td>{{p.isActive ? 'Active' : 'Inactive'}}</td>
+
+                    <td>
+                        <button class="btn btn-sm btn-primary" (click)="edit(p)">Edit</button>
+                        <button class="btn btn-sm btn-danger" (click)="delete(p)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>

@@ -1,22 +1,37 @@
 <nav class="navbar">
-  <ul class="menu">
+  <div class="menu-toggle" (click)="toggleMobileMenu()">
+    ☰
+  </div>
+  <ul class="menu" [class.open]="isMobileMenuOpen">
     <ng-container *ngTemplateOutlet="renderMenu; context:{ items: menuItems }"></ng-container>
   </ul>
 
   <ng-template #renderMenu let-items="items">
     <ng-container *ngFor="let item of items">
-      <li class="dropdown">
+      <li class="dropdown" [class.open]="item.isOpen">
         <!-- <a [routerLink]="item.link || '#'">
           <i  [ngClass]="item.icon.split(' ')" style="margin-right:8px;"></i>  {{ item.label }}
 
           
           <span *ngIf="item.children.length > 0">▾</span>
         </a> -->
-   <a [routerLink]="item.link || '#'" (click)="setMenu(item)">
+   <a [routerLink]="item.link || '#'" (click)="setMenu(item)" *ngIf="item.link; else noLink" (click)="setMenu(item); closeMobileMenu()">
   <i [ngClass]="item.icon.split(' ')" style="margin-right:8px;"></i>
   {{ item.label }}
-  <span *ngIf="item.children.length > 0">▾</span>
+  <span *ngIf="item.children.length > 0" class="arrow" (click)="toggle(item, $event)">▾</span>
 </a>
+<ng-template #noLink>
+  <a (click)="setMenu(item)">
+    <i [ngClass]="item.icon?.split(' ')" style="margin-right:8px;"></i>
+    {{ item.label }}
+
+    <span *ngIf="item.children?.length > 0"
+          class="arrow"
+          (click)="toggle(item, $event)">
+      ▾
+    </span>
+  </a>
+</ng-template>
         <ul class="dropdown-content" *ngIf="item.children?.length > 0">
           <ng-container *ngTemplateOutlet="renderMenu; context:{ items: item.children }"></ng-container>
         </ul>

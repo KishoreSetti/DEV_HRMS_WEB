@@ -28,6 +28,7 @@ export class TaxSettingsComponent {
   searchText = '';
   currentPage = 1;
   pageSize = 5;
+  filteredRegions: any[] = [];
 
   departments: any[] = [];
   designations: any[] = [];
@@ -41,26 +42,26 @@ export class TaxSettingsComponent {
 
   ngOnInit(): void {
 
-    this.userId = Number(sessionStorage.getItem('userCompanyIdpay'));
+    this.userId = Number(sessionStorage.getItem('UserId'));
     this.companyId = sessionStorage.getItem('CompanyId') || '';
     this.regionId = sessionStorage.getItem('RegionId') || '';
 
     this.structure = this.getEmptyStructure();
-
+    this.loadDepartments();
+    this.loadDesignations();
     this.loadStructures();
     this.loadSalaryComponents();
     this.loadCompanies();
     this.loadRegions();
-    this.loadDepartments();
-    this.loadDesignations();
-  }
 
+  }
   getEmptyStructure() {
     return {
       structureName: '',
       departmentId: null,
       designationId: null,
       gradeId: null,
+      gradeName: '',
       isActive: true,
       companyId: null,
       regionId: null,
@@ -68,10 +69,22 @@ export class TaxSettingsComponent {
     };
   }
 
-  loadStructures() {
-    this.payrollService.getAllSalaryStructures(this.userId)
-      .subscribe((res: any) => this.structures = res || []);
-  }
+loadStructures() {
+  this.payrollService.getAllSalaryStructures(this.userId)
+    .subscribe((res: any) => {
+
+      console.log('Salary Structures API Response:', res);
+
+      // ✅ FIX: normalize types
+      this.structures = (res || []).map((s: any) => ({
+        ...s,
+        regionId: Number(s.regionId),     // 🔥 IMPORTANT
+        companyId: Number(s.companyId)
+      }));
+
+      console.log('Normalized Structures:', this.structures);
+    });
+}
 
   loadSalaryComponents() {
     this.payrollService.getComponents(this.userId)
@@ -89,37 +102,53 @@ export class TaxSettingsComponent {
       });
   }
 
-  loadRegions() {
-    this.payrollService.getRegions(this.userId)
-      .subscribe((res: any) => {
+loadRegions() {
+  this.payrollService.getRegions(this.userId)
+    .subscribe((res: any) => {
 
-        console.log('Regions API:', res);
+      if (res && Array.isArray(res)) {
 
-        if (res && Array.isArray(res)) {
+        this.regions = res.map((r: any) => ({
+          regionId: Number(r.regionID),   // ✅ normalize
+          regionName: r.regionName,
+          companyID: Number(r.companyID)
+        }));
 
-          this.regions = res.map((r: any) => ({
-            regionId: r.regionID,        // ✅ FIX HERE
-            regionName: r.regionName
-          }));
+        // ✅ CREATE MAP HERE (IMPORTANT)
+        this.regionMap = {};
+        this.regions.forEach(r => {
+          this.regionMap[r.regionId] = r.regionName;
+        });
 
-          // Mapping (for table display)
-          this.regions.forEach(r => {
-            this.regionMap[r.regionId] = r.regionName;
-          });
+      } else {
+        this.regions = [];
+      }
 
-        } else {
-          this.regions = [];
-        }
-      });
+      this.onCompanyChange();
+
+      console.log("Region Map:", this.regionMap);
+    });
+}
+  onCompanyChange() {
+  // Reset region selection
+  this.structure.regionId = null;
+
+  if (this.structure.companyId) {
+    this.filteredRegions = this.regions.filter(r =>
+      Number(r.companyID) === Number(this.structure.companyId)
+    );
+  } else {
+    this.filteredRegions = [];
   }
+}
   loadDepartments() {
     this.payrollService.getDepartments(this.userId)
       .subscribe((res: any) => {
         console.log("Departments API:", res);
 
-        if (res && res.success && Array.isArray(res.data)) {
+        if (res && res.success && Array.isArray(res.data.data)) {
 
-          this.departments = res.data;  // ✅ IMPORTANT
+          this.departments = res.data.data;  // ✅ IMPORTANT
 
           // Optional mapping
           this.departments.forEach((d: any) => {
@@ -135,11 +164,13 @@ export class TaxSettingsComponent {
     this.payrollService.getDesignations(this.userId)
       .subscribe((res: any) => {
 
-        if (res && res.success && Array.isArray(res.data)) {
+        if (res && res.success && Array.isArray(res.data.data)) {
 
-          this.designations = res.data.map((d: any) => ({
+          this.designations = res.data.data.map((d: any) => ({
             designationId: d.designationID,   // ✅ mapping fix
-            designationName: d.designationName
+            designationName: d.designationName,
+              gradeId: d.gradeID,        // ✅ ADD THIS
+          gradeName: d.gradeName     // (optional)
           }));
 
         } else {
@@ -147,7 +178,6 @@ export class TaxSettingsComponent {
         }
       });
   }
-
   addComponent() {
     this.structure.components.push({
       componentId: null,
@@ -155,11 +185,9 @@ export class TaxSettingsComponent {
       calculationType: ''
     });
   }
-
   removeComponent(index: number) {
     this.structure.components.splice(index, 1);
   }
-
   onSubmit() {
     this.structure.departmentId = this.structure.departmentId ? Number(this.structure.departmentId) : null;
     this.structure.designationId = this.structure.designationId ? Number(this.structure.designationId) : null;
@@ -200,7 +228,6 @@ export class TaxSettingsComponent {
       });
     }
   }
-
   editStructure(s: any) {
     this.payrollService
       .getSalaryStructureById(s.structureId, this.userId)
@@ -212,7 +239,6 @@ export class TaxSettingsComponent {
         this.isEditMode = true;
       });
   }
-
   deleteStructure(s: any) {
 
     Swal.fire({
@@ -232,7 +258,6 @@ export class TaxSettingsComponent {
       }
     });
   }
-
   resetForm() {
     this.structure = this.getEmptyStructure();
     this.isEditMode = false;
@@ -243,23 +268,19 @@ export class TaxSettingsComponent {
         .includes(this.searchText.toLowerCase())
     );
   }
-
   paginatedStructures() {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filteredStructures().slice(start, start + this.pageSize);
   }
-
   totalPages(): number {
     return Math.ceil(this.filteredStructures().length / this.pageSize);
   }
-
   nextPage() {
     if (this.currentPage < this.totalPages()) {
       this.currentPage++;
       console.log("Page:", this.currentPage);
     }
   }
-
   prevPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
@@ -267,7 +288,21 @@ export class TaxSettingsComponent {
   }
   onSearchChange() {
     this.currentPage = 1;
+  }  
+
+onDesignationChange() {
+  const selected = this.designations.find(
+    d => Number(d.designationId) === Number(this.structure.designationId)
+  );
+
+  if (selected) {
+    this.structure.gradeId = selected.gradeId;       // ✅ for saving
+    this.structure.gradeName = selected.gradeName;  // ✅ for UI display
+  } else {
+    this.structure.gradeId = null;
+    this.structure.gradeName = '';
   }
 
-  
+  console.log("Selected Designation:", selected);
+}
 }

@@ -46,6 +46,7 @@ export interface EmployeeShiftDto {
   shiftName: string;
   shiftStartTime: string;
   shiftEndTime: string;
+   grassTime: string;  
 }
 export interface Reference {
   referenceId?: number;
@@ -124,6 +125,12 @@ private apiadminUrl = environment.apiUrl + '/UserManagement';
   updateempProfile(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/UpdateempPersonalAsync`, formData);
   }
+  getProfilePicture(userId: number): Observable<string> {
+  return this.http.get(
+    `${environment.apiUrl}/Employee/GetProfilePicture/${userId}`,
+    { responseType: 'text' }
+  );
+}
 
   getAllempProfile(): Observable<any> {
     return this.http.get(`${this.apiUrl}`);
@@ -276,6 +283,8 @@ getManagerLeaves(managerId: number) {
 getAllAllocations(companyId: number, regionId: number): Observable<ShiftAllocationDto[]> {
     debugger;
     return this.http.get<ShiftAllocationDto[]>(`${environment.apiUrl}/attendance/GetAllAllocations/${companyId}/${regionId}`);
+getAllAllocations(userId: number): Observable<ShiftAllocationDto[]> {
+    return this.http.get<ShiftAllocationDto[]>(`${environment.apiUrl}/attendance/GetAllAllocations/${userId}`);
   }
 
   getAllocationById(id: number): Observable<ShiftAllocationDto> {
@@ -291,12 +300,20 @@ getAllAllocations(companyId: number, regionId: number): Observable<ShiftAllocati
     return this.http.post(`${environment.apiUrl}/attendance/UpdateAllocation`, model);
   }
 
+  // deleteAllocation(id: number): Observable<any> {
+  //   return this.http.delete(`${environment.apiUrl}/attendance/DeleteAllocation/${id}`);
+  // }
   deleteAllocation(id: number): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/attendance/DeleteAllocation/${id}`);
-  }
+  return this.http.post(`${environment.apiUrl}/attendance/DeleteAllocation/${id}`, {});
+}
   getShiftallocationName(id: any): Observable<EmployeeShiftDto> {
     return this.http.get<EmployeeShiftDto>(`${environment.apiUrl}/attendance/ShiftallocationName/${id}`);
   }
+  getShiftallocationNameForClockInOut(employeeCode: string, companyId: number, regionId: number): Observable<EmployeeShiftDto> {
+  return this.http.get<EmployeeShiftDto>(
+    `${environment.apiUrl}/attendance/getShiftallocationNameForClockInOut/${employeeCode}/${companyId}/${regionId}`
+  );
+}
     // 🔹 GET ALL
   getClockInOutAll(): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/attendance/GetclockinoutAll`);
@@ -306,6 +323,12 @@ getAllAllocations(companyId: number, regionId: number): Observable<ShiftAllocati
   getClockInOutById(id: number): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/attendance/GetclockinoutById/${id}`);
   }
+  getWeeklyByEmployee(employeeCode: string): Observable<any> {
+    debugger;
+  return this.http.get<any[]>(
+    `${environment.apiUrl}/attendance/GetWeeklyByEmployee?employeeCode=${employeeCode}`
+  );
+}
 
   // 🔹 GET TODAY BY EMPLOYEE
   getTodayByEmployee(
@@ -371,7 +394,7 @@ getAllAllocations(companyId: number, regionId: number): Observable<ShiftAllocati
 
    // 📄 Get ALL emergency contacts (Admin use)
   getAllEmergencyContacts(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.baseurl}/Employee/GetAllempEmerAsync`);
+    return this.http.get<any[]>(`${environment.apiUrl}/Employee/GetAllempEmerAsync`);
   }
 
   // 👤 Get emergency contacts by UserId
@@ -427,13 +450,23 @@ getAllAllocations(companyId: number, regionId: number): Observable<ShiftAllocati
         }
       });
     }
-    // ✅ GET RESIGNATIONS FOR REPORTING MANAGER
+//     // ✅ GET RESIGNATIONS FOR REPORTING MANAGER
+// getResignationsForManager(managerUserId: number): Observable<EmployeeResignation[]> {
+//   return this.http.get<EmployeeResignation[]>(
+//     `${this.apiUrl}/GetResignationsForManager`,
+//     {
+//       params: {
+//         managerUserId
+//       }
+//     }
+//   );
+// }
 getResignationsForManager(managerUserId: number): Observable<EmployeeResignation[]> {
   return this.http.get<EmployeeResignation[]>(
     `${this.apiUrl}/GetResignationsForManager`,
     {
       params: {
-        managerUserId
+        managerUserId: managerUserId.toString() // ✅ FIX (avoids 400 error)
       }
     }
   );

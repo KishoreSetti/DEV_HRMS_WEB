@@ -277,4 +277,8 @@ export class RegionComponent {
       this.loadRegions();
     }
   }
+    onCancel(): void {
+  this.resetForm();
+
+}
 }

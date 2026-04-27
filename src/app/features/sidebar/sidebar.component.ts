@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
 // import { MenuItem } from '../../admin/layout/models/menu-item.model';
 import { AdminService,MenuRoleDto,MenuItem } from '../../admin/servies/admin.service';
+
 @Component({
   selector: 'app-sidebar',
   standalone: false,
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
+
 export class SidebarComponent {
  menuItems: MenuItem[] = [];
   roleId: number = 1; // e.g. get from logged-in user or JWT
+  isMobileMenuOpen = false;
 
   constructor(private menuService: AdminService) {}
   ngOnInit() {
@@ -20,6 +23,22 @@ export class SidebarComponent {
     // sessionStorage.setItem('role', this.role);
     // this.setMenuByRole(this.role);
   }
+  toggle(item: any, event: Event) {
+  event.stopPropagation();
+  this.menuItems.forEach(i => {
+    if (i !== item) {
+      i.isOpen = false;
+    }
+  });
+
+  item.isOpen = !item.isOpen;
+}
+toggleMobileMenu() {
+  this.isMobileMenuOpen = !this.isMobileMenuOpen;
+}
+closeMobileMenu() {
+  this.isMobileMenuOpen = false;
+}
   loadMenus(roleId: number): void {
     this.menuService.getMenusByRoleId(roleId).subscribe({
       next: (menus: any) => {

@@ -43,7 +43,8 @@ tickets: Ticket[] = [];
     categoryId: null,
     subject: '',
     priorityId: null,
-    description: ''
+    description: '',
+     hrEmail: ''   // ✅ ADD THIS
   };
   // Sorting
 sortColumn: keyof Ticket | null = null;
@@ -135,6 +136,7 @@ pageSizeOptions = [5, 10, 20, 50];
   formData.append("subject", this.model.subject);
   formData.append("priorityId", this.model.priorityId);
   formData.append("description", this.model.description);
+  formData.append("hrEmail", this.model.hrEmail || '');
 
   if (this.selectedFile) {
     formData.append("attachment", this.selectedFile);

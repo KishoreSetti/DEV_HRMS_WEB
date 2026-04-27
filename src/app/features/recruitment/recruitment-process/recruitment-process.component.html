@@ -2,20 +2,20 @@
 <app-sidebar></app-sidebar>
 
 <div class="dashboard-header">
-  <h2 class="dashboard-title">Recruitment (ATS)</h2>
+  <h2 class="dashboard-title">Recruitment</h2>
   <nav class="breadcrumb">
     <a href="#">Home</a> &gt;
-    
+
     <span>Recruitment</span>
   </nav>
 </div>
 
 <div class="">
 <div class="tab-container my-4 recruitment-container">
-  <h2 class="text-center mb-3">Recruitment Process (ATS)</h2>
+  <h2 class="text-center mb-3">Recruitment Process</h2>
 
-  <!-- Top row: global filters + overall progress for selected candidate -->
-  <!-- <div class="row mb-3">
+    <!-- Top row: global filters + overall progress for selected candidate -->
+    <!-- <div class="row mb-3">
     <div class="col-md-6 d-flex gap-2">
       <input type="text" class="form-control" placeholder="Search candidate / tech..." [(ngModel)]="globalFilter">
       <select class="form-select w-auto" [(ngModel)]="filterStage">
@@ -47,57 +47,85 @@
     </div>
   </div> -->
 
-  <!-- Tabs header -->
-  <div class="card mb-3">
-    <div class="card-body p-2">
-      <div class="d-flex">
-        <button *ngFor="let t of tabs; let i = index"
-                class="btn flex-fill me-1"
-                [class.btn-primary]="activeTab === i+1"
-                [class.btn-outline-primary]="activeTab !== i+1"
-                (click)="setActiveTab(i+1)">
-          {{ t }}
-        </button>
+    <!-- Tabs header -->
+    <div class="card mb-3">
+      <div class="card-body p-2">
+        <div class="d-flex">
+          <button *ngIf="canViewResume" class="btn flex-fill me-1" [class.btn-primary]="activeTab === 1" [class.btn-outline-primary]="activeTab !== 1"
+            (click)="setActiveTab(1)">
+            Resume Upload
+          </button>
+
+          <button *ngIf="canViewScreening" class="btn flex-fill me-1" [class.btn-primary]="activeTab === 2" [class.btn-outline-primary]="activeTab !== 2"
+            (click)="setActiveTab(2)">
+            Screening
+          </button>
+
+          <button *ngIf="canViewInterviews" class="btn flex-fill me-1" [class.btn-primary]="activeTab === 3" [class.btn-outline-primary]="activeTab !== 3"
+            (click)="setActiveTab(3)">
+            Interview
+          </button>
+
+          <button *ngIf="canViewAppointment" class="btn flex-fill me-1" [class.btn-primary]="activeTab === 4" [class.btn-outline-primary]="activeTab !== 4"
+            (click)="setActiveTab(4)">
+            Appointment
+          </button>
+
+          <button *ngIf="canViewOffer" class="btn flex-fill me-1" [class.btn-primary]="activeTab === 5" [class.btn-outline-primary]="activeTab !== 5"
+            (click)="setActiveTab(5)">
+            Offer
+          </button>
+
+          <button *ngIf="canViewOnboarding" class="btn flex-fill me-1" [class.btn-primary]="activeTab === 6" [class.btn-outline-primary]="activeTab !== 6"
+            (click)="setActiveTab(6)">
+            Onboarding
+          </button>
+          <!-- class="btn flex-fill me-1"
+          [class.btn-primary]="activeTab === i+1"
+          [class.btn-outline-primary]="activeTab !== i+1"
+          (click)="setActiveTab(i+1)">
+          {{ t }} -->
+         
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- main content area -->
-  <div class="card">
-    <div class="card-body">
+    <!-- main content area -->
+    <div class="card">
+      <div class="card-body">
 
-      <!-- TAB 1: Resume Upload / Candidate Intake -->
-      <div *ngIf="activeTab === 1">
-         <app-resume-upload></app-resume-upload>
-      </div>
-
-      <!-- TAB 2: Screening / Shortlisting -->
-      <div *ngIf="activeTab === 2">
-        <app-screening></app-screening>
-      </div>
-
-      <!-- TAB 3: Interview Process (dynamic rounds) -->
-      <div *ngIf="activeTab === 3">
-        <app-interview></app-interview>
-      </div>
-
-      <!-- TAB 4: Offer Management -->
-      <div *ngIf="activeTab === 4">
-        <app-appointment></app-appointment>
-      </div>
-
-      <!-- TAB 5: Onboarding -->
-      <div *ngIf="activeTab === 5">
-     <app-offer></app-offer>
+        <!-- TAB 1: Resume Upload / Candidate Intake -->
+        <div *ngIf="activeTab === 1 && canViewResume">
+          <app-resume-upload></app-resume-upload>
         </div>
 
-      <div *ngIf="activeTab === 6">
-        <app-onboarding></app-onboarding>
+        <!-- TAB 2: Screening / Shortlisting -->
+        <div *ngIf="activeTab === 2 && canViewScreening">
+          <app-screening></app-screening>
+        </div>
+
+        <!-- TAB 3: Interview Process (dynamic rounds) -->
+        <div *ngIf="activeTab === 3 && canViewInterviews">
+          <app-interview></app-interview>
+        </div>
+
+        <!-- TAB 4: Offer Management -->
+        <div *ngIf="activeTab === 4 && canViewAppointment">
+          <app-appointment></app-appointment>
+        </div>
+
+        <!-- TAB 5: Onboarding -->
+        <div *ngIf="activeTab === 5 && canViewOffer">
+          <app-offer></app-offer>
+        </div>
+
+        <div *ngIf="activeTab === 6 && canViewOnboarding">
+          <app-onboarding></app-onboarding>
+
+        </div>
 
       </div>
-
     </div>
   </div>
-</div>
 </div>
 <app-footer></app-footer>

@@ -5,6 +5,7 @@ import { AdminService } from '../../admin/servies/admin.service';
 import { EmployeeResignationService } from '../employee-profile/employee-services/employee-resignation.service';
 import { HelpdeskService } from '../helpdesk/service/helpdesk.service';
 import { Chart } from 'chart.js/auto';
+import { TimesheetService } from '../timesheet/service/timesheet.service';
 interface ChatMessage {
    sender: 'User' | 'Bot';
   text?: string; 
@@ -18,287 +19,470 @@ interface ChatMessage {
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
-   
-  @ViewChild('fileInput') fileInput!: ElementRef;
+  today: Date = new Date();
+  activeTab: string = 'timesheet';
 
-  isOpen = false;
-  showIntro = true;
-  showModules = false;
-  showEmojiPicker = false;
-dashboardData:any;
-  userMessage = '';
-  currentUser:any;
-companyId!:number;
-leaveDates: string[] = [];
-days: number[] = [];
- events: any[] = [];
-currentYear = new Date().getFullYear();
-currentMonth = new Date().getMonth() + 1;
-tickets: any[] = [];
-userId!: number;
-  emojis: string[] = [];
- 
+  currentUser: any;
+  userId!: number;
+  EmployeeCode!: string;
+  companyId!: number;
 
-attendanceRecords: any[] = [];
-attendanceChart: any;
+  dashboardData: any = {};
 
-  modules = [];
-    constructor(private helpdeskService: HelpdeskService,private EmployeeResignationService: EmployeeResignationService,private adminService: AdminService) {}
-  
-ngOnInit(){
-  this.currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-  this.companyId = this.currentUser.companyId;
-  this.userId = Number(sessionStorage.getItem('UserId')); // ✅ store in class variable
-  this.loadDashboard();
-    this.loadEvents();
-this.loadAttendance();
-   this.generateCalendar();
+  employeeName = '';
+  profileImage = '';
+  profileInitials = '';
 
-  if (this.userId) {
-    this.loadUserLeaves(this.userId);
-    this.loadMyTickets();
+  todayAttendance = {
+    status: 'Absent',
+    workingHours: '0'
+  };
+
+  attendanceRecords: any[] = [];
+  attendanceChart: any;
+
+  userLeaves: any[] = [];
+  weeklyData: any[] = [];
+  weekoffDates: string[] = [];
+
+  leaveApprovalSummary = {
+    approved: 0,
+    pending: 0,
+    rejected: 0
+  };
+
+  leaveCards: any[] = [];
+
+  statCards: any[] = [];
+
+  tickets: any[] = [];
+  submittedTimesheets: any[] = [];
+  totalWorkedHours: string = '0';
+  liveTimer: any;
+  baseWorkedMinutes: number = 0;  
+  liveWorkedMinutes: number = 0; 
+  displayHours: number = 0;
+  displayMinutes: number = 0;
+
+  constructor(
+    private adminService: AdminService,
+    private empService: EmployeeResignationService,
+    private helpdeskService: HelpdeskService,
+    private timesheetService: TimesheetService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+    this.userId = Number(sessionStorage.getItem('UserId'));
+    this.EmployeeCode = sessionStorage.getItem('EmployeeCode') || '';
+    this.companyId = this.currentUser.companyId;
+
+    this.employeeName = this.currentUser.fullName || '';
+    this.profileImage = sessionStorage.getItem(`profileImage_${this.userId}`) || '';
+    this.profileInitials = this.getInitials(this.employeeName);
+
+    this.loadDashboard();
+    this.loadAttendance();
+    this.loadLeaves();
+    this.loadTickets();
+    this.loadTimesheets();
+    this.loadWeekoffs();
+    this.loadWeeklyData();
+  }
+  formatDate(date: Date): string {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = ('0' + (d.getMonth() + 1)).slice(-2);
+  const day = ('0' + d.getDate()).slice(-2);
+
+  return `${year}-${month}-${day}`;
+}
+timeToMinutes(time: string): number {
+  const [h, m, s] = time.split(':').map(Number);
+  return (h * 60) + m + (s || 0) / 60;
+}
+calculateTotalWorkedMinutes(records: any[]): number {
+  let total = 0;
+  let lastIn: string | null = null;
+
+  for (let r of records) {
+
+    if (r.actionType === 'ClockIn') {
+      lastIn = r.actionTime;
+    }
+
+    if (r.actionType === 'ClockOut' && lastIn) {
+      const start = this.timeToMinutes(lastIn);
+      const end = this.timeToMinutes(r.actionTime);
+
+      if (end > start) {
+        total += (end - start);
+      }
+
+      lastIn = null;
+    }
+  }
+
+  return total;
+}
+
+  // ================= DASHBOARD =================
+  loadDashboard() {
+    this.adminService.getEmployeesByDate(
+    this.companyId,
+    this.currentUser.regionId,
+    this.formatDate(this.today)
+  ).subscribe((res: any) => {
+
+    const data = res?.data || res || [];
+
+    let fullPresent = 0;
+    let halfPresent = 0;
+    let absent = 0;
+
+    data.forEach((emp: any) => {
+      const status = emp.status?.toLowerCase();
+
+      if (status === 'present') {
+        // if backend has halfday flag, check it
+        if (emp.isHalfDay === true || status.includes('half')) {
+          halfPresent++;
+        } else {
+          fullPresent++;
+        }
+      } 
+      else if (status === 'halfday' || status.includes('half')) {
+        halfPresent++;
+      } 
+      else {
+        absent++;
+      }
+    });
+
+    const totalPresent = fullPresent + halfPresent;
+
+    this.statCards = [
+      { label: 'Total Employees', value: data.length, icon: 'fas fa-users' },
+      { label: 'Present', value: `${totalPresent} (F:${fullPresent}, H:${halfPresent})`, icon: 'fas fa-user-check' },
+      { label: 'Absent', value: absent, icon: 'fas fa-user-times' },
+      { label: 'Today Hours', value: '0h 0m',  icon: 'fas fa-clock' }
+    ];
+
+  });
+  }
+  loadAllData() {
+  this.loadAttendance();
+  this.loadWeeklyData();
+  this.loadWeekoffs();
+}
+  loadWeeklyData() {
+  this.EmployeeCode = this.currentUser.employeeCode;
+  if (!this.EmployeeCode) return;
+
+  this.empService.getWeeklyByEmployee(this.EmployeeCode)
+    .subscribe({
+      next: (res: any) => {
+        this.weeklyData = res || [];
+        this.tryRenderChart();
+      },
+      error: (err) => {
+        console.error('Weekly API failed', err);
+      }
+    });
+}
+loadWeekoffs() {
+  this.adminService.getWeekoffs(this.companyId, this.currentUser.regionId)
+    .subscribe((res: any) => {
+
+      const data = res?.data || []; 
+
+      this.weekoffDates = data.map((x: any) => x.weekoffDate);
+      this.tryRenderChart();
+      // redraw chart after loading
+    });
+}
+
+
+  // ================= ATTENDANCE =================
+  loadAttendance() {
+    this.empService.getTodayByEmployee(this.currentUser.employeeCode, this.companyId, this.currentUser.regionId)
+      .subscribe((res: any) => {
+        this.attendanceRecords = res || [];
+        this.baseWorkedMinutes = this.calculateTotalWorkedMinutes(this.attendanceRecords);
+        this.liveWorkedMinutes = this.baseWorkedMinutes;
+        this.updateTodayHoursCard();
+        this.startLiveTimer();
+        this.updateAttendance();
+        this.loadDashboard();
+        this.tryRenderChart();
+      });
+  }
+  tryRenderChart() {
+  if (
+    !this.weeklyData ||
+    !this.weekoffDates ||
+    !this.attendanceRecords
+  ) return;
+
+  // small delay ensures DOM ready
+  setTimeout(() => {
+    this.createChart();
+  }, 0);
+}
+  startLiveTimer() {
+  if (this.liveTimer) {
+    clearInterval(this.liveTimer);
+  }
+this.liveTimer = setInterval(() => {
+
+  const base = this.calculateTotalWorkedMinutes(this.attendanceRecords);
+
+  const lastIn = [...this.attendanceRecords]
+    .filter(x => x.actionType === 'ClockIn')
+    .pop();
+
+  const lastOut = [...this.attendanceRecords]
+    .filter(x => x.actionType === 'ClockOut')
+    .pop();
+
+  let extra = 0;
+
+  const isWorking =
+  lastIn &&
+  (!lastOut || new Date(`1970-01-01T${lastIn.actionTime}`) >
+               new Date(`1970-01-01T${lastOut.actionTime}`));
+
+  if (isWorking && lastIn) {
+    const start = this.timeToMinutes(lastIn.actionTime);
+
+    const now = new Date();
+    const current = now.getHours() * 60 + now.getMinutes();
+
+    extra = current - start;
+  }
+
+  const total = base + extra;
+
+  this.displayHours = Math.floor(total / 60);
+  this.displayMinutes = total % 60;
+
+  this.totalWorkedHours = `${this.displayHours}h ${this.displayMinutes}m`;
+  this.statCards = [...this.statCards];
+
+  this.updateTodayHoursCard(); // 🔥 IMPORTANT
+  this.updateChartTodayHours(total / 60);
+
+}, 1000);
+}
+updateTodayHoursCard() {
+  const total = `${this.displayHours}h ${this.displayMinutes}m`;
+  const card = this.statCards.find(x => x.label === 'Today Hours');
+  if (card) {
+    card.value = this.totalWorkedHours;
+    this.statCards = [...this.statCards];
   }
 }
 
-createAttendanceChart() {
+  updateAttendance() {
+    const inTime = this.attendanceRecords.find(x => x.actionType === 'ClockIn');
+    const outTime = this.attendanceRecords.find(x => x.actionType === 'ClockOut');
 
-  let clockInTime: any = null;
-  let clockOutTime: any = null;
+    if (inTime) {
+      this.todayAttendance.status = 'Present';
 
-  // find clockin & clockout
-  this.attendanceRecords.forEach(r => {
-
-    if (r.actionType === 'ClockIn') {
-      clockInTime = r.actionTime;
+      if (outTime) {
+        const hours = this.calculateHours(inTime.actionTime, outTime.actionTime);
+        this.todayAttendance.workingHours = hours;
+      }
     }
-
-    if (r.actionType === 'ClockOut') {
-      clockOutTime = r.actionTime;
-    }
-
-  });
-
-  if (!clockInTime || !clockOutTime) {
-    return;
   }
 
-  // convert to hours
-  const inParts = clockInTime.split(':');
-  const outParts = clockOutTime.split(':');
+  calculateHours(start: string, end: string): string {
+    const s = start.split(':').map(Number);
+    const e = end.split(':').map(Number);
 
-  const inHour = Number(inParts[0]) + Number(inParts[1]) / 60;
-  const outHour = Number(outParts[0]) + Number(outParts[1]) / 60;
+    const total = (e[0] + e[1]/60) - (s[0] + s[1]/60);
+    return Math.max(total, 0).toFixed(1);
+  }
 
-  const totalHours = outHour - inHour;
-
+  createChart() {
   if (this.attendanceChart) {
     this.attendanceChart.destroy();
   }
 
+  const labels: string[] = [];
+  const data: number[] = [];
+  const colors: string[] = [];
+
+  const today = new Date();
+  const todayStr = this.formatDate(today);
+
+  // normalize today (IMPORTANT FIX)
+  today.setHours(0, 0, 0, 0);
+
+  const currentDay = today.getDay();
+  const startOfWeek = new Date(today);
+  const diff = today.getDate() - currentDay + (currentDay === 0 ? -6 : 1);
+  startOfWeek.setDate(diff);
+
+  // WEEKOFF SET (FAST LOOKUP)
+  const weekoffSet = new Set(this.weekoffDates);
+
+  // ATTENDANCE MAP
+  const map = new Map<string, number>();
+  this.weeklyData.forEach((x: any) => {
+    const key = this.formatDate(new Date(x.attendanceDate));
+    map.set(key, Number(x.totalHours || 0));
+  });
+
+  for (let i = 0; i < 7; i++) {
+
+  const dateObj = new Date(startOfWeek);
+  dateObj.setDate(startOfWeek.getDate() + i);
+
+  const dateStr = this.formatDate(dateObj);
+
+  // 👇 LABEL (Mon, Tue...)
+  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+  labels.push(dayName);
+
+  const dayNameFull = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+  const isWeekoff = this.weekoffDates.includes(dayNameFull);
+  const isFuture = dateStr > todayStr;
+  const isToday = dateStr === todayStr;
+
+  let hours = 0;
+  let color = '#007bff';
+
+  // ================= WEEKOFF =================
+  if (isWeekoff) {
+    hours = 8;
+    color = '#000000'; // BLACK
+  }
+
+  // ================= FUTURE =================
+  else if (isFuture) {
+    hours = 8;
+    color = '#007bff'; // BLUE
+  }
+
+  // ================= TODAY =================
+  else if (isToday) {
+    const minutes = this.calculateTotalWorkedMinutes(this.attendanceRecords);
+    hours = +(minutes / 60).toFixed(2);
+
+    color = hours > 0 ? '#28a745' : '#dc3545';
+  }
+
+  // ================= PAST =================
+  else {
+    const h = map.get(dateStr);
+
+    if (h !== undefined && h > 0) {
+      hours = h;
+      color = '#ffc107'; // YELLOW
+    } else {
+      hours = 8;
+      color = '#dc3545'; // RED
+    }
+  }
+
+  data.push(hours);
+  colors.push(color);
+}
+
   this.attendanceChart = new Chart("attendanceChart", {
     type: 'bar',
     data: {
-      labels: ['Today'],
-      datasets: [
-        {
-          label: 'Working Hours',
-          data: [totalHours],
-          backgroundColor: '#4CAF50'
-        }
-      ]
+      labels,
+      datasets: [{
+        label: 'Working Hours',
+        data,
+        backgroundColor: colors
+      }]
     },
     options: {
       responsive: true,
+      animation: false,
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          suggestedMax: 8
         }
       }
     }
   });
-
 }
+updateChartTodayHours(totalHours: number) {
+  if (!this.attendanceChart) return;
 
+  const todayIndex = this.attendanceChart.data.labels.length - 1;
 
-loadAttendance() {
+  this.attendanceChart.data.datasets[0].data[todayIndex] = totalHours;
 
-  const employeeCode = sessionStorage.getItem('EmployeeCode');
-  const companyId = this.currentUser.companyId;
-  const regionId = this.currentUser.regionId;
+  this.attendanceChart.update();
+}
+  // ================= LEAVES =================
+  loadLeaves() {
+    this.empService.getUserLeaves(this.userId)
+      .subscribe((res: any[]) => {
+        this.userLeaves = res || [];
+        this.calculateLeaveSummary();
+      });
+  }
 
-  this.EmployeeResignationService
-    .getTodayByEmployee(employeeCode, companyId, regionId)
-    .subscribe({
-      next: (res: any) => {
+  calculateLeaveSummary() {
+    let approved = 0, pending = 0, rejected = 0;
 
-        this.attendanceRecords = res;
-
-        this.createAttendanceChart();
-
-      },
-      error: (err) => {
-        console.error("Attendance load error", err);
-      }
+    this.userLeaves.forEach(l => {
+      const s = l.status?.toLowerCase();
+      if (s === 'approved') approved++;
+      else if (s === 'rejected') rejected++;
+      else pending++;
     });
 
-}
+    this.leaveApprovalSummary = { approved, pending, rejected };
 
-
-loadMyTickets() {
-
-  console.log("UserId:", this.userId);
-
-  this.helpdeskService.getMyTickets(this.userId)
-    .subscribe({
-      next: (res:any) => {
-        console.log("Tickets:", res);
-        this.tickets = res;
-      },
-      error: (err) => {
-        console.error("Ticket load error", err);
-      }
-    });
-
-}
-generateCalendar() {
-  const daysInMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    this.days.push(i);
+    this.leaveCards = [
+      { label: 'Approved', value: approved, icon: 'fas fa-check-circle' },
+      { label: 'Pending', value: pending, icon: 'fas fa-hourglass-half' },
+      { label: 'Rejected', value: rejected, icon: 'fas fa-times-circle' }
+    ];
   }
-}
-loadUserLeaves(userId: number) {
 
-  this.EmployeeResignationService.getUserLeaves(userId).subscribe({
-    next: (res: any[]) => {
+  // ================= TICKETS =================
+  loadTickets() {
+    this.helpdeskService.getMyTickets(this.userId)
+      .subscribe(res => this.tickets = res || []);
+  }
 
-      this.leaveDates = [];
-
-      res.forEach(leave => {
-
-        let start = new Date(leave.startDate);
-        let end = new Date(leave.endDate);
-
-        while (start <= end) {
-
-          const formatted =
-            start.getFullYear() + '-' +
-            String(start.getMonth() + 1).padStart(2, '0') + '-' +
-            String(start.getDate()).padStart(2, '0');
-
-          this.leaveDates.push(formatted);
-
-          start.setDate(start.getDate() + 1);
-        }
-
+  // ================= TIMESHEETS =================
+  loadTimesheets() {
+    this.timesheetService.gettimesheetlisting(this.userId)
+      .subscribe((res: any) => {
+        const data = res?.data || res || [];
+        this.submittedTimesheets = data.map((t: any) => ({
+          ...t,
+          timesheetDate: new Date(t.timesheetDate)
+        }));
       });
+  }
 
-      console.log("Leave Dates:", this.leaveDates);
-
-    },
-    error: err => console.error(err)
-  });
-
+  // ================= UTILS =================
+  getInitials(name: string): string {
+    if (!name) return 'NA';
+    const parts = name.split(' ');
+    return parts.length > 1
+      ? parts[0][0] + parts[1][0]
+      : parts[0][0];
+  }
+  
+  ngOnDestroy() {
+  if (this.liveTimer) {
+    clearInterval(this.liveTimer);
+  }
 }
-
-isLeaveDay(day: number): boolean {
-
-  const date =
-    this.currentYear + '-' +
-    String(this.currentMonth).padStart(2,'0') + '-' +
-    String(day).padStart(2,'0');
-
-  return this.leaveDates.includes(date);
-}
-
-loadEvents() {
-  this.adminService.getEvents()
-    .subscribe({
-      next: (res) => {
-        this.events = res;
-      },
-      error: (err) => {
-        console.error('Error loading events', err);
-      }
-    });
-}
-
-
-
-  messages: ChatMessage[] = [
-    {
-      sender: 'Bot',
-      text: '🤖 Hi! I am HRMS, an AI assistant.\nAsk me anything about Cortracker HRMS 😊\n🌐 cortracker.com'
-    }
-  ];
-
-  toggleChat() {
-    this.isOpen = !this.isOpen;
-    this.showEmojiPicker = false;
-  }
-
-  openModules() {
-    this.showIntro = false;
-    this.showModules = true; // stays visible
-  }
-
-  sendMessage() {
-    const msg = this.userMessage.trim();
-    if (!msg) return;
-
-    this.messages.push({ sender: 'User', text: msg });
-
-    if (['hi','hai','hello','hey'].includes(msg.toLowerCase())) {
-      this.messages.push({
-        sender: 'Bot',
-        text: '😊 Hi! What can I help you with today?'
-      });
-    } else {
-      this.messages.push({
-        sender: 'Bot',
-        text: '🤖 Please click **View Modules** to explore HRMS features.'
-      });
-    }
-
-    this.userMessage = '';
-    this.showEmojiPicker = false;
-  }
-
-  toggleEmojiPicker() {
-    this.showEmojiPicker = !this.showEmojiPicker;
-  }
-
-  addEmoji(emoji: string) {
-    this.userMessage += emoji;
-    this.showEmojiPicker = false;
-  }
-
-  triggerFileUpload() {
-    this.fileInput.nativeElement.click();
-  }
-
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.messages.push({
-        sender: 'User',
-        attachmentName: file.name
-      });
-    }
-  }
-
-
- loadDashboard() {
-
-  this.adminService.getDashboardEmployees(this.companyId)
-    .subscribe({
-      next: (res: any) => {
-        this.dashboardData = res;
-      },
-      error: (err) => {
-        console.error("Dashboard API error", err);
-      }
-    });
-
-}
+  
 }
