@@ -1770,6 +1770,10 @@ uploadEmployeeFiles(formData: FormData) {
 }
 
 
+getLeaveReport(data: any) {
+  return this.http.post<any>(`${this.baseUrl}/Employee/leave-report`, data);
+}
+
 // -------------------------------------------------------------
 // 🔹 EMPLOYEE  Document  OPERATIONS
 // -------------------------------------------------------------

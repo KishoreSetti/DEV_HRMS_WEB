@@ -130,6 +130,7 @@ import { VisatypeComponent } from './pages/visatype/visatype.component';
 import { EmployeeMyLettersFormsComponent } from './features/employee-profile/employee-documents/employee-my-letters-forms/employee-my-letters-forms.component';
 import { ProjectMasterComponent } from './features/project-master/project-master.component';
 import { EmployeeMyformsComponent } from './features/employee-profile/employee-documents/employee-myforms/employee-myforms.component';
+import { LeaveReportComponent } from './features/leave/leave-report/leave-report.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -250,6 +251,7 @@ import { EmployeeMyformsComponent } from './features/employee-profile/employee-d
           EmployeeMyLettersFormsComponent,
           ProjectMasterComponent,
           EmployeeMyformsComponent,
+          LeaveReportComponent,
           
    
     
