@@ -12,6 +12,15 @@
 
 <div class="tab-container">
   <!-- Radios for tabs -->
+  <input type="radio" id="tab1" name="tab" checked>
+  <input type="radio" id="tab2" name="tab">
+  <input type="radio" id="tab3" name="tab">
+
+  <!-- Tab Header -->
+  <div class="tab-header">
+    <label class="tab-label" for="tab1">Submit Timesheet</label>
+    <label class="tab-label" for="tab2">Approve Timesheet</label>
+    <label class="tab-label" for="tab3">Timesheet Report</label>
   <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
   <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
 
@@ -29,6 +38,11 @@
   <!-- TAB 2: APPROVE TIMESHEET -->
   <div id="content2" class="tab-content" *ngIf="canViewApproveTimesheet">
     <app-timesheet-approval></app-timesheet-approval>
+  </div>
+
+  <!-- TAB 3: TIMESHEET REPORT -->
+  <div id="content3" class="tab-content">
+    <app-timesheet-report></app-timesheet-report>
   </div>
 
 </div>

@@ -53,6 +53,7 @@ import { SuperAdminLayoutComponent } from './superAdmin/super-admin-layout/super
 import { AttendanceListComponent } from './features/attendance/attendance-list/attendance-list.component';
 import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers/super-admin-demousers.component';
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
+import { TimesheetReportComponent } from './timesheet-report/timesheet-report.component';
 import { EmployeePayslipComponent } from './features/compensation/payroll/employee-payslip/employee-payslip.component';
 import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/hr-payslip.component';
 import { EmployeePersonalDetailsComponent } from './features/employee-profile/employee-details/employee-personal-details/employee-personal-details.component';
@@ -127,6 +128,8 @@ const routes: Routes = [
 { path: 'empdashboard', component: EmployeeDashboardComponent },
 { path: 'demo-users', component: SuperAdminDemousersComponent },
 { path: 'subscription-plans', component: SubscriptionPlansComponent },
+  
+  {path: 'timesheet-Report', component:TimesheetReportComponent},
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
