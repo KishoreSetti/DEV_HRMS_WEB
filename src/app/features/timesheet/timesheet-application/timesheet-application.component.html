@@ -42,34 +42,44 @@
 
     <div *ngFor="let p of model.projects; let i = index" class="row g-2 align-items-end mb-2">
 
-      <div class="col-md-3">
-        <label>Project {{ i + 1 }}</label>
+      <div class="col-md-2">
+        <label>Task {{ i + 1 }}</label>
         <input class="form-control" [(ngModel)]="p.projectName" name="project{{i}}" required>
       </div>
 
-      <div class="col-md-2">
+     <div class="col-md-5">
+  <label>Description</label>
+  <textarea class="form-control w-100"
+            [(ngModel)]="p.description"
+            name="desc{{i}}"
+            rows="1"
+            placeholder="Enter description"
+            style="min-width: 250px;"></textarea>
+</div>
+
+      <div class="col-md-1">
         <label>Start Time</label>
         <input type="time" class="form-control" [(ngModel)]="p.startTime" name="start{{i}}"
           (change)="calculateProjectHours(p)">
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>End Time</label>
         <input type="time" class="form-control" [(ngModel)]="p.endTime" name="end{{i}}"
           (change)="calculateProjectHours(p)">
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>Total Hours</label>
         <input class="form-control" [value]="p.totalHoursText" readonly>
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>OT Hours</label>
         <input class="form-control" [(ngModel)]="p.overtimeHours" name="ot{{i}}" placeholder="HH:MM or 1.5"
           (change)="calculateProjectHours(p)">
       </div>
-
+      
       <div class="col-md-1 text-center">
         <button type="button" class="btn btn-danger btn-sm" (click)="removeProject(i)">
           <i class="fa-solid fa-trash"></i>
@@ -83,7 +93,7 @@
     </button>
 
     <div class="text-end mt-4">
-      <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+      <button class="btn btn-success" type="submit" [disabled]="!isFormValid()">
         Save Timesheet
       </button>
     </div>
@@ -139,6 +149,8 @@
             <ul class="list-group list-group-flush">
               <li class="list-group-item py-1" *ngFor="let p of row.projects; let pi = index">
                 Project {{ pi + 1 }}: {{ p.projectName }}
+                <br>
+               <small class="text-muted">{{ p.description }}</small>
               </li>
             </ul>
           </td>
