@@ -1116,7 +1116,7 @@ loadUserShift() {
   const companyId = Number(sessionStorage.getItem('CompanyId'));
   const regionId = Number(sessionStorage.getItem('RegionId'));
 
-  this.employeeResignationService.getAllAllocations(this.companyId, this.regionId)
+  this.employeeResignationService.getAllAllocations(this.userId)
     .subscribe((allocations: any[]) => {
 
       console.log('Allocations 👉', allocations);

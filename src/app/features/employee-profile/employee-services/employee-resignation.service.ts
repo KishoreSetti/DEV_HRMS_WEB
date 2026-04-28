@@ -280,8 +280,8 @@ getManagerLeaves(managerId: number) {
   // -------------------------------
   // SHIFT ALLOCATION
   // -------------------------------
-getAllAllocations(companyId: number, regionId: number): Observable<ShiftAllocationDto[]> {
- return this.http.get<ShiftAllocationDto[]>(`${environment.apiUrl}/attendance/GetAllAllocations/${companyId}/${regionId}`);
+getAllAllocations(userId: number): Observable<ShiftAllocationDto[]> {
+    return this.http.get<ShiftAllocationDto[]>(`${environment.apiUrl}/attendance/GetAllAllocations/${userId}`);
   }
 
   getAllocationById(id: number): Observable<ShiftAllocationDto> {
