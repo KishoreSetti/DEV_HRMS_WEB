@@ -86,12 +86,12 @@ getBase64ImageFromURL(url: string): Promise<string> {
   });
 }
 getPaginatedTimesheets() {
-  const data = this.filteredTimesheets();
+  const data = this.getFilteredTimesheets();
 
-  const startIndex = (this.currentPage - 1) * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
 
-  return data.slice(startIndex, endIndex);
+  return data.slice(start, end);
 }
   // ================= LOAD MANAGER TIMESHEETS =================
   loadManagerTimesheets() {
@@ -322,53 +322,73 @@ getPaginatedTimesheets() {
     return data;
   }
   filteredTimesheets() {
-  return this.getFilteredForExport();
+  return this.getFilteredTimesheets();
 }
 
   // ================== PAGINATION ==================
-  getFilteredForExport() {
+  getFilteredTimesheets() {
   let data = [...this.timesheetList];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
-  if (this.statusFilter === 'Today') {
-    data = data.filter(ts => {
-      const tsDate = new Date(ts.timesheetDate);
-      tsDate.setHours(0,0,0,0);
-      return tsDate.getTime() === today.getTime();
-    });
+  // ❌ ALWAYS REMOVE Pending unless explicitly needed
+  data = data.filter(ts =>
+    ts.status === 'Approved' ||
+    ts.status === 'Rejected' ||
+    ts.status === 'Submitted'
+  );
+
+  // ================= STATUS FILTER =================
+  if (this.statusFilter && this.statusFilter !== 'All') {
+    if (this.statusFilter === 'Today') {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      data = data.filter(ts => {
+        const d = new Date(ts.timesheetDate);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === today.getTime();
+      });
+    } else {
+      data = data.filter(ts => ts.status === this.statusFilter);
+    }
   }
 
-  if (this.statusFilter && this.statusFilter !== 'Today' && this.statusFilter !== 'All') {
-    data = data.filter(ts => ts.status === this.statusFilter);
-  }
-
-  if (this.searchName) {
+  // ================= SEARCH =================
+  if (this.searchName?.trim()) {
+    const search = this.searchName.toLowerCase();
     data = data.filter(ts =>
-      ts.employeeName?.toLowerCase().includes(this.searchName.toLowerCase())
+      ts.employeeName?.toLowerCase().includes(search)
     );
   }
 
+  // ================= DATE FILTER =================
   if (this.fromDate) {
     const from = new Date(this.fromDate);
-    data = data.filter(ts => new Date(ts.timesheetDate) >= from);
+    data = data.filter(ts =>
+      new Date(ts.timesheetDate) >= from
+    );
   }
+
   if (this.toDate) {
     const to = new Date(this.toDate);
     to.setHours(23, 59, 59, 999);
-    data = data.filter(ts => new Date(ts.timesheetDate) <= to);
+
+    data = data.filter(ts =>
+      new Date(ts.timesheetDate) <= to
+    );
   }
 
-  // ✅ Sorting
+  // ================= SORT =================
   if (this.sortColumn) {
     data.sort((a, b) => {
       let valA = a[this.sortColumn!];
       let valB = b[this.sortColumn!];
+
       if (valA instanceof Date) valA = valA.getTime();
       if (valB instanceof Date) valB = valB.getTime();
-      if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
-      if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
-      return 0;
+
+      return this.sortDirection === 'asc'
+        ? valA > valB ? 1 : -1
+        : valA < valB ? 1 : -1;
     });
   }
 
@@ -376,8 +396,8 @@ getPaginatedTimesheets() {
 }
 
   get totalPages() {
-    return Math.ceil(this.filteredTimesheets().length / this.pageSize);
-  }
+  return Math.ceil(this.getFilteredTimesheets().length / this.pageSize) || 1;
+}
 
   changePage(page: number) {
     if (page >= 1 && page <= this.totalPages) this.currentPage = page;
@@ -628,7 +648,7 @@ async downloadExcel() {
   saveAs(blob, 'Timesheet_Report.xlsx');
 }
 async getFullTimesheetData() {
-  const filtered = this.getFilteredForExport();
+  const filtered = this.getFilteredTimesheets();
 
   const fullData = await Promise.all(
     filtered.map((ts: any) =>
