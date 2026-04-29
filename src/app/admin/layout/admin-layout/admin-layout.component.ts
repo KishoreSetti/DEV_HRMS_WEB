@@ -67,6 +67,7 @@ export class AdminLayoutComponent {
      { title: 'Account Type', route: '/admin/accounttype' },
      { title: 'Project Master', route: '/admin/project-master'},
      { title: 'Birthday List', route: '/admin/birthday-list'},
+     { title: 'Task Status', route: '/admin/task-status' },
     ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },

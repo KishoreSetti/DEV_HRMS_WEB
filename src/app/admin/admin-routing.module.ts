@@ -75,6 +75,7 @@ import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component'
 import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
 import { ProjectMasterComponent } from '../features/project-master/project-master.component';
 import { BirthdayMasterComponent } from './pages/birthday/birthday-master/birthday-master.component';
+import { TaskStatusComponent } from './pages/master/task-status/task-status.component';
 const routes: Routes = [
   {
     path: '',
@@ -157,6 +158,7 @@ const routes: Routes = [
       { path: 'accounttype', component: AccounttypeComponent },
       { path: 'project-master', component: ProjectMasterComponent },      
       {path: 'birthday-list', component: BirthdayMasterComponent },
+      {path: 'task-status', component: TaskStatusComponent },
     ]
   }
 ];

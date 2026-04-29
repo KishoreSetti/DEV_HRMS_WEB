@@ -55,6 +55,7 @@ import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
 import { EmployeePayslipComponent } from './features/compensation/payroll/employee-payslip/employee-payslip.component';
 import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/hr-payslip.component';
+import { MyTaskComponent } from './features/my-task/my-task/my-task.component';
 const routes: Routes = [
   { path: '', component: LoginComponent },
    { path: 'forgot-password', component: ForgotPasswordComponent },
@@ -94,6 +95,7 @@ const routes: Routes = [
 { path: 'company-policies', component: EmployeePolicyComponent },
 { path: 'my-team', component: MyTeamHierarchyComponent },
 { path: 'my-event', component: MyEventsComponent },
+{ path: 'my-task', component: MyTaskComponent },
 {
   path: 'compensation',
   component: CompensationComponent,
