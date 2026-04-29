@@ -79,6 +79,7 @@ import { AccounttypeComponent } from './pages/accounttype/accounttype.component'
 import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-policy.component';
 import { BirthdayMasterComponent } from './pages/birthday/birthday-master/birthday-master.component';
 import { JobApplicationComponent } from './pages/job-application/job-application.component';
+import { GeoLocationComponent } from './master/geo-location/geo-location.component';
 
 @NgModule({
   declarations: [
@@ -159,7 +160,8 @@ import { JobApplicationComponent } from './pages/job-application/job-application
     AccounttypeComponent,
     LateLoginPolicyComponent,
     BirthdayMasterComponent,
-    JobApplicationComponent
+    JobApplicationComponent,
+    GeoLocationComponent
  
   
 
