@@ -165,8 +165,8 @@
         <tr *ngFor="let emp of paginatedEmployees">
           <td>{{ emp.employeeCode }}</td>
           <td>{{ emp.fullName }}</td>
-          <td>{{ emp.designation }}</td>
-          <td>{{ emp.departmentId }}</td>
+          <td>{{ emp.designationName  }}</td>
+          <td>{{ emp.departmentName }}</td>
           <td>
             <span class="badge active" *ngIf="emp.status === 'Active'">Active</span>
             <span class="badge inactive" *ngIf="emp.status !== 'Active'">Inactive</span>

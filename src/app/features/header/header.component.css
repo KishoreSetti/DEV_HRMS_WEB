@@ -2085,7 +2085,122 @@ button:hover {
 .mobile-dropdown {
   display: none;
 }
+ /* --- Chatbot --- */
+    .chat-input-modern {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 
+  background: #fff;   /* ✅ clean white */
+  border: 1px solid #ddd;
+  border-radius: 25px;
+
+  padding: 6px 10px;
+  margin: 8px;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Input */
+.chat-input-modern input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  padding: 6px;
+  color: #333;
+}
+
+/* Placeholder */
+.chat-input-modern input::placeholder {
+  color: #999;
+}
+
+/* Common icon buttons */
+.icon-btn {
+  border: none;
+  background: transparent;   
+  color: #b02828;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+/* Send button (slight highlight) */
+.icon-btn.send {
+  background: #b02828;
+  color: #fff;
+  border-radius: 50%;
+}
+
+/* Hover */
+.icon-btn:hover {
+  opacity: 0.8;
+}
+
+/* Mic listening animation */
+.icon-btn.mic.listening {
+  background: #ff4d4d;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.file-preview {
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #fff5f5;
+  color: #b02828;
+  border-top: 1px solid #eee;
+}
+/* Attach button */
+.attach-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f5;
+  color: #b02828;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.attach-btn:hover {
+  background: #ffecec;
+}
+
+/* Send button */
+.send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #b02828;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-preview {
+  font-size: 12px;
+  padding: 6px 10px;
+  background: #fff5f5;
+  color: #b02828;
+  border-top: 1px solid #eee;
+}  
 /* RIGHT SECTION POSITION FIX */
 /* .right-section {
   position: relative;

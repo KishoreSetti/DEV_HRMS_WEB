@@ -76,8 +76,10 @@ import { AssetCategoryComponent } from './pages/master/asset-category/asset-cate
 import { CurrencyComponent } from './pages/master/currency/currency.component';
 import { ModeofstudyComponent } from './pages/modeofstudy/modeofstudy.component';
 import { AccounttypeComponent } from './pages/accounttype/accounttype.component';
+import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-policy.component';
 import { BirthdayMasterComponent } from './pages/birthday/birthday-master/birthday-master.component';
 import { TaskStatusComponent } from './pages/master/task-status/task-status.component';
+import { JobApplicationComponent } from './pages/job-application/job-application.component';
 
 @NgModule({
   declarations: [
@@ -158,6 +160,9 @@ import { TaskStatusComponent } from './pages/master/task-status/task-status.comp
     AccounttypeComponent,
     BirthdayMasterComponent,
     TaskStatusComponent
+    LateLoginPolicyComponent,
+    BirthdayMasterComponent,
+    JobApplicationComponent
  
   
 

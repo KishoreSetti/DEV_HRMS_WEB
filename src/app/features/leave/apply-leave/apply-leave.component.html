@@ -67,7 +67,7 @@
       <!-- End Date -->
       <div class="col-md-3">
         <label class="form-label">End Date <span class="text-danger">*</span></label>
-        <input type="date" class="form-control" required [(ngModel)]="endDate" name="endDate"
+        <input type="date" class="form-control" required [(ngModel)]="endDate" name="endDate" [min]="startDate"
           (change)="onEndDateChange()">
         <small class="text-danger">{{ endDateError }}</small>
       </div>
@@ -102,18 +102,11 @@
       <input type="text" class="form-control" [(ngModel)]="reportingManagerName" name="reportingManagerName" readonly>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">HR Email (CC)</label>
-      <input type="email" class="form-control" [(ngModel)]="hrEmail" name="hrEmail" placeholder="Enter CC email">
-    </div>
 
     <div class="text-start mt-3 d-flex gap-2">
       <button type="submit" class="btn btn-primary">
         Submit Leave Request
       </button>
-      <!-- <button type="submit" class="btn btn-primary">
-        Submit Leave Request
-      </button> -->
 
       <!-- ✅ Reset Button -->
       <button type="button" class="btn btn-primary" (click)="resetForm()">

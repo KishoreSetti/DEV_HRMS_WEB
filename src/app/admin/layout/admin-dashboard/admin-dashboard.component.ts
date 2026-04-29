@@ -25,6 +25,8 @@ export class AdminDashboardComponent {
   // ✅ PAGINATION
   page = 1;
   pageSize = 5;
+  departmentMap: { [key: number]: string } = {};
+  designationMap: { [key: number]: string } = {};
 
   constructor(private payrollService: EmployeePayRollService) {}
 
@@ -32,6 +34,7 @@ export class AdminDashboardComponent {
     this.userId = Number(sessionStorage.getItem('UserId'));
     this.loadDepartments();
     this.loadEmployees();
+    this.loadDesignations(); 
   }
 
   ngAfterViewInit(): void {
@@ -62,17 +65,65 @@ export class AdminDashboardComponent {
   /* ================= DATA ================= */
 
   loadDepartments() {
-    this.payrollService.getDepartments(this.userId)
-      .subscribe((res: any) => {
-        this.departments = res?.success ? res.data : res || [];
-        this.prepareStats();
+  this.payrollService.getDepartments(this.userId)
+    .subscribe((res: any) => {
+
+      const deptList =
+        res?.data?.data?.data ||   // ✅ correct nested path
+        res?.data?.data ||
+        res?.data ||
+        [];
+
+      this.departments = deptList;
+
+      // ✅ build map: departmentId -> departmentName
+      this.departmentMap = {};
+      deptList.forEach((d: any) => {
+        this.departmentMap[d.departmentId] = d.departmentName;
       });
-  }
+
+      this.prepareStats();
+      this.mapDepartmentNames(); // in case employees already loaded
+    });
+}
+mapDepartmentNames() {
+  this.employees = this.employees.map(emp => ({
+    ...emp,
+    departmentName: this.departmentMap[emp.departmentId] || '-'
+  }));
+}
+loadDesignations() {
+  this.payrollService.getDesignations(this.userId)
+    .subscribe((res: any) => {
+
+      const designationList =
+        res?.data?.data?.data ||   // ✅ correct
+        res?.data?.data ||
+        res?.data ||
+        [];
+
+      this.designationMap = {};
+
+      designationList.forEach((d: any) => {
+        this.designationMap[d.designationID] = d.designationName; // ✅ FIXED KEY
+      });
+
+      this.mapDesignationNames(); // apply after loading
+    });
+}
+mapDesignationNames() {
+  this.employees = this.employees.map(emp => ({
+    ...emp,
+    designationName: this.designationMap[emp.designationId] || '-'  // OK
+  }));
+}
 
   loadEmployees() {
     this.payrollService.getEmployees(this.userId)
       .subscribe(res => {
         this.employees = res || [];
+        this.mapDepartmentNames();
+        this.mapDesignationNames();
         this.loadPayroll();
         this.prepareStats();
         this.initDeptChart();

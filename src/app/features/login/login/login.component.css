@@ -154,7 +154,7 @@ form {
   align-items: center;
 }
 
-.input-group i {
+.input-group i:first-child {
   position: absolute;
   left: 14px;
   color: #b02828;
@@ -249,4 +249,26 @@ p[style*="color:red"] {
   body {
     overflow-y: auto;
   }
+}
+/* Password Eye Icon Fix */
+.password-group input {
+  width: 100%;
+  padding: 12px 40px 12px 40px; /* left + right space */
+}
+
+.password-group .fa-eye,
+.password-group .fa-eye-slash {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #b02828;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.password-group .fa-eye:hover,
+.password-group .fa-eye-slash:hover {
+  color: #8b0000;
 }

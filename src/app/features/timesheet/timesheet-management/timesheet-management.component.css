@@ -1,6 +1,4 @@
-
-
-    .tab-container {
+.tab-container {
      
       margin-left:20px;
       background: #fff;
@@ -1349,5 +1347,3 @@ button:hover {
 #tab3:checked ~ #content3 {
   display: block;
 }
-
-

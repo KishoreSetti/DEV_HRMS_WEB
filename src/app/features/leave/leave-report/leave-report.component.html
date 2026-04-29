@@ -1,0 +1,132 @@
+
+<div class="card p-3 mt-4">
+    <div class="text-center mt-3">
+        <h2 class="dashboard-title">Leave Report</h2>
+
+    </div>
+    <form [formGroup]="filterForm" (ngSubmit)="search()" class="card rounded mt-4 p-3">
+        <div class="row mb-3">
+
+            <!-- Employee -->
+            <div class="col-md-3">
+                <label>Employee</label>
+                <!-- <select class="form-select" required [(ngModel)]="form.empCode" name="empName" #empName="ngModel"
+        (change)="onEmployeeChange(form.empCode)">
+
+        <option value="">Select Employee</option>
+
+        <option *ngFor="let emp of employees" [value]="emp.employeeCode">
+          {{ emp.employeeName }}
+        </option>
+
+      </select> -->
+                <select class="form-control" formControlName="userId">
+                    <option value="">All</option>
+                    <option *ngFor="let emp of employees" [value]="emp.userId">
+                        {{ emp.fullName }}
+                    </option>
+                </select>
+
+            </div>
+
+            <!-- From Date -->
+            <div class="col-md-2">
+                <label>From Date</label>
+                <!-- <input type="date" formControlName="fromDate" class="form-control"> -->
+                <input type="date" formControlName="fromDate" class="form-control" (change)="onFromDateChange()">
+            </div>
+
+            <!-- To Date -->
+            <div class="col-md-2">
+                <label>To Date</label>
+                <!-- <input type="date" formControlName="toDate" class="form-control"> -->
+                <input type="date" formControlName="toDate" class="form-control"
+                    [min]="filterForm.get('fromDate')?.value">
+            </div>
+<div class="col-md-2">
+    <label>Status</label>
+    <select class="form-control" formControlName="status">
+        <option value="">All</option>
+        <option value="Approved">Approved</option>
+        <option value="Pending">Pending</option>
+        <option value="Rejected">Rejected</option>
+    </select>
+</div>
+            <!-- Button -->
+            <div class="col-md-3 mt-4">
+                <button class="btn btn-primary w-100">Search</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+<!-- RESULT TABLE -->
+<div class="card mt-2">
+    <div class="dropdown text-end p-3">
+        <button class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+            ⋮
+        </button>
+
+        <ul class="dropdown-menu">
+    <li>
+        <a class="dropdown-item" (click)="downloadPDF()">Download PDF</a>
+    </li>
+    <li>
+        <a class="dropdown-item" (click)="downloadExcel()">Download Excel</a>
+    </li>
+</ul>
+    </div>
+    <table class="table table-bordered mt-3 rounded p-5 shadow-sm">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>Employee</th>
+                <th>Leave Type</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Days</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            <!-- <tr *ngFor="let item of leaveList"> -->
+            <tr *ngFor="let item of paginatedList; trackBy: trackByFn">
+                <td>{{ item.employeeName }}</td>
+                <td>{{ item.leaveType }}</td>
+                <td>{{ item.startDate | date }}</td>
+                <td>{{ item.endDate | date }}</td>
+                <td>{{ item.totalDays }}</td>
+                <!-- <td>{{ item.status }}</td> -->
+                 <td>
+  <span 
+    [ngClass]="{
+      'badge bg-success text-white rounded': item.status === 'Approved',
+      'badge bg-danger text-white rounded': item.status === 'Rejected',
+      'badge bg-warning text-dark rounded': item.status === 'Pending'
+    }">
+    {{ item.status }}
+  </span>
+</td>
+            </tr>
+            <tr *ngIf="paginatedList.length === 0">
+                <td colspan="6" class="text-center text-muted">
+                    No records found
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="d-flex justify-content-center mt-3">
+
+    <button class="btn btn-outline-primary me-2" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+        Prev
+    </button>
+    <span class="mt-2">
+        Page {{ currentPage }} of {{ totalPages }}
+    </span>
+
+    <button class="btn btn-outline-primary ms-2" (click)="changePage(currentPage + 1)"
+        [disabled]="currentPage === totalPages">
+        Next
+    </button>
+
+</div>

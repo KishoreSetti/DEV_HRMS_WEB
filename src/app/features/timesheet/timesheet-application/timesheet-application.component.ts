@@ -4,6 +4,7 @@ import { TimesheetService } from '../service/timesheet.service';
 
 export interface TimesheetProject {
   projectName: string;
+  description?: string;
   startTime: string;
   endTime: string;
 
@@ -48,6 +49,7 @@ model: TimesheetModel = {
   regionId!: number;
 
   submittedTimesheets: any[] = [];
+  selectedTimesheet: any = null;
 
   // Sorting
   sortColumn: keyof TimesheetModel | 'totalHoursText' | 'otHoursText' | 'timesheetDate' | null = null;
@@ -94,6 +96,7 @@ model: TimesheetModel = {
   addProject() {
     this.model.projects.push({
       projectName: '',
+      description: '',
       startTime: '',
       endTime: '',
       totalHours: '00:00',
@@ -166,6 +169,7 @@ model: TimesheetModel = {
     this.model.projects.forEach((p, i) => {
       this.calculateProjectHours(p);
       formData.append(`Projects[${i}].ProjectName`, p.projectName);
+      formData.append(`Projects[${i}].Description`, p.description || '');
       formData.append(`Projects[${i}].StartTime`, p.startTime);
       formData.append(`Projects[${i}].EndTime`, p.endTime);
       formData.append(`Projects[${i}].TotalMinutes`, String(p.totalMinutes ?? 0));
@@ -187,6 +191,23 @@ model: TimesheetModel = {
       }
     });
   }
+  isFormValid(): boolean {
+
+  if (!this.model.date) return false;
+
+  if (!this.model.projects || this.model.projects.length === 0) return false;
+
+  for (let p of this.model.projects) {
+
+    if (!p.projectName) return false;
+    if (!p.description) return false;
+    if (!p.startTime) return false;
+    if (!p.endTime) return false;
+
+  }
+
+  return true;
+}
 
   onFileSelect(event: any) {
     this.model.attachment = event.target.files[0];
@@ -281,4 +302,10 @@ model: TimesheetModel = {
     this.pageSize = size;
     this.currentPage = 1;
   }
+  openViewModal(row: any) {
+  this.selectedTimesheet = row;
+}
+closeViewModal() {
+  this.selectedTimesheet = null;
+}
 }

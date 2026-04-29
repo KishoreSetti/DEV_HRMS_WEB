@@ -198,19 +198,33 @@
 </div>
 
     <!-- Input -->
-    <div class="chatbot-input">
-      <input [(ngModel)]="userInput"
-             (keyup.enter)="sendMessage()"
-             placeholder="Ask like: Leave, Attendance..." />
-      <button (click)="sendMessage()">
-        <i class="fa fa-paper-plane"></i>
-      </button>
-     <button class="mic-btn"
-        [ngClass]="{ 'listening': isListening }"
-        (click)="startListening()">
-  🎤
-</button>
-    </div>
+  <div class="chat-input-modern">
+
+  <!-- Attach -->
+  <button class="icon-btn attach" (click)="fileInput.click()">
+    <i class="fa fa-paperclip"></i>
+  </button>
+
+  <input type="file" #fileInput hidden (change)="onFileSelected($event)" />
+
+  <!-- Input -->
+  <input [(ngModel)]="userInput"
+         (keyup.enter)="sendMessage()"
+         placeholder="Ask Like:leave,Attendence...." />
+
+  <!-- Mic -->
+  <button class="icon-btn mic"
+          [ngClass]="{ 'listening': isListening }"
+          (click)="startListening()">
+    <i class="fa fa-microphone"></i>
+  </button>
+
+  <!-- Send -->
+  <button class="icon-btn send" (click)="sendMessage()">
+    <i class="fa fa-paper-plane"></i>
+  </button>
+
+</div>
 
   </div>
 </div>

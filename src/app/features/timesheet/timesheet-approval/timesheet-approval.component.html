@@ -29,7 +29,6 @@
             [(ngModel)]="statusFilter"
             (ngModelChange)="currentPage = 1">
       <option value="Today">Today</option>
-      <option value="Pending">Pending</option>
       <option value="Submitted">Submitted</option>
       <option value="Approved">Approved</option>
       <option value="Rejected">Rejected</option>
@@ -89,7 +88,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let ts of filteredTimesheets()">
+          <tr *ngFor="let ts of getPaginatedTimesheets()">
             <td>
               <input *ngIf="ts.status === 'Pending' || ts.status==='Submitted'"
                      type="checkbox"
@@ -190,7 +189,14 @@
           </thead>
           <tbody>
             <tr *ngFor="let p of selectedTimesheet.projects">
-              <td>{{ p.projectName }}</td>
+              <td>
+                <div class="fw-bold mb-1">
+                  {{ p.projectName }}
+                </div>
+                <div class="text-muted">
+                  {{ p.description || 'No description available' }}
+                </div>
+              </td>
               <td>{{ p.startTime }}</td>
               <td>{{ p.endTime }}</td>
               <td>{{ p.totalHoursText }}</td>
@@ -215,6 +221,7 @@
       <a *ngIf="r.fileUrl"
          [href]="r.fileUrl"
          target="_blank"
+         rel="noopener noreferrer"
          class="btn btn-sm btn-success ms-2">
         View
       </a>

@@ -65,16 +65,22 @@
         />
       </div>
 
-      <div class="input-group">
+      <div class="input-group password-group">
         <i class="fa fa-lock"></i>
+
         <input
-          type="password"
-          id="password"
+          [type]="showPassword ? 'text' : 'password'"
           [(ngModel)]="password"
           [ngModelOptions]="{ standalone: true }"
           placeholder="Enter password"
           required
         />
+        <!-- Eye Icon -->
+        <i 
+          class="fa"
+          [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="togglePassword()"
+        ></i>
       </div>
 
       <div class="options">

@@ -1,6 +1,6 @@
 <app-header></app-header>
 <app-sidebar></app-sidebar>
-
+ 
 <div class="dashboard-header">
   <h2 class="dashboard-title">Timesheet Management</h2>
   <nav class="breadcrumb">
@@ -9,28 +9,34 @@
     <span>Timesheet Module</span>
   </nav>
 </div>
-
+ 
 <div class="tab-container">
   <!-- Radios for tabs -->
-  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
-  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
-
+  <input type="radio" id="tab1" name="tab" checked>
+  <input type="radio" id="tab2" name="tab">
+  <input type="radio" id="tab3" name="tab"> 
+ 
   <!-- Tab Header -->
   <div class="tab-header">
-    <label class="tab-label" for="tab1" *ngIf="canViewSubmitTimesheet">Submit Timesheet</label>
-    <label class="tab-label" for="tab2" *ngIf="canViewApproveTimesheet">Approve Timesheet</label>
+    <label class="tab-label" for="tab1">Submit Timesheet</label>
+    <label class="tab-label" for="tab2">Approve Timesheet</label>
+    <label class="tab-label" for="tab3"> Timesheet Report</label>
   </div>
-
+ 
   <!-- TAB 1: SUBMIT TIMESHEET -->
-  <div id="content1" class="tab-content" *ngIf="canViewSubmitTimesheet">
+  <div id="content1" class="tab-content">
     <app-timesheet-application></app-timesheet-application>
   </div>
-
+ 
   <!-- TAB 2: APPROVE TIMESHEET -->
-  <div id="content2" class="tab-content" *ngIf="canViewApproveTimesheet">
+  <div id="content2" class="tab-content">
     <app-timesheet-approval></app-timesheet-approval>
   </div>
-
-</div>
-
+ 
+  <!-- TAB 3: VIEW TIMESHEET -->
+      <div id="content3" class="tab-content">
+        <app-timesheet-report></app-timesheet-report>
+      </div>
+  </div>
+ 
 <app-footer></app-footer>

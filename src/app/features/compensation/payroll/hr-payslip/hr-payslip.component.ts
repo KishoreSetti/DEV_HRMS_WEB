@@ -3,6 +3,8 @@ import { EmployeePayRollService } from '../../../../employee-pay-roll.service';
 import Swal from 'sweetalert2';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { AdminService } from '../../../../admin/servies/admin.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-hr-payslip',
@@ -14,6 +16,10 @@ export class HrPayslipComponent {
   selectAll: boolean = false;
   requests: any[] = [];
   payrollList: any[] = [];
+  companyLogoBase64: string = '';
+  companyName: string = '';
+  companyAddress: string = '';
+
 
   selectedEmployee: any = null;
   fromMonth!: number;
@@ -26,7 +32,69 @@ export class HrPayslipComponent {
   companyId = Number(sessionStorage.getItem('CompanyId'));
   regionId = Number(sessionStorage.getItem('RegionId'));
 
-  constructor(private payrollService: EmployeePayRollService) { }
+  constructor(private payrollService: EmployeePayRollService, private adminService: AdminService) { }
+  loadCompanyDetails() {
+  
+    const companyId = Number(sessionStorage.getItem('CompanyId'));
+  
+    this.adminService.getCompanyById(companyId).subscribe({
+      next: async (company: any) => {
+  
+        this.companyName = company?.companyName || 'Company';
+        this.companyAddress = company?.companyAddress || 'Hyderabad, Telangana';
+  
+        const logo = company?.companyLogo;
+  
+        if (logo && logo.trim() !== '') {
+  
+          if (logo.startsWith('data:')) {
+            this.companyLogoBase64 = logo;
+          } else {
+            const logoPath = logo.replace(/\\/g, '/');
+            const fullUrl = `${environment.baseurl}/${logoPath}`;
+  
+            this.companyLogoBase64 =
+              await this.getBase64ImageFromURL(fullUrl);
+          }
+  
+        } else {
+          this.setDefaultLogo();
+        }
+      },
+  
+      error: () => {
+        this.setDefaultLogo();
+      }
+    });
+  }
+  setDefaultLogo() {
+    const defaultLogo = '/assets/images/cor-logo.png';
+  
+    this.getBase64ImageFromURL(defaultLogo)
+      .then(base64 => this.companyLogoBase64 = base64)
+      .catch(() => this.companyLogoBase64 = '');
+  }
+  getBase64ImageFromURL(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = url;
+  
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+  
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
+  
+        resolve(canvas.toDataURL('image/png'));
+      };
+  
+      img.onerror = err => reject(err);
+    });
+  }
+  
 
 months = [
   { value: 1, name: 'Jan' },
@@ -45,6 +113,7 @@ months = [
 
   ngOnInit() {
     this.loadPendingRequests();
+    this.loadCompanyDetails();
   }
 
   // 🔥 LOAD PENDING
@@ -213,40 +282,64 @@ download(p: any) {
 
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
-  const safeText = (val: any) => val ? String(val) : '';
-  const safeNumber = (val: any) => isNaN(Number(val)) ? 0 : Number(val);
+  /* 🔴 RED BORDER */
+  doc.setDrawColor(200, 0, 0);
+  doc.setLineWidth(1);
+  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+
+  /* 🔥 WATERMARK LOGO */
+  if (this.companyLogoBase64) {
+
+    const imgWidth = 120;
+    const imgHeight = 120;
+
+    const x = (pageWidth - imgWidth) / 2;
+    const y = 40;
+
+    try {
+      doc.saveGraphicsState?.();
+      doc.setGState?.(new (doc as any).GState({ opacity: 0.08 }));
+
+      doc.addImage(this.companyLogoBase64, 'PNG', x, y, imgWidth, imgHeight);
+
+      doc.restoreGraphicsState?.();
+    } catch {
+      doc.addImage(this.companyLogoBase64, 'PNG', x, y, imgWidth, imgHeight);
+    }
+  }
 
   const currency = (val: any) =>
-    safeNumber(val).toLocaleString('en-IN');
+    Number(val || 0).toLocaleString('en-IN');
 
+  const monthName = p.monthName;
   const printDate = new Date().toLocaleDateString('en-GB');
-  const monthName = p.monthName || '';
 
   let y = 20;
 
-  /* ================= WATERMARK ================= */
-  doc.setTextColor(230, 230, 230);
-  doc.setFontSize(40);
-
-  doc.text('CORTRACKER IT SOLUTIONS', pageWidth / 2, 150, {
-    align: 'center',
-    angle: 30
-  });
-
-  doc.setTextColor(0);
-
-  /* ================= HEADER ================= */
+  /* 🔥 HEADER */
+  if (this.companyLogoBase64) {
+    doc.addImage(this.companyLogoBase64, 'PNG', pageWidth / 2 - 20, 5, 40, 15);
+  }
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(200, 0, 0);
-  doc.text('CORTRACKER IT SOLUTIONS PVT LTD', 20, y);
+  doc.text(this.companyName?.toUpperCase() || 'COMPANY NAME', 20, y);
 
   doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text('Flat No. 1101, 11th Floor, B-Block Asian Sun City', 20, y + 5);
-  doc.text('Hyderabad, Telangana 500084', 20, y + 9);
+  // 🔥 COMPANY ADDRESS (Dynamic)
+if (this.companyAddress) {
+
+  const addressLines = this.companyAddress.split(',');
+
+  addressLines.forEach((line: string, index: number) => {
+    doc.text(line.trim(), 20, y + 5 + (index * 4));
+  });
+
+}
 
   doc.setTextColor(0);
   doc.setFontSize(10);
@@ -257,25 +350,21 @@ download(p: any) {
   doc.setDrawColor(200, 0, 0);
   doc.line(20, y + 12, pageWidth - 20, y + 12);
 
-  /* ================= EMPLOYEE DETAILS ================= */
-
+  /* 🔥 EMPLOYEE DETAILS */
   y += 20;
 
-  doc.setFontSize(10);
+  doc.text(`Name: ${p.employeeName || ''}`, 20, y);
+  doc.text(`Designation: ${p.designation || ''}`, 20, y + 6);
+  doc.text(`Department: ${p.department || ''}`, 20, y + 12);
+  doc.text(`Location: ${p.location || 'Hyderabad'}`, 20, y + 18);
+  doc.text(`Joining Date: ${p.joiningDate || ''}`, 20, y + 24);
 
-  doc.text(`Name: ${safeText(p.employeeName)}`, 20, y);
-  doc.text(`Designation: ${safeText(p.designation)}`, 20, y + 6);
-  doc.text(`Department: ${safeText(p.department)}`, 20, y + 12);
-  doc.text(`Location: ${safeText(p.location || 'Hyderabad')}`, 20, y + 18);
-  doc.text(`Joining Date: ${safeText(p.joiningDate)}`, 20, y + 24);
+  doc.text(`Employee No: ${p.employeeCode || ''}`, pageWidth / 2, y);
+  doc.text(`Bank: ${p.bank || '-'}`, pageWidth / 2, y + 6);
+  doc.text(`A/C No: ${p.accountNo || '-'}`, pageWidth / 2, y + 12);
+  doc.text(`PAN: ${p.pan || '-'}`, pageWidth / 2, y + 18);
 
-  doc.text(`Employee No: ${safeText(p.employeeCode)}`, pageWidth / 2, y);
-  doc.text(`Bank: ${safeText(p.bank || '-')}`, pageWidth / 2, y + 6);
-  doc.text(`A/C No: ${safeText(p.accountNo || '-')}`, pageWidth / 2, y + 12);
-  doc.text(`PAN: ${safeText(p.pan || '-')}`, pageWidth / 2, y + 18);
-
-  /* ================= TABLE ================= */
-
+  /* 🔥 TABLE */
   let tableY = y + 35;
 
   doc.setFillColor(245, 245, 245);
@@ -283,7 +372,7 @@ download(p: any) {
 
   doc.setFont('helvetica', 'bold');
 
-  doc.text('Earnings', 25, tableY + 7);
+  doc.text('Component', 25, tableY + 7);
   doc.text('Amount (INR)', pageWidth / 2 - 10, tableY + 7, { align: 'right' });
 
   doc.text('Deduction', pageWidth / 2 + 10, tableY + 7);
@@ -297,46 +386,29 @@ download(p: any) {
   let totalEarnings = 0;
   let totalDeductions = 0;
 
-  /* ================= DETAILS ================= */
+  (p.details || []).forEach((d: any) => {
 
-  if (p.details && Array.isArray(p.details) && p.details.length > 0) {
+    const amount = Number(d.amount || 0);
 
-    p.details.forEach((d: any) => {
+    if (d.type === 'Earning') {
+      doc.text(d.componentName, 25, earningsY);
+      doc.text(currency(amount), pageWidth / 2 - 10, earningsY, { align: 'right' });
+      totalEarnings += amount;
+      earningsY += 8;
+    }
 
-      const amount = safeNumber(d.amount);
+    if (d.type === 'Deduction') {
+      doc.text(d.componentName, pageWidth / 2 + 10, deductionY);
+      doc.text(currency(amount), pageWidth - 25, deductionY, { align: 'right' });
+      totalDeductions += amount;
+      deductionY += 8;
+    }
 
-      if (d.type === 'Earning') {
-        doc.text(d.componentName, 25, earningsY);
-        doc.text(currency(amount), pageWidth / 2 - 10, earningsY, { align: 'right' });
-
-        totalEarnings += amount;
-        earningsY += 8;
-      }
-
-      if (d.type === 'Deduction') {
-        doc.text(d.componentName, pageWidth / 2 + 10, deductionY);
-        doc.text(currency(amount), pageWidth - 25, deductionY, { align: 'right' });
-
-        totalDeductions += amount;
-        deductionY += 8;
-      }
-
-    });
-
-  } else {
-
-    /* 🔥 FALLBACK IF NO DETAILS */
-    doc.text('Basic Salary', 25, earningsY);
-    doc.text(currency(p.salary), pageWidth / 2 - 10, earningsY, { align: 'right' });
-
-    totalEarnings = safeNumber(p.salary);
-    earningsY += 8;
-  }
+  });
 
   const finalY = Math.max(earningsY, deductionY) + 10;
 
-  /* ================= TOTAL ================= */
-
+  /* 🔥 TOTAL */
   doc.setFont('helvetica', 'bold');
 
   doc.setTextColor(200, 0, 0);
@@ -355,18 +427,17 @@ download(p: any) {
   doc.setTextColor(100);
   doc.text(`(Rupees ${currency(net)} Only)`, 20, finalY + 16);
 
-  /* ================= FOOTER ================= */
-
+  /* 🔥 FOOTER */
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text(
-    '© CORTRACKER IT SOLUTIONS PVT LTD — This is a system generated payslip.',
+    `© ${this.companyName || 'Company'} — This is a system generated payslip.`,
     pageWidth / 2,
     finalY + 25,
     { align: 'center' }
   );
 
-  doc.save(`Payslip_${p.employeeName}_${monthName}.pdf`);
+  doc.save(`Payslip_${p.employeeName}_${p.monthName}.pdf`);
 }
 
 downloadReport() {
@@ -376,28 +447,62 @@ downloadReport() {
     return;
   }
 
-  const doc = new jsPDF();
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
 
   const currency = (val: any) =>
     Number(val || 0).toLocaleString('en-IN');
 
   const printDate = new Date().toLocaleDateString('en-GB');
 
-  /* ========= HEADER ========= */
+  /* 🔴 RED BORDER */
+  doc.setDrawColor(200, 0, 0);
+  doc.setLineWidth(1);
+  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+
+  /* 🔥 LOGO TOP CENTER */
+  if (this.companyLogoBase64) {
+    doc.addImage(
+      this.companyLogoBase64,
+      'PNG',
+      pageWidth / 2 - 20,
+      8,
+      40,
+      15
+    );
+  }
+
+  let y = 30;
+
+  /* 🔥 COMPANY NAME */
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(200, 0, 0);
-  doc.text('CORTRACKER IT SOLUTIONS PVT LTD', 14, 20);
+  doc.text(
+    this.companyName?.toUpperCase() || 'COMPANY NAME',
+    pageWidth / 2,
+    y,
+    { align: 'center' }
+  );
 
+  y += 8;
+
+  /* 🔥 REPORT DETAILS */
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text(`Report Date: ${printDate}`, 14, 28);
+
+  doc.text(`Report Date: ${printDate}`, 20, y);
 
   doc.text(
     `From ${this.getMonthName(this.fromMonth)} To ${this.getMonthName(this.toMonth)} - ${this.year}`,
-    14,
-    34
+    20,
+    y + 6
   );
+
+  /* 🔴 LINE */
+  doc.setDrawColor(200, 0, 0);
+  doc.line(20, y + 10, pageWidth - 20, y + 10);
 
   /* ========= TABLE ========= */
   const tableData = this.payrollList.map(p => [
@@ -408,17 +513,24 @@ downloadReport() {
   ]);
 
   autoTable(doc, {
-    startY: 40,
+    startY: y + 15,
     head: [['Employee', 'Month', 'Year', 'Salary']],
     body: tableData,
+    styles: {
+      fontSize: 9
+    },
+    headStyles: {
+      fillColor: [200, 0, 0] // 🔴 red header
+    }
   });
 
-  /* ========= FOOTER ========= */
+  /* 🔥 FOOTER */
   doc.setFontSize(9);
+  doc.setTextColor(150);
   doc.text(
-    'Generated by CORTRACKER',
-    105,
-    290,
+    `© ${this.companyName || 'Company'} — Generated Report`,
+    pageWidth / 2,
+    pageHeight - 10,
     { align: 'center' }
   );
 

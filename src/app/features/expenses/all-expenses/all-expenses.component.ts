@@ -1,6 +1,11 @@
 import { Component } from '@angular/core';
 import { Expense, ExpensesService } from '../expenses.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 @Component({
   selector: 'app-all-expenses',
   standalone: false,
@@ -182,4 +187,72 @@ regionId!: number;
     this.pageSize = size;
     this.currentPage = 1;
   }
+
+  downloadPDF(): void {
+  const doc = new jsPDF();
+
+  const data = this.expenses.filter(e => e.visible);
+
+  const rows = data.map(e => [
+    e.projectName,
+    e.expenseCategoryName,
+    e.country,
+    e.amount,
+    e.expenseDate,
+    e.status
+  ]);
+
+  autoTable(doc, {
+    head: [['Project', 'Category', 'Country', 'Amount', 'Date', 'Status']],
+    body: rows
+  });
+
+  doc.save('Expenses_Report.pdf');
+}
+
+exportToExcel(): void {
+  // 👉 Take only filtered data (same as table)
+  const exportData = this.expenses
+    .filter(e => e.visible)
+    .map(e => ({
+      Project: e.projectName,
+      Category: e.expenseCategoryName,
+      Country: e.country,
+      Amount: e.amount,
+      Currency: e.currencyCode,
+      // Date: this.formatDate(e.expenseDate),
+      Status: e.status
+    }));
+
+  if (exportData.length === 0) {
+    alert('No data to export');
+    return;
+  }
+
+  // 👉 Convert to worksheet
+  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+
+  // 👉 Create workbook
+  const workbook: XLSX.WorkBook = {
+    Sheets: { 'Expenses': worksheet },
+    SheetNames: ['Expenses']
+  };
+
+  // 👉 Generate Excel file
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: 'xlsx',
+    type: 'array'
+  });
+
+  this.saveExcelFile(excelBuffer, 'All_Expenses');
+}
+
+saveExcelFile(buffer: any, fileName: string): void {
+  const data = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+
+  saveAs(data, fileName + '_' + new Date().getTime() + '.xlsx');
+}
+
 }

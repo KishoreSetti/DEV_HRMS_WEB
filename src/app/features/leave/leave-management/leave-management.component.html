@@ -16,12 +16,13 @@
   <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
   <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
   <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
-
+<input type="radio" id="tab4" name="tab" [checked]="selectedTab === 'tab4'">
   <!-- TAB HEADERS -->
   <div class="tab-header">
     <label for="tab1"  *ngIf="canApplyLeave" class="tab-label">Apply Leave</label>
     <label for="tab2" *ngIf="canViewApproval" class="tab-label">Leave Approvals</label>
     <label for="tab3" *ngIf="canViewCalendar" class="tab-label">Leave Calendar</label>
+     <label for="tab4" class="tab-label">Leave Report</label>
   </div>
 
   <!-- ========================= APPLY LEAVE TAB ========================= -->
@@ -38,6 +39,9 @@
   <div class="tab-content" id="content3" *ngIf="canViewCalendar">
     <app-leave-calendar></app-leave-calendar>
   </div>
+  <div class="tab-content" id="content4">
+    <app-leave-report></app-leave-report>
+    </div>
 </div>
 
 <!-- VIEW LEAVE MODAL -->

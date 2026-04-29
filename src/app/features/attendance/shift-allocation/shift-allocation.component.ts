@@ -126,7 +126,7 @@ export class ShiftAllocationComponent {
 
   loadAllocations() {
     this.loading = true;
-    this.svc.getAllAllocations(this.userId).subscribe(
+    this.svc.getAllAllocations(this.currentUserId).subscribe(
       (r:any) => {
         this.allocations = (r || []).slice().sort((a:any, b:any) => {
           const da = a.startDate ? new Date(a.startDate).getTime() : 0;
@@ -240,7 +240,7 @@ export class ShiftAllocationComponent {
 
     const dto: ShiftAllocationDto = {
       shiftAllocationId: this.editMode && this.editId ? this.editId : 0,
-      userID: createdByUserId,      
+      userID: selectedUserId,      
       employeeCode: selectedEmployee.employeeCode || '',
       fullName: selectedEmployee.fullName || '',
       companyID: selectedEmployee.companyID || 0,

@@ -1350,3 +1350,7 @@ button:hover {
 #tab3:checked ~ #content3 {
   display: block;
 }
+.text-muted {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

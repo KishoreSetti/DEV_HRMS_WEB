@@ -38,38 +38,48 @@
 
     </div>
 
-    <h6 class="mt-2">Projects</h6>
+    <h6 class="mt-2">Tasks</h6>
 
     <div *ngFor="let p of model.projects; let i = index" class="row g-2 align-items-end mb-2">
 
-      <div class="col-md-3">
-        <label>Project {{ i + 1 }}</label>
+      <div class="col-md-2">
+        <label>Task {{ i + 1 }}</label>
         <input class="form-control" [(ngModel)]="p.projectName" name="project{{i}}" required>
       </div>
 
-      <div class="col-md-2">
+     <div class="col-md-5">
+  <label>Description</label>
+  <textarea class="form-control w-100"
+            [(ngModel)]="p.description"
+            name="desc{{i}}"
+            rows="1"
+            placeholder="Enter description"
+            style="min-width: 250px;"></textarea>
+</div>
+
+      <div class="col-md-1">
         <label>Start Time</label>
         <input type="time" class="form-control" [(ngModel)]="p.startTime" name="start{{i}}"
           (change)="calculateProjectHours(p)">
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>End Time</label>
         <input type="time" class="form-control" [(ngModel)]="p.endTime" name="end{{i}}"
           (change)="calculateProjectHours(p)">
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>Total Hours</label>
         <input class="form-control" [value]="p.totalHoursText" readonly>
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-1">
         <label>OT Hours</label>
         <input class="form-control" [(ngModel)]="p.overtimeHours" name="ot{{i}}" placeholder="HH:MM or 1.5"
           (change)="calculateProjectHours(p)">
       </div>
-
+      
       <div class="col-md-1 text-center">
         <button type="button" class="btn btn-danger btn-sm" (click)="removeProject(i)">
           <i class="fa-solid fa-trash"></i>
@@ -79,11 +89,11 @@
     </div>
 
     <button type="button" class="btn btn-secondary btn-sm mt-2" (click)="addProject()">
-      <i class="fa-solid fa-plus me-2"></i> Add Project
+      <i class="fa-solid fa-plus me-2"></i> Add Tasks
     </button>
 
     <div class="text-end mt-4">
-      <button class="btn btn-success" type="submit" [disabled]="!form.valid">
+      <button class="btn btn-success" type="submit" [disabled]="!isFormValid()">
         Save Timesheet
       </button>
     </div>
@@ -117,7 +127,7 @@
             Date
             <span *ngIf="sortColumn==='timesheetDate'">{{ sortDirection==='asc'?'▲':'▼' }}</span>
           </th>
-          <th>Projects</th>
+          <th>Tasks</th>
           <th (click)="sortBy('totalHoursText')" style="cursor:pointer">
             Total Hours
             <span *ngIf="sortColumn==='totalHoursText'">{{ sortDirection==='asc'?'▲':'▼' }}</span>
@@ -127,6 +137,7 @@
             <span *ngIf="sortColumn==='otHoursText'">{{ sortDirection==='asc'?'▲':'▼' }}</span>
           </th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -138,7 +149,9 @@
           <td>
             <ul class="list-group list-group-flush">
               <li class="list-group-item py-1" *ngFor="let p of row.projects; let pi = index">
-                Project {{ pi + 1 }}: {{ p.projectName }}
+                Task {{ pi + 1 }}: {{ p.projectName }}
+                <br>
+               <small class="text-muted">{{ p.description }}</small>
               </li>
             </ul>
           </td>
@@ -164,9 +177,91 @@
               'bg-danger': row.status==='Rejected'
             }">{{ row.status }}</span>
           </td>
+          <td class="text-center">
+            <a href="javascript:void(0)" (click)="openViewModal(row)">
+              <i class="fa-solid fa-eye text-primary fs-5"></i>
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>
+    <!-- VIEW TIMESHEET MODAL -->
+<div class="modal fade show"
+     tabindex="-1"
+     *ngIf="selectedTimesheet"
+     [ngClass]="{'d-block': selectedTimesheet}"
+     style="background: rgba(0,0,0,0.5);">
+
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Timesheet Details</h5>
+        <button type="button" class="btn-close" (click)="closeViewModal()"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <p><strong>Employee:</strong> {{ selectedTimesheet.employeeName }}</p>
+        <p><strong>Employee Code:</strong> {{ selectedTimesheet.employeeCode }}</p>
+        <p><strong>Date:</strong> {{ selectedTimesheet.timesheetDate | date:'dd-MMM-yyyy' }}</p>
+
+        <p><strong>Status:</strong>
+          <span class="badge"
+                [ngClass]="{
+                  'bg-warning text-dark': selectedTimesheet.status === 'Pending',
+                  'bg-primary': selectedTimesheet.status === 'Submitted',
+                  'bg-success': selectedTimesheet.status === 'Approved',
+                  'bg-danger': selectedTimesheet.status === 'Rejected'
+                }">
+            {{ selectedTimesheet.status }}
+          </span>
+        </p>
+
+        <!-- PROJECT TABLE -->
+        <table class="table table-bordered mt-2">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Total Hours</th>
+              <th>OT Hours</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let p of selectedTimesheet.projects">
+              <td>
+                <div class="fw-bold mb-1">
+                  {{ p.projectName }}
+                </div>
+                <div class="text-muted">
+                  {{ p.description || 'No description available' }}
+                </div>
+              </td>
+              <td>{{ p.startTime }}</td>
+              <td>{{ p.endTime }}</td>
+              <td>{{ p.totalHoursText }}</td>
+              <td>{{ p.otHoursText }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Comments:</strong></p>
+        <textarea class="form-control" rows="3" readonly>
+          {{ selectedTimesheet.comments }}
+        </textarea>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeViewModal()">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
     <!-- Pagination -->
     <div class="d-flex justify-content-between align-items-center mt-2">
