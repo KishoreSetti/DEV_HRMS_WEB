@@ -1230,6 +1230,7 @@ import { EmployeeResignationService } from '../employee-profile/employee-service
 import { AdminService } from '../../admin/servies/admin.service';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
+import { AttendanceService } from '../attendance/service/attendance.service';
 interface LocationMap {
   [key: string]: string[];
 }
@@ -1253,6 +1254,7 @@ export class HeaderComponent {
   shiftStartTime: string = ''; // e.g. "09:00"
   showClockButton: boolean = false;
   allowedClockTimeText: string = '';
+isWFHApproved: boolean = false;
 
   clockStatus = 'Not Clocked In';
   clockInDisplay = '--:--:--';
@@ -1266,7 +1268,8 @@ export class HeaderComponent {
   companyLogo: string = '/assets/images/cor-logo.png';
   //profilePicture: string = 'assets/images/default-profile.png';
   userId: number = Number(sessionStorage.getItem('UserId'));
-  constructor(private router: Router, private employeeResignationService: EmployeeResignationService, private adminService: AdminService, private ngZone: NgZone) { }
+  constructor(private router: Router, private employeeResignationService: EmployeeResignationService, 
+    private adminService: AdminService, private ngZone: NgZone, private attendanceService: AttendanceService ) { }
   ngOnInit() {
     this.loadProfilePicture();
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -1292,6 +1295,8 @@ export class HeaderComponent {
     this.loadAttendance();
 
     this.loadUserShift();
+
+     this.checkWFHStatus();
 
     // ⏱️ Check every minute (important)
     setInterval(() => {
@@ -1508,79 +1513,89 @@ export class HeaderComponent {
 
   // ========================================== Clock In Clock Out Function  ==================================================
 
-  async toggleClock() {
+async toggleClock() {
 
-    // ✅ STEP 1: CHECK SHIFT
-    if (!this.shiftStartTime) {
-      Swal.fire(
-        'Not Allowed',
-        'You are not assigned to any shift. Please contact HR.',
-        'warning'
-      );
-      return;
-    }
+  // ✅ STEP 1: CHECK SHIFT
+  if (!this.shiftStartTime) {
+    Swal.fire(
+      'Not Allowed',
+      'You are not assigned to any shift. Please contact HR.',
+      'warning'
+    );
+    return;
+  }
 
-    // ✅ STEP 2: CHECK LOCATION + GEO FENCE
-    const geoAllowed = await this.checkGeoFence();
+  // ✅ STEP 2: CHECK WFH APPROVAL
+  let geoAllowed = true;
+
+  if (!this.isWFHApproved) {
+    // ❌ Normal users → must pass geo fence
+    geoAllowed = await this.checkGeoFence();
 
     if (!geoAllowed) return;
-
-    // ✅ STEP 3: PROCEED CLOCK-IN / OUT
-    const now = this.getSystemTime();
-
-    if (!this.isClockedIn) {
-
-      this.isClockedIn = true;
-      this.clockInTime = now;
-
-      sessionStorage.setItem('clockInTime', now.toISOString());
-
-      this.clockStatus = 'Clocked In';
-      this.clockInDisplay = this.formatTime(now);
-      this.totalHoursDisplay = '00:00:00';
-
-      this.startTimer();
-
-      this.employeeResignationService.addClockInOut({
-        employeeCode: this.employeeCode,
-        employeeName: sessionStorage.getItem('Name') || '',
-        department: 0,
-        attendanceDate: new Date(),
-        actionType: 'ClockIn',
-        actionTime: this.getSystemTime24(),
-        clockInTime: this.getSystemTime24(),
-        clockOutTime: '',
-        companyId: this.companyId,
-        regionId: this.regionId
-      }).subscribe(() => {
-        this.loadAttendance();
-      });
-
-    } else {
-
-      this.isClockedIn = false;
-
-      sessionStorage.removeItem('clockInTime');
-
-      this.clockStatus = 'Clocked Out';
-      this.stopTimer();
-
-      this.employeeResignationService.addClockInOut({
-        employeeCode: this.employeeCode,
-        employeeName: sessionStorage.getItem('Name') || '',
-        department: 0,
-        attendanceDate: new Date(),
-        actionType: 'ClockOut',
-        actionTime: this.getSystemTime24(),
-        clockInTime: '',
-        clockOutTime: this.getSystemTime24(),
-        companyId: this.companyId,
-        regionId: this.regionId
-      }).subscribe(() => {
-        this.loadAttendance();
-      });
-    }
+  } else {
+    // ✅ WFH Approved → skip geo check
+    console.log('✅ WFH Approved → Skipping Geo Fence');
   }
+
+  // ✅ STEP 3: PROCEED CLOCK-IN / OUT
+  const now = this.getSystemTime();
+
+  if (!this.isClockedIn) {
+
+    // 🔵 CLOCK IN
+    this.isClockedIn = true;
+    this.clockInTime = now;
+
+    sessionStorage.setItem('clockInTime', now.toISOString());
+
+    this.clockStatus = 'Clocked In';
+    this.clockInDisplay = this.formatTime(now);
+    this.totalHoursDisplay = '00:00:00';
+
+    this.startTimer();
+
+    this.employeeResignationService.addClockInOut({
+      employeeCode: this.employeeCode,
+      employeeName: sessionStorage.getItem('Name') || '',
+      department: 0,
+      attendanceDate: new Date(),
+      actionType: 'ClockIn',
+      actionTime: this.getSystemTime24(),
+      clockInTime: this.getSystemTime24(),
+      clockOutTime: '',
+      companyId: this.companyId,
+      regionId: this.regionId
+    }).subscribe(() => {
+      this.loadAttendance();
+    });
+
+  } else {
+
+    // 🔴 CLOCK OUT
+    this.isClockedIn = false;
+
+    sessionStorage.removeItem('clockInTime');
+
+    this.clockStatus = 'Clocked Out';
+    this.stopTimer();
+
+    this.employeeResignationService.addClockInOut({
+      employeeCode: this.employeeCode,
+      employeeName: sessionStorage.getItem('Name') || '',
+      department: 0,
+      attendanceDate: new Date(),
+      actionType: 'ClockOut',
+      actionTime: this.getSystemTime24(),
+      clockInTime: '',
+      clockOutTime: this.getSystemTime24(),
+      companyId: this.companyId,
+      regionId: this.regionId
+    }).subscribe(() => {
+      this.loadAttendance();
+    });
+  }
+}
 
   //================================================== Clock In Clock Out method =================================================
 
@@ -1702,6 +1717,28 @@ export class HeaderComponent {
 
     return R * c;
   }
+
+  //===============================  check WFH Status =================================
+
+checkWFHStatus() {
+  const today = new Date().toISOString().split('T')[0];
+
+  this.attendanceService
+    .getMyRequests(this.userId, this.companyId, this.regionId)
+    .subscribe((res: any[]) => {
+
+      // ✅ Check if any APPROVED WFH for today
+      const approvedWFH = res.find(x =>
+        x.status === 'Approved' &&
+        x.fromDate <= today &&
+        x.toDate >= today
+      );
+
+      this.isWFHApproved = !!approvedWFH;
+
+      console.log('WFH Approved Today:', this.isWFHApproved);
+    });
+}
 
   records: any;
   loadTodayAttendance() {
