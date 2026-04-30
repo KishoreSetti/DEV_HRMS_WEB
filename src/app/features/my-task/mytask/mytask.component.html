@@ -1,0 +1,126 @@
+<div class="card shadow-sm">
+  <div class="container-fluid py-4">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+      <h4 class="fw-semibold">
+        <i class="fa-solid fa-user-check me-2 text-primary"></i>
+        My Tasks
+      </h4>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-md-2" *ngFor="let card of summaryCards">
+        <div class="card border-0 shadow-sm h-100" [ngClass]="card.bg">
+          <div class="card-body d-flex align-items-center">
+            <div class="icon-box me-3" [ngClass]="card.iconBg">
+              <i class="{{card.icon}}"></i>
+            </div>
+            <div>
+              <small>{{card.label}}</small>
+              <h5>{{card.value}}</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FILTERS -->
+    <div class="row g-2 p-3 border-bottom bg-white">
+
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option value="">All Status</option>
+          <option *ngFor="let s of taskStatuses" [value]="s.taskStatusId">
+            {{ s.taskStatusName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="selectedPriority" (change)="applyFilters()">
+          <option value="">All Priority</option>
+          <option *ngFor="let p of priorities" [value]="p.priorityId">
+            {{ p.priorityName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <input type="date" class="form-control" [(ngModel)]="fromDate" (change)="applyFilters()">
+      </div>
+
+      <div class="col-md-2">
+        <input type="date" class="form-control" [(ngModel)]="toDate" (change)="applyFilters()">
+      </div>
+
+      <div class="col-md-2">
+        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchText"
+          (input)="applyFilters()">
+      </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="card-body p-0">
+      <table class="table table-bordered">
+
+        <thead class="table-secondary">
+          <tr>
+            <th>#</th>
+            <th>Task</th>
+            <th>Project</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Start</th>
+            <th>Due</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let t of tasks; let i=index">
+
+            <td>{{i+1}}</td>
+            <td>{{t.taskName}}</td>
+            <td>{{getProjectName(t.projectId)}}</td>
+
+            <td>
+              <span class="badge bg-secondary">
+                {{getPriorityName(t.priorityId)}}
+              </span>
+            </td>
+
+            <!-- ✅ STATUS DROPDOWN -->
+            <td>
+              <select class="form-select form-select-sm"
+                [(ngModel)]="t.statusId"
+                (change)="updateStatus(t)">
+                <option *ngFor="let s of taskStatuses" [value]="s.taskStatusId">
+                  {{s.taskStatusName}}
+                </option>
+              </select>
+            </td>
+
+            <td>{{t.startDate}}</td>
+            <td>{{t.dueDate}}</td>
+
+            <!-- ACTION -->
+            <td>
+              <button class="btn btn-sm btn-outline-primary"
+                (click)="openEdit(t)">
+                <i class="fa fa-edit"></i>
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,369 @@
+<div class="card shadow-sm">
+  <div class="container-fluid py-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="fw-semibold mb-0">
+          <i class="fa-solid fa-list-check me-2 text-danger"></i>
+          Task Management
+        </h4>
+        <small class="text-muted ms-4">
+          Create, assign and track employee tasks.
+        </small>
+      </div>
+
+      <button class="btn btn-danger" (click)="openModal()">
+        <i class="fa fa-plus me-2"></i>Create Task
+      </button>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="card shadow-sm border-0">
+      <!-- STATUS SUMMARY CARDS (Add above filter section) -->
+      <div class="row g-3 mb-4">
+
+        <!-- Total Tasks -->
+        <div class="col-md-2">
+          <div class="card border-0 shadow-sm bg-light h-100">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-primary-subtle text-primary me-3">
+                <i class="fa fa-list-check"></i>
+              </div>
+              <div>
+                <small class="text-muted">Total Tasks</small>
+                <h5 class="mb-0 fw-bold">{{ getTotalTasks() }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending -->
+        <div class="col-md-2">
+          <div class="card border-0 shadow-sm bg-warning-subtle h-100">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-warning text-white me-3">
+                <i class="fa fa-clock"></i>
+              </div>
+              <div>
+                <small class="text-muted">Pending Tasks</small>
+                <h5 class="mb-0 fw-bold">{{ getTaskCountByStatus('Pending') }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="col-md-2">
+          <div class="card border-0 shadow-sm bg-info-subtle h-100">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-info text-white me-3">
+                <i class="fa fa-spinner"></i>
+              </div>
+              <div>
+                <small class="text-muted">In Progress</small>
+                <h5 class="mb-0 fw-bold">{{ getTaskCountByStatus('In Progress') }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed -->
+        <div class="col-md-2">
+          <div class="card border-0 shadow-sm bg-success-subtle h-100">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-success text-white me-3">
+                <i class="fa fa-check"></i>
+              </div>
+              <div>
+                <small class="text-muted">Completed</small>
+                <h5 class="mb-0 fw-bold">{{ getTaskCountByStatus('Completed') }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overdue -->
+        <div class="col-md-2">
+          <div class="card border-0 shadow-sm bg-danger-subtle h-100">
+            <div class="card-body d-flex align-items-center">
+              <div class="icon-box bg-danger text-white me-3">
+                <i class="fa fa-exclamation-circle"></i>
+              </div>
+              <div>
+                <small class="text-muted">Overdue Tasks</small>
+                <h5 class="mb-0 fw-bold">{{ getOverdueTasks() }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="row g-2 p-3 border-bottom bg-white">
+
+        <!-- Employee Filter -->
+        <div class="col-md-2">
+          <select class="form-select" [(ngModel)]="selectedEmployee" (change)="applyFilters()">
+            <option value="">All Employees</option>
+            <option *ngFor="let e of employees" [value]="e.employeeName">
+              {{ e.employeeName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-md-2">
+          <select class="form-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+            <option value="">All Status</option>
+            <option *ngFor="let s of taskStatuses" [value]="s.taskStatusId">
+              {{ s.taskStatusName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="col-md-2">
+          <select class="form-select" [(ngModel)]="selectedPriority" (change)="applyFilters()">
+            <option value="">All Priority</option>
+            <option *ngFor="let p of priorities" [value]="p.priorityId">
+              {{ p.priorityName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Start Date -->
+        <div class="col-md-2">
+          <input type="date" class="form-control" [(ngModel)]="fromDate" (change)="applyFilters()">
+        </div>
+
+        <!-- End Date -->
+        <div class="col-md-2">
+          <input type="date" class="form-control" [(ngModel)]="toDate" (change)="applyFilters()">
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-2">
+          <input type="text" class="form-control" placeholder="Search task..." [(ngModel)]="searchText"
+            (input)="applyFilters()">
+        </div>
+
+      </div>
+
+      <div class="card-header bg-light fw-semibold">
+        Task List
+      </div>
+
+      <div class="card-body p-0">
+        <table class="table table-hover table-bordered align-middle mb-0">
+
+          <thead class="table-secondary">
+            <tr>
+              <th>#</th>
+              <th>Task Name</th>
+              <th>Project</th>
+              <!-- <th>Start Date</th> -->
+              <th>Assigned To</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Start Date</th>
+              <th>Due Date</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let task of tasks; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ task.taskName }}</td>
+              <td>{{ getProjectName(task.projectId) }}</td>
+
+              <!-- <td>{{ task.startDate }}</td> -->
+              <td>{{ task.assignedTo }}</td>
+
+              <!-- Priority -->
+              <td>
+                <span class="badge bg-secondary">
+                  {{ getPriorityName(task.priorityId) }}
+                </span>
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span class="badge bg-primary">
+                  {{ getStatusName(task.statusId) }}
+                </span>
+              </td>
+              <td>{{ task.startDate }}</td>
+
+              <td>{{ task.dueDate }}</td>
+
+              <!-- ACTIONS -->
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="editTask(task)">
+                  <i class="fa fa-edit"></i>
+                </button>
+
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteTask(task)">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="tasks.length === 0">
+              <td colspan="7" class="text-center text-muted py-3">
+                No tasks found.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal fade show d-block" *ngIf="showModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+
+          <!-- HEADER -->
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">
+              {{ isEditMode ? 'Edit Task' : 'Create Task' }}
+            </h5>
+            <button class="btn-close btn-close-white" (click)="closeModal()"></button>
+          </div>
+
+          <!-- BODY -->
+          <form (ngSubmit)="saveTask()">
+            <div class="modal-body">
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Task Name</label>
+                <input type="text" class="form-control" [(ngModel)]="newTask.name" name="name" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Project</label>
+                <select class="form-select" [(ngModel)]="newTask.projectId" name="projectId">
+                  <option value="">Select Project</option>
+                  <option *ngFor="let project of projects" [value]="project.projectMasterId">
+                    {{ project.projectName }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Assigned To</label>
+                <select class="form-select" [(ngModel)]="newTask.assigned" name="assigned">
+
+                  <option value="">Select Employee</option>
+
+                  <option *ngFor="let e of employees" [value]="e.employeeName">
+                    {{ e.employeeName }} ({{ e.employeeCode }})
+                  </option>
+
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Priority</label>
+                <select class="form-select" [(ngModel)]="newTask.priorityId" name="priorityId" required>
+                  <option value="">Select Priority</option>
+                  <option *ngFor="let p of priorities" [value]="p.priorityId">
+                    {{ p.priorityName }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Status</label>
+                <select class="form-select" [(ngModel)]="newTask.statusId" name="statusId" required>
+
+                  <option value="">Select Status</option>
+
+                  <option *ngFor="let s of taskStatuses" [value]="s.taskStatusId">
+                    {{ s.taskStatusName }}
+                  </option>
+
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Start Date</label>
+                <input type="date" class="form-control" [(ngModel)]="newTask.startDate" name="startDate">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Due Date</label>
+                <input type="date" class="form-control" [(ngModel)]="newTask.dueDate" name="dueDate">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Comment</label>
+
+                <div class="comment-box">
+
+                  <textarea class="form-control" [(ngModel)]="newTask.comment" name="comment" rows="2"
+                    placeholder="Type comment..."></textarea>
+
+                  <div *ngIf="selectedFiles.length > 0" class="mt-2">
+
+                    <div *ngFor="let file of selectedFiles; let i = index"
+                      class="d-flex justify-content-between align-items-center border p-2 mb-1">
+
+                      <span>{{ file.name }}</span>
+
+                      <button type="button" class="btn btn-sm btn-danger" (click)="removeFile(i)">
+                        ❌
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                  <!-- ICONS -->
+                  <div class="comment-icons">
+                    <i class="fa fa-at" title="Mention" (click)="toggleMention()"></i>
+
+                    <!-- <i class="fa fa-paperclip" title="Attach" (click)="fileInput.click()"></i> -->
+                  </div>
+
+                  <!-- 🔽 MENTION DROPDOWN -->
+                  <div *ngIf="showMentionDropdown" class="mention-dropdown">
+
+                    <div *ngFor="let emp of employees" (click)="selectMention(emp)" class="mention-item">
+
+                      {{ emp.employeeName }} ({{ emp.employeeCode }})
+
+                    </div>
+                  </div>
+
+
+                  <input type="file" #fileInput multiple (change)="onFilesSelected($event)" style="display: none;"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.txt,.zip" />
+
+                </div>
+              </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+
+              <button type="submit" class="btn btn-danger">
+                {{ isEditMode ? 'Update Task' : 'Save Task' }}
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL BACKDROP -->
+    <div class="modal-backdrop fade show" *ngIf="showModal"></div>
+
+  </div>
+</div>

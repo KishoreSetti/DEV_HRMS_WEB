@@ -69,6 +69,7 @@ export class AdminLayoutComponent {
      { title: 'Late Login Policy', route: '/admin/late-login-policy' },
      { title: 'Birthday List', route: '/admin/birthday-list'},
      { title: 'Geo Location', route: '/admin/Geo-Locations'}
+     { title: 'Task Status', route: '/admin/task-status' },
     ],  
     // 'Configuration': [
     //   { title: 'Approval Workflows', route: '/admin/approval-workflow' },

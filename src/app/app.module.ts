@@ -130,6 +130,11 @@ import { VisatypeComponent } from './pages/visatype/visatype.component';
 import { EmployeeMyLettersFormsComponent } from './features/employee-profile/employee-documents/employee-my-letters-forms/employee-my-letters-forms.component';
 import { ProjectMasterComponent } from './features/project-master/project-master.component';
 import { EmployeeMyformsComponent } from './features/employee-profile/employee-documents/employee-myforms/employee-myforms.component';
+import { MyTaskComponent } from './features/my-task/my-task/my-task.component';
+import { MytaskComponent } from './features/my-task/mytask/mytask.component';
+import { TeamtaskComponent } from './features/my-task/teamtask/teamtask.component';
+import { PickerModule } from '@ctrl/ngx-emoji-mart';
+import { TaskreportComponent } from './features/my-task/taskreport/taskreport.component';
 import { LeaveReportComponent } from './features/leave/leave-report/leave-report.component';
 @NgModule({
   declarations: [
@@ -251,6 +256,10 @@ import { LeaveReportComponent } from './features/leave/leave-report/leave-report
           EmployeeMyLettersFormsComponent,
           ProjectMasterComponent,
           EmployeeMyformsComponent,
+          MyTaskComponent,
+          MytaskComponent,
+          TeamtaskComponent,
+          TaskreportComponent,
           LeaveReportComponent,
           
    
@@ -260,7 +269,7 @@ import { LeaveReportComponent } from './features/leave/leave-report/leave-report
   imports: [
     BrowserModule, ReactiveFormsModule,FullCalendarModule,
     AppRoutingModule, FormsModule, HttpClientModule, NgxSpinnerModule,
-    StrongPasswordDirective,
+    StrongPasswordDirective,PickerModule   
 ],
 
   providers: [

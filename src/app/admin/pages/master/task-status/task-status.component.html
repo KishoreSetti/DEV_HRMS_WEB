@@ -1,0 +1,123 @@
+<div class="card shadow-sm">
+    <div class="container-fluid p-4 priority-master">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-semibold mb-0">
+                <i class="fa-solid fa-list-check me-2 text-primary"></i> Task Status
+            </h4>
+        </div>
+
+        <hr />
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form #taskStatusForm="ngForm" (ngSubmit)="onSubmit()">
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Task Status *</label>
+                            <input type="text" class="form-control" name="TaskStatusName"
+                                [(ngModel)]="taskStatus.taskStatusName" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Description</label>
+                            <input type="text" class="form-control" name="Description"
+                                [(ngModel)]="taskStatus.description">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Company *</label>
+                            <select class="form-select" name="CompanyId" [(ngModel)]="taskStatus.companyId"
+                                (change)="onCompanyChange()" required>
+                                <option [ngValue]="0">-- Select Company --</option>
+                                <option *ngFor="let c of companies" [ngValue]="c.companyId">
+                                    {{ c.companyName }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Region *</label>
+                            <select class="form-select" name="RegionId" [(ngModel)]="taskStatus.regionId" required>
+                                <option [ngValue]="0">-- Select Region --</option>
+                                <option *ngFor="let r of regions" [ngValue]="r.regionID">
+                                    {{ r.regionName }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center mt-4">
+                            <label class="me-2 fw-semibold">Is Active</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="IsActive"
+                                    [(ngModel)]="taskStatus.isActive">
+                            </div>
+                        </div>
+
+                        <div class="col-md-10 mt-4 text-end">
+                            <button class="btn btn-success me-2" type="submit" [disabled]="!taskStatusForm.valid">
+                                {{ isEditMode ? 'Update' : 'Save' }}
+                            </button>
+                            <button class="btn btn-secondary" type="button" (click)="resetForm()">
+                                Reset
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="mb-3 d-flex justify-content-end">
+                    <input class="form-control w-25" placeholder="Search Task Status" [(ngModel)]="searchText">
+                </div>
+
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>S.No</th>
+                            <th>Task Status</th>
+                            <th>Description</th>
+                            <th>Company</th>
+                            <th>Region</th>
+                            <th class="text-center">Active</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr *ngFor="let t of pagedTaskStatuses; let i = index">
+                            <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                            <td>{{ t.taskStatusName }}</td>
+                            <td>{{ t.description }}</td>
+                            <td>{{ companyMap[t.companyId] || '—' }}</td>
+                            <td>{{ regionMap[t.regionId] || '—' }}</td>
+
+                            <td class="text-center">
+                                <i class="fa-solid"
+                                    [ngClass]="t.isActive ? 'fa-circle-check text-success' : 'fa-circle-xmark text-danger'"></i>
+                            </td>
+
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary me-2" (click)="editTaskStatus(t)">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" (click)="deleteTaskStatus(t)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredTaskStatuses().length === 0">
+                            <td colspan="7" class="text-center text-muted">
+                                No records found
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+</div>

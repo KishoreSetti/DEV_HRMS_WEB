@@ -77,6 +77,7 @@ import { ProjectMasterComponent } from '../features/project-master/project-maste
 import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-policy.component';
 import { BirthdayMasterComponent } from './pages/birthday/birthday-master/birthday-master.component';
 import { GeoLocationComponent } from './master/geo-location/geo-location.component';
+import { TaskStatusComponent } from './pages/master/task-status/task-status.component';
 const routes: Routes = [
   {
     path: '',
@@ -162,6 +163,7 @@ const routes: Routes = [
       { path: 'project-master', component: ProjectMasterComponent },      
       {path: 'birthday-list', component: BirthdayMasterComponent },
       {path: 'Geo-Locations', component: GeoLocationComponent },
+      {path: 'task-status', component: TaskStatusComponent },
     ]
   }
 ];
