@@ -159,6 +159,13 @@ export class ShiftAllocationComponent {
     }
   });
 }
+get availableEmployees() {
+  return this.employees.filter(emp => {
+    return !this.allocations.some(a => 
+      a.userID === emp.userId && this.getStatus(a) === 'Active'
+    );
+  });
+}
 
   onEmployeeChange(event: Event) {
   const select = event.target as HTMLSelectElement;
@@ -358,19 +365,16 @@ export class ShiftAllocationComponent {
   onEdit(a: ShiftAllocationDto) {
     this.editMode = true;
     this.editId = a.shiftAllocationId || null;
+    const isActive = this.getStatus(a) === 'Active';
 
     this.shiftForm.patchValue({
-      userID: a.userID,
+      userId: isActive ? null : a.userID,
       employeeCode: a.employeeCode,
       shiftID: a.shiftID,
       startDate: a.startDate ? (a.startDate as string).split('T')[0] : '',
       endDate: a.endDate ? (a.endDate as string).split('T')[0] : '',
       isActive: a.isActive
     });
-
-    if (a.companyID) sessionStorage.setItem('CompanyId', a.companyID.toString());
-    if (a.regionID) sessionStorage.setItem('RegionId', a.regionID.toString());
-    if (a.userID) sessionStorage.setItem('UserId', a.userID.toString());
   }
 onDelete(id?: number) {
   if (!id || id === 0) return;
