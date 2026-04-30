@@ -5,6 +5,7 @@ import { AdminService } from '../admin/servies/admin.service';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { environment } from '../../environments/environment';
 
 interface EmployeeOption {
   userId: number;
@@ -37,6 +38,9 @@ export class TimesheetReportComponent implements OnInit {
   pageSize = 10;
   currentPage = 1;
   pageSizeOptions = [5, 10, 20, 50];
+  companyLogoBase64: string = '';
+companyName: string = '';
+companyAddress: string = '';
 
   // Summary
   totalTimesheets: number = 0;
@@ -59,6 +63,7 @@ export class TimesheetReportComponent implements OnInit {
     this.buildForm();
     this.loadEmployees();
     this.loadAllTimesheets();
+    this.loadCompanyDetails(); 
   }
 
   loadEmployees(): void {
@@ -324,38 +329,163 @@ export class TimesheetReportComponent implements OnInit {
   formatHours(minutes: number): string {
     return `${Math.floor(minutes / 60)} Hours ${minutes % 60} Minutes`;
   }
+  loadCompanyDetails() {
+  const companyId = Number(sessionStorage.getItem('CompanyId'));
+
+  this.adminService.getCompanyById(companyId).subscribe({
+    next: async (company: any) => {
+
+      this.companyName = company?.companyName || 'Company';
+      this.companyAddress = company?.companyAddress || '';
+
+      const logo = company?.companyLogo;
+
+      if (logo && logo.trim() !== '') {
+
+        if (logo.startsWith('data:')) {
+          this.companyLogoBase64 = logo;
+        } else {
+          const logoPath = logo.replace(/\\/g, '/');
+          const fullUrl = `${environment.baseurl}/${logoPath}`;
+
+          this.companyLogoBase64 =
+            await this.getBase64ImageFromURL(fullUrl);
+        }
+
+      } else {
+        this.setDefaultLogo();
+      }
+    },
+    error: () => this.setDefaultLogo()
+  });
+}
+setDefaultLogo() {
+  const defaultLogo = '/assets/images/cor-logo.png';
+
+  this.getBase64ImageFromURL(defaultLogo)
+    .then(base64 => this.companyLogoBase64 = base64)
+    .catch(() => this.companyLogoBase64 = '');
+}
+getBase64ImageFromURL(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = url;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+
+      resolve(canvas.toDataURL('image/png'));
+    };
+
+    img.onerror = err => reject(err);
+  });
+}
 
   downloadPDF(): void {
-    const doc = new jsPDF();
-    
-    // Title
-    doc.setFontSize(18);
-    doc.text('Timesheet Report', 14, 22);
-    
-    // Date
-    doc.setFontSize(10);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-    
-    // Table data
-    const tableData = this.filteredTimesheets.map(ts => [
-      ts.employeeName || '',
-      ts.employeeCode || '',
-      ts.timesheetDate ? new Date(ts.timesheetDate).toLocaleDateString() : '',
-      ts.totalHoursText || '',
-      ts.otHoursText || '',
-      ts.status || ''
-    ]);
-    
-    autoTable(doc, {
-      head: [['Employee Name', 'Employee ID', 'Date', 'Total Hours', 'OT Hours', 'Status']],
-      body: tableData,
-      startY: 35,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [41, 128, 185] }
-    });
-    
-    doc.save('timesheet-report.pdf');
+
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  const data = this.filteredTimesheets;
+
+  /* ================= BORDER ================= */
+  doc.setDrawColor(200, 0, 0);
+  doc.setLineWidth(1);
+  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+
+  let y = 15;
+
+  /* ================= COMPANY LOGO ================= */
+  if (this.companyLogoBase64) {
+    doc.addImage(this.companyLogoBase64, 'PNG', pageWidth / 2 - 20, 8, 40, 15);
   }
+
+  /* ================= COMPANY NAME ================= */
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(200, 0, 0);
+  doc.text(this.companyName?.toUpperCase() || 'COMPANY', 20, y);
+
+  /* ================= ADDRESS ================= */
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+
+  let addressY = y + 6;   // 👈 moved slightly down for better spacing
+
+  if (this.companyAddress) {
+    const lines = this.companyAddress.split(',');
+
+    lines.forEach((l) => {
+      doc.text(l.trim(), 20, addressY);
+      addressY += 4;
+    });
+  }
+
+  /* ================= RIGHT SIDE INFO ================= */
+  doc.setTextColor(0);
+  doc.setFontSize(10);
+
+  doc.text(
+    `Print Date: ${new Date().toLocaleDateString()}`,
+    pageWidth - 20,
+    y,
+    { align: 'right' }
+  );
+
+  doc.text(
+    `Timesheet Report`,
+    pageWidth - 20,
+    y + 5,
+    { align: 'right' }
+  );
+
+  /* ================= RED LINE (FIXED POSITION) ================= */
+  const lineY = addressY + 4; // 👈 KEY FIX: line goes below address
+
+  doc.setDrawColor(200, 0, 0);
+  doc.setLineWidth(0.5);
+  doc.line(20, lineY, pageWidth - 20, lineY);
+
+  /* ================= TABLE ================= */
+
+  const rows = data.map(ts => [
+    ts.employeeName,
+    ts.employeeCode,
+    ts.timesheetDate ? new Date(ts.timesheetDate).toLocaleDateString() : '',
+    ts.totalHoursText,
+    ts.otHoursText,
+    ts.status
+  ]);
+
+  autoTable(doc, {
+    startY: lineY + 8, // 👈 table starts below line
+    head: [['Employee', 'Code', 'Date', 'Total Hours', 'OT Hours', 'Status']],
+    body: rows,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [200, 0, 0] }
+  });
+
+  /* ================= FOOTER ================= */
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+
+  doc.setFontSize(8);
+  doc.setTextColor(120);
+  doc.text(
+    `© ${this.companyName} — System Generated Timesheet Report`,
+    pageWidth / 2,
+    finalY,
+    { align: 'center' }
+  );
+
+  doc.save('Timesheet_Report.pdf');
+}
 
   exportToExcel(): void {
     const data = this.filteredTimesheets.map(ts => ({
