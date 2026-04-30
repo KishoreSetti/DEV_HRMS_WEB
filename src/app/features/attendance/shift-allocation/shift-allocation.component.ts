@@ -125,28 +125,40 @@ export class ShiftAllocationComponent {
   }
 
   loadAllocations() {
-    this.loading = true;
-    this.svc.getAllAllocations(this.currentUserId).subscribe(
-      (r:any) => {
-        this.allocations = (r || []).slice().sort((a:any, b:any) => {
-          const da = a.startDate ? new Date(a.startDate).getTime() : 0;
-          const db = b.startDate ? new Date(b.startDate).getTime() : 0;
-          return db - da;
-        });
-        this.loading = false;
-        console.log('Loaded allocations:', this.allocations);
-      }, 
-      (err:any) => {
-        console.error('Error loading allocations:', err);
-        this.loading = false;
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Failed to load shift allocations'
-        });
-      }
-    );
+  this.loading = true;
+
+  const companyId = Number(sessionStorage.getItem('CompanyId') || 0);
+  const regionId = Number(sessionStorage.getItem('RegionId') || 0);
+
+  if (!companyId || !regionId) {
+    this.loading = false;
+    Swal.fire('Error', 'Company or Region not found', 'error');
+    return;
   }
+
+  this.svc.getAllocationsByCompanyRegion(companyId, regionId).subscribe({
+    next: (r: any) => {
+      this.allocations = (r || []).slice().sort((a: any, b: any) => {
+        const da = a.startDate ? new Date(a.startDate).getTime() : 0;
+        const db = b.startDate ? new Date(b.startDate).getTime() : 0;
+        return db - da;
+      });
+
+      this.loading = false;
+      console.log('Loaded allocations:', this.allocations);
+    },
+    error: (err: any) => {
+      console.error('Error loading allocations:', err);
+      this.loading = false;
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Failed to load shift allocations'
+      });
+    }
+  });
+}
 
   onEmployeeChange(event: Event) {
   const select = event.target as HTMLSelectElement;

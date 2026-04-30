@@ -126,7 +126,7 @@
 
           <td>{{ ts.employeeName }}</td>
           <td>{{ ts.employeeCode }}</td>
-          <td>{{ ts.timesheetDate | date:'dd-MMM-yyyy' }}</td>
+          <td>{{ ts.timesheetDate}}</td>
 
           <td>
             <ul class="list-group list-group-flush">
@@ -140,7 +140,7 @@
           <td>{{ ts.totalHoursText }}</td>
           <td>{{ ts.otHoursText }}</td>
 
-          <td>
+          <td>a
             <span class="badge"
               [ngClass]="{
                 'bg-warning': ts.status==='Pending',
