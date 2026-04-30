@@ -2233,6 +2233,30 @@ updatePriority(data: any) {
 deletePriority(id: number) {
   return this.http.post(`${this.baseUrl}/MasterData/DeletePriority?id=${id}`, {});
 }
+
+
+
+getTaskStatuses(userId: number) {
+  return this.http.get(`${this.baseUrl}/MasterData/taskstatuses?userId=${userId}`);
+}
+
+createTaskStatus(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/CreateTaskStatus`, data);
+}
+
+updateTaskStatus(data: any) {
+  return this.http.post(`${this.baseUrl}/MasterData/UpdateTaskStatus`, data);
+}
+
+deleteTaskStatus(id: number) {
+  return this.http.post(`${this.baseUrl}/MasterData/DeleteTaskStatus?id=${id}`, {});
+}
+getTaskStatusesByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get(
+    `${this.baseUrl}/MasterData/taskstatuses/by-company-region?companyId=${companyId}&regionId=${regionId}`
+  );
+}
+
 //////////asset-types CRUD operations
 getAssetTypes(userId: number) {
   return this.http.get(`${this.baseUrl}/MasterData/asset-types?userId=${userId}`);
