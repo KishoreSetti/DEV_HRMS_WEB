@@ -1,0 +1,130 @@
+<div class="card shadow-sm">
+    <div class="container-fluid p-4">
+
+        <h4 class="mb-4 d-flex align-items-center">
+            <span style="font-size: 22px; margin-right: 8px;">📍</span>
+            Geo Location Master
+        </h4>
+
+        <!-- FORM -->
+        <form (ngSubmit)="onSubmit()" #form="ngForm">
+
+            <!-- ROW 1 -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Company *</label>
+                    <select class="form-select" [(ngModel)]="location.companyId" name="companyId"
+                        (change)="onCompanyChange()" required>
+                        <option value="0">Select Company</option>
+                        <option *ngFor="let c of companies" [value]="c.companyId">
+                            {{ c.companyName }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Region *</label>
+                    <select class="form-select" [(ngModel)]="location.regionId" name="regionId" required>
+                        <option value="0">Select Region</option>
+                        <option *ngFor="let r of filteredRegions" [value]="r.regionID">
+                            {{ r.regionName }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Location Name *</label>
+                    <input type="text" class="form-control" [(ngModel)]="location.locationName" name="locationName"
+                        required>
+                </div>
+            </div>
+
+            <!-- ROW 2 -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Address *</label>
+                    <textarea class="form-control" rows="2" [(ngModel)]="location.address" name="address"
+                        required></textarea>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Latitude *</label>
+                    <input type="number" step="any" class="form-control" [(ngModel)]="location.latitude" name="latitude"
+                        required>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Longitude *</label>
+                    <input type="number" step="any" class="form-control" [(ngModel)]="location.longitude"
+                        name="longitude" required>
+                </div>
+            </div>
+
+            <!-- ROW 3 -->
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Radius (meters) *</label>
+                    <input type="number" class="form-control" [(ngModel)]="location.radius" name="radius" required>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-center mt-4">
+                    <input type="checkbox" [(ngModel)]="location.isActive" name="isActive">
+                    <label class="ms-2">Active</label>
+                </div>
+
+                <div class="col-md-6 d-flex gap-2">
+                    <button class="btn btn-success w-50" [disabled]="!form.valid">
+                        {{ isEditMode ? 'Update' : 'Save' }}
+                    </button>
+
+                    <button type="button" class="btn btn-danger w-50" (click)="resetForm()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+        <hr>
+
+        <!-- TABLE -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>S.No</th>
+                        <th>Company</th>
+                        <th>Region</th>
+                        <th>Name</th>
+                        <th>Radius</th>
+                        <th>Status</th>
+                        <th style="width:120px;">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let g of locations; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ getCompanyName(g.companyId) }}</td>
+                        <td>{{ getRegionName(g.regionId) }}</td>
+                        <td>{{ g.locationName }}</td>
+                        <td>{{ g.radius }}</td>
+                        <td>
+                            <span class="badge bg-success" *ngIf="g.isActive">Active</span>
+                            <span class="badge bg-secondary" *ngIf="!g.isActive">Inactive</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary me-2" (click)="edit(g)">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger" (click)="delete(g)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

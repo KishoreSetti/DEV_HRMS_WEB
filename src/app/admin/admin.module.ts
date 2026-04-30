@@ -80,6 +80,7 @@ import { LateLoginPolicyComponent } from './master/late-login-policy/late-login-
 import { BirthdayMasterComponent } from './pages/birthday/birthday-master/birthday-master.component';
 import { TaskStatusComponent } from './pages/master/task-status/task-status.component';
 import { JobApplicationComponent } from './pages/job-application/job-application.component';
+import { GeoLocationComponent } from './master/geo-location/geo-location.component';
 
 @NgModule({
   declarations: [
@@ -162,7 +163,8 @@ import { JobApplicationComponent } from './pages/job-application/job-application
     TaskStatusComponent
     LateLoginPolicyComponent,
     BirthdayMasterComponent,
-    JobApplicationComponent
+    JobApplicationComponent,
+    GeoLocationComponent
  
   
 

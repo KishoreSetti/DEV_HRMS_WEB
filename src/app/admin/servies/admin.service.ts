@@ -789,7 +789,7 @@ export interface ManagerDropdown {
   fullName: string;
 }
 
-//----------------------- Late Login Policy Interface--------------------//
+//----------------------- Late Login Policy Interface  --------------------//
 
 export interface LateLoginPolicy {
   policyId: number;
@@ -800,6 +800,24 @@ export interface LateLoginPolicy {
   lateLoginCount: number;
   lopdays: number;
   loptype: string;
+
+  isActive: boolean;
+}
+//----------------------- Geo Location Master Screen Interface  --------------------//
+
+export interface GeoLocation {
+  geoLocationId: number;
+  companyId: number;
+  regionId: number;
+  userId: number;
+
+  locationName: string;
+  address: string;
+
+  latitude: number;
+  longitude: number;
+
+  radius: number;
 
   isActive: boolean;
 }
@@ -2917,4 +2935,49 @@ deleteLateLoginPolicy(id: number) {
     {}
   );
 }
+
+
+
+
+  //----------------------------------------- Geo Locations Master Screen Code API's ---------------------------------------//
+
+// GET
+getGeoLocations(userId: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/UserManagement/GetGeoLocations`,
+    { params: { userId } }
+  );
+}
+
+// CREATE
+createGeoLocation(data: any) {
+  return this.http.post(
+    `${this.baseUrl}/UserManagement/SaveGeoLocation`,
+    data
+  );
+}
+
+// UPDATE
+updateGeoLocation(id: number, data: any) {
+  return this.http.post(
+    `${this.baseUrl}/UserManagement/UpdateGeoLocation/${id}`,
+    data
+  );
+}
+
+// DELETE
+deleteGeoLocation(id: number) {
+  return this.http.post(
+    `${this.baseUrl}/UserManagement/DeleteGeoLocation/${id}`,
+    {}
+  );
+}
+
+getGeoLocationsByCompanyRegion(companyId: number, regionId: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/UserManagement/GetGeoLocationsCompanyRegion`,
+    { params: { companyId, regionId } }
+  );
+}
+
 }
