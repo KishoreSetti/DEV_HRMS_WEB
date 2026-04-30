@@ -201,13 +201,13 @@ loadCurrencies(): void {
     //   return;
     // }
 
-    if (
-      this.categoryLimit &&
-      this.expenseForm.value.amount > this.categoryLimit.perTransactionLimit
-    ) {
-      alert('Amount exceeds allowed policy limit');
-      return;
-    }
+    // if (
+    //   this.categoryLimit &&
+    //   this.expenseForm.value.amount > this.categoryLimit.perTransactionLimit
+    // ) {
+    //   alert('Amount exceeds allowed policy limit');
+    //   return;
+    // }
 
     const formData = new FormData();
     Object.entries(this.expenseForm.value).forEach(([key, value]: any) => {

@@ -9,7 +9,7 @@
       </label>
             <select class="form-select" formControlName="projectName">
         <option value="">Select project</option>
-        <option *ngFor="let proj of projects" [value]="proj.projectMasterId">
+        <option *ngFor="let proj of projects" [value]="proj.projectName">
   {{ proj.projectName }}
 </option>
       </select>
@@ -36,7 +36,7 @@
       <label class="form-label">
         Category <span class="text-danger">*</span>
       </label>
-      <select class="form-select" formControlName="expenseCategoryId" (change)="onCategoryChange($event)">
+      <select class="form-select" formControlName="expenseCategoryId" >
         <option value="">Select category</option>
         <option *ngFor="let cat of categories" [value]="cat.expenseCategoryID">
           {{ cat.expenseCategoryName }}
@@ -49,7 +49,7 @@
         {{ categoryLimit.currencyCode }}
       </small>
     </div>
-
+<!-- (change)="onCategoryChange($event)" -->
     <div class="col-md-4">
       <label class="form-label">Department</label>
       <input type="text" class="form-control" formControlName="departmentName">

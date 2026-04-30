@@ -590,6 +590,9 @@ export class ApplyLeaveComponent {
 //   });
 
 // }
+ canApprove: any;
+  canReject: any;
+hrEmail: string = '';
 startDate: string = "";
   endDate: string = "";
   totalDays: number = 0;
@@ -665,6 +668,7 @@ startDate: string = "";
     this.loadMyLeaves();
     this.loadReportingManager();
     this.loadWeekoffs();
+     this.loadPermission();
 
   }
 
@@ -704,6 +708,46 @@ startDate: string = "";
       this.endDate = "";
     }
   }
+  loadPermission() {
+  const userId = Number(sessionStorage.getItem("UserId"));
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  // ✅ Get "Leave Approve" menu (child menu)
+  const approvalMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "leave approve"
+  );
+
+  const menuId = approvalMenu?.menuId || 0;
+
+  // ✅ Set from session
+  this.canApprove = approvalMenu?.canEdit ?? false;   // Approve action
+  this.canReject = approvalMenu?.canDelete ?? false;  // Reject action
+
+  console.log("Approval Menu:", approvalMenu);
+  console.log("canApprove:", this.canApprove);
+  console.log("canReject:", this.canReject);
+
+  // ✅ OPTIONAL API (combine, don’t override)
+  this.userService.getPermission(userId, menuId, 'edit').subscribe({
+    next: (res: boolean) => {
+      console.log("API Approve Permission:", res);
+      this.canApprove = this.canApprove && res;
+    },
+    error: () => {
+      this.canApprove = false;
+    }
+  });
+
+  this.userService.getPermission(userId, menuId, 'delete').subscribe({
+    next: (res: boolean) => {
+      console.log("API Reject Permission:", res);
+      this.canReject = this.canReject && res;
+    },
+    error: () => {
+      this.canReject = false;
+    }
+  });
+}
 
   // FORMAT DATE
   formatDate(date: Date): string {

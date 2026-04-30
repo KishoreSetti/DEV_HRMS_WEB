@@ -133,7 +133,7 @@ import { EmployeeMyformsComponent } from './features/employee-profile/employee-d
 import { MyTaskComponent } from './features/my-task/my-task/my-task.component';
 import { MytaskComponent } from './features/my-task/mytask/mytask.component';
 import { TeamtaskComponent } from './features/my-task/teamtask/teamtask.component';
-import { PickerModule } from '@ctrl/ngx-emoji-mart';
+
 import { TaskreportComponent } from './features/my-task/taskreport/taskreport.component';
 import { LeaveReportComponent } from './features/leave/leave-report/leave-report.component';
 @NgModule({
@@ -269,7 +269,7 @@ import { LeaveReportComponent } from './features/leave/leave-report/leave-report
   imports: [
     BrowserModule, ReactiveFormsModule,FullCalendarModule,
     AppRoutingModule, FormsModule, HttpClientModule, NgxSpinnerModule,
-    StrongPasswordDirective,PickerModule   
+    StrongPasswordDirective   
 ],
 
   providers: [

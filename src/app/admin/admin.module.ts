@@ -160,7 +160,7 @@ import { GeoLocationComponent } from './master/geo-location/geo-location.compone
     ModeofstudyComponent,
     AccounttypeComponent,
     BirthdayMasterComponent,
-    TaskStatusComponent
+    TaskStatusComponent,
     LateLoginPolicyComponent,
     BirthdayMasterComponent,
     JobApplicationComponent,
