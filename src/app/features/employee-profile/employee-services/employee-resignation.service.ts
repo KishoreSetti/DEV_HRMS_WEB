@@ -168,7 +168,7 @@ private apiadminUrl = environment.apiUrl + '/UserManagement';
   }
 
   deleteempfamily(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/deleteempFamilyAsync/${id}`);
+    return this.http.post(`${this.apiUrl}/deleteempFamilyAsync?id=${id}`,{});
   }
 
   searchempfamily(filter: any): Observable<any> {

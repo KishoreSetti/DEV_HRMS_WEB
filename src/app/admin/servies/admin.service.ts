@@ -1590,7 +1590,7 @@ CreateEmployeeImmigration(formData: FormData): Observable<any> {
   });
 }
   DeleteEmployeeImmigration(id: number, companyId: number, regionId: number): Observable <any> {
-    return this.http.delete(`${this.baseUrl}/Employee/DeleteImmigration/${id}`)
+    return this.http.post(`${this.baseUrl}/Employee/DeleteImmigration?id=${id}`, {})
   }
 // Visa Types Dropdown
 getVisaTypes(companyId: number, regionId: number): Observable<any[]> {
