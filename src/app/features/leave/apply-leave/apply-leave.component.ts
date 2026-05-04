@@ -590,6 +590,9 @@ export class ApplyLeaveComponent {
 //   });
 
 // }
+ canApprove: any;
+  canReject: any;
+hrEmail: string = '';
 startDate: string = "";
   endDate: string = "";
   totalDays: number = 0;
@@ -626,8 +629,8 @@ startDate: string = "";
   weekoffDays: Set<string> = new Set();
 
   // Sorting
-  sortColumn: keyof LeaveRequest | null = null;
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortColumn: keyof LeaveRequest | null = 'appliedDate';
+  sortDirection: 'asc' | 'desc' = 'desc';
 
   // Pagination
   pageSize = 5;
@@ -665,6 +668,7 @@ startDate: string = "";
     this.loadMyLeaves();
     this.loadReportingManager();
     this.loadWeekoffs();
+     this.loadPermission();
 
   }
 
@@ -704,6 +708,46 @@ startDate: string = "";
       this.endDate = "";
     }
   }
+  loadPermission() {
+  const userId = Number(sessionStorage.getItem("UserId"));
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  // ✅ Get "Leave Approve" menu (child menu)
+  const approvalMenu = menus.find(
+    (m: any) => m.menuName?.trim().toLowerCase() === "leave approve"
+  );
+
+  const menuId = approvalMenu?.menuId || 0;
+
+  // ✅ Set from session
+  this.canApprove = approvalMenu?.canEdit ?? false;   // Approve action
+  this.canReject = approvalMenu?.canDelete ?? false;  // Reject action
+
+  console.log("Approval Menu:", approvalMenu);
+  console.log("canApprove:", this.canApprove);
+  console.log("canReject:", this.canReject);
+
+  // ✅ OPTIONAL API (combine, don’t override)
+  this.userService.getPermission(userId, menuId, 'edit').subscribe({
+    next: (res: boolean) => {
+      console.log("API Approve Permission:", res);
+      this.canApprove = this.canApprove && res;
+    },
+    error: () => {
+      this.canApprove = false;
+    }
+  });
+
+  this.userService.getPermission(userId, menuId, 'delete').subscribe({
+    next: (res: boolean) => {
+      console.log("API Reject Permission:", res);
+      this.canReject = this.canReject && res;
+    },
+    error: () => {
+      this.canReject = false;
+    }
+  });
+}
 
   // FORMAT DATE
   formatDate(date: Date): string {
@@ -833,17 +877,28 @@ startDate: string = "";
   loadMyLeaves() {
     this.leaveService.getMyLeaves(this.userId).subscribe({
       next: (data) => {
-        this.leaveList = data.map(x => ({
-          appliedDate: x.appliedDate,
-          leaveType: x.leaveTypeName || '',
-          fromDate: x.startDate,
-          toDate: x.endDate,
-          totalDays: x.totalDays,
-          reason: x.reason,
-          fileName: x.fileName,
-          status: x.status,
-          isHalfDay: x.isHalfDay ?? false
-        }));
+        this.leaveList = data
+        .slice()
+        .map(x => {
+          // If it's a half-day leave, show 0.5 days; otherwise use the totalDays value
+          const isHalfDay = x.isHalfDay ?? false;
+          const totalDays = isHalfDay ? 0.5 : (x.totalDays ?? 0);
+          
+          return {
+            appliedDate: x.appliedDate,
+            leaveType: x.leaveTypeName || '',
+            fromDate: x.startDate,
+            toDate: x.endDate,
+            totalDays: totalDays,
+            reason: x.reason,
+            fileName: x.fileName,
+            status: x.status,
+            isHalfDay: isHalfDay,
+            leaveRequestId: x.leaveRequestId || x.LeaveRequestId || 0
+          };
+        })
+        // Sort by LeaveRequestId descending (newest first) - most reliable
+        .sort((a, b) => (b.leaveRequestId || 0) - (a.leaveRequestId || 0));
 
         this.calculateLeaveSummary();
         if (this.leaveType) {
@@ -857,9 +912,22 @@ startDate: string = "";
     });
   }
 
-
-
-
+shouldCountLeaveForBalance(leave: LeaveRequest): boolean {
+  // Rejected leaves don't count
+  if (leave.status === 'Rejected') {
+    return false;
+  }
+  
+  // For pending leaves, only count if toDate is today or in the future
+  if (leave.status === 'Pending') {
+    const toDate = new Date(leave.toDate);
+    const todayDate = new Date(this.today);
+    return !isNaN(toDate.getTime()) && toDate >= todayDate;
+  }
+  
+  // Approved leaves always count
+  return true;
+}
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
@@ -891,10 +959,16 @@ startDate: string = "";
       return;
     }
 
-    // Calculate used leaves for selected type
+    // Calculate used leaves for selected type (exclude expired pending leaves)
+    // Properly account for half-day leaves (0.5 days)
     this.usedLeaves = this.leaveList
-      .filter(l => l.leaveType === this.leaveType)
-      .reduce((sum, l) => sum + l.totalDays, 0);
+      .filter(l => l.leaveType === this.leaveType && this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => {
+        // If it's a half-day leave, count as 0.5, otherwise count full days
+        const daysToCount = l.isHalfDay ? 0.5 : l.totalDays;
+        return sum + daysToCount;
+      }, 0);
+
     // Available = Total - Used
     this.availableLeaves =
       this.selectedLeaveType.leaveDays - this.usedLeaves;
@@ -904,14 +978,18 @@ startDate: string = "";
 
  leavedays:any;
   calculateLeaveSummary() {
-    this.leavedays= this.leaveList.reduce((sum, l) => sum + l.totalDays, 0);
+    // Properly account for half-day leaves in summary
+    this.leavedays = this.leaveList
+      .filter(l => this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => sum + (l.isHalfDay ? 0.5 : l.totalDays), 0);
+
     this.sickUsed = this.leaveList
-      .filter(l => l.leaveType === "Sick Leave")
-      .reduce((sum, l) => sum + l.totalDays, 0);
+      .filter(l => l.leaveType === "Sick Leave" && this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => sum + (l.isHalfDay ? 0.5 : l.totalDays), 0);
 
     this.casualUsed = this.leaveList
-      .filter(l => l.leaveType === "Casual Leave")
-      .reduce((sum, l) => sum + l.totalDays, 0);
+      .filter(l => l.leaveType === "Casual Leave" && this.shouldCountLeaveForBalance(l))
+      .reduce((sum, l) => sum + (l.isHalfDay ? 0.5 : l.totalDays), 0);
 
     this.sickAvailable = this.sickTotal - this.sickUsed;
     this.casualAvailable = this.casualTotal - this.casualUsed;
@@ -1061,12 +1139,32 @@ startDate: string = "";
     this.totalDays = total;
   }
 
+  // Check if there's a rejected leave on the same dates
+  private hasRejectedLeaveOnDates(startDate: string, endDate: string): boolean {
+    const newStart = new Date(startDate);
+    const newEnd = new Date(endDate);
+
+    return this.leaveList.some(leave => {
+      if (leave.status !== 'Rejected') return false;
+
+      const existingStart = new Date(leave.fromDate);
+      const existingEnd = new Date(leave.toDate);
+
+      // Check if date ranges overlap
+      return newStart <= existingEnd && newEnd >= existingStart;
+    });
+  }
+
   // --------------------- CREATE (SUBMIT LEAVE) ---------------------
   onSubmit() {
     if (!this.leaveType || !this.startDate || !this.endDate || !this.reason) {
       alert("Please fill all required fields.");
       return;
     }
+
+    // Check if there's a rejected leave on the same dates
+    const hasRejectedLeave = this.hasRejectedLeaveOnDates(this.startDate, this.endDate);
+
     let available = this.leaveType === "Sick Leave" ? this.sickAvailable : this.casualAvailable;
 
     if (this.totalDays > this.availableLeaves) {
@@ -1078,8 +1176,6 @@ startDate: string = "";
       return;
     }
 
-
-
     const selected = this.leaveTypes.find(x => x.leaveTypeName === this.leaveType);
     const leaveTypeId = selected?.leaveTypeID;
 
@@ -1088,12 +1184,36 @@ startDate: string = "";
       return;
     }
 
+    // If there's a rejected leave on these dates, show confirmation
+    if (hasRejectedLeave) {
+      Swal.fire({
+        title: 'Reapply for Previously Rejected Leave?',
+        text: 'A leave request on these dates was previously rejected. Do you want to submit a new request?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Submit Again',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.submitLeaveRequest();
+        }
+      });
+    } else {
+      this.submitLeaveRequest();
+    }
+  }
+
+  // Separate method to handle the actual leave submission
+  private submitLeaveRequest(): void {
+    const selected = this.leaveTypes.find(x => x.leaveTypeName === this.leaveType);
+    const leaveTypeId = selected?.leaveTypeID;
+
     const formData = new FormData();
 
     formData.append("UserId", this.userId.toString());
     formData.append("CompanyId", this.companyId.toString());
     formData.append("RegionId", this.regionId.toString());
-    formData.append("LeaveTypeId", leaveTypeId.toString());
+    formData.append("LeaveTypeId", leaveTypeId!.toString());
     formData.append("IsHalfDay", this.isHalfDay.toString());
     formData.append("StartDate", this.startDate);
     formData.append("EndDate", this.endDate);
@@ -1131,8 +1251,34 @@ startDate: string = "";
       },
       error: (err: any) => {
         console.error("Submit failed", err);
-        Swal.fire('Error', 'Error while submitting leave.', 'error');
-
+        
+        // Check for duplicate leave error
+        const errorMessage = err?.error?.message || err?.error?.error || '';
+        if (errorMessage.toLowerCase().includes('duplicate') || 
+            errorMessage.toLowerCase().includes('already exists') ||
+            errorMessage.toLowerCase().includes('already applied')) {
+          
+          // Check if there's a rejected leave on these dates - allow reapplication
+          if (this.hasRejectedLeaveOnDates(this.startDate, this.endDate)) {
+            Swal.fire({
+              title: 'Reapply for Rejected Leave?',
+              text: 'A leave request on these dates was previously rejected. Would you like to submit a new request?',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, Submit Again',
+              cancelButtonText: 'Cancel'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // Retry submission - the backend should allow this
+                this.submitLeaveRequest();
+              }
+            });
+          } else {
+            Swal.fire('Duplicate Leave', 'You have already applied for leave on these dates. Please choose different dates.', 'warning');
+          }
+        } else {
+          Swal.fire('Error', 'Error while submitting leave.', 'error');
+        }
       }
     });
   }

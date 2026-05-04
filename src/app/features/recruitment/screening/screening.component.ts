@@ -142,10 +142,8 @@ export class ScreeningComponent {
 
     this.recruitmentService
       .getScreeningCandidatesTopTable(
-        this.companyId,
-        this.regionId,
-        this.candidate.department,
-        this.candidate.designation
+      
+        this.userId
       )
       .subscribe({
         next: (res:any) => {

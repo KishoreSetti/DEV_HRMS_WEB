@@ -24,4 +24,5 @@ export interface EmployeeResignation {
 
     managerReason?: string;
   hrReason?: string;
+   hrEmail?: string;  // New field for HR email
 }

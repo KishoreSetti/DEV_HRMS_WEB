@@ -80,7 +80,8 @@ hrUsers: any[] = [];
     offerStatus: this.offerForm.status,
     hrName: this.offerForm.hrName,
     offerLetterPath: null,
-    filePath: null
+    filePath: null,
+    hrEmail: this.offerForm.hrEmail   // ✅ ADD THIS
   };
 
   this.recruitmentService.saveCandidateOffer(payload).subscribe({
@@ -181,10 +182,11 @@ loadHRUsers() {
  
    this.recruitmentService
      .getOfferCandidatesTopTable(
-       this.companyId,
-       this.regionId,
-       this.offerForm.department,
-       this.offerForm.designation
+      //  this.companyId,
+      //  this.regionId,
+      //  this.offerForm.department,
+      //  this.offerForm.designation
+      this.userId
      )
      .subscribe({
        next: (res:any) => {

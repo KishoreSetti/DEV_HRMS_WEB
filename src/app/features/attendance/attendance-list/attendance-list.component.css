@@ -321,3 +321,198 @@ cursor:pointer;
 .report-filter button:active {
     transform: scale(0.96);
 }
+/* PDF BUTTON */
+.btn-report.pdf {
+    background: #d32f2f;
+    color: white;
+}
+
+/* EXCEL BUTTON */
+.btn-report.excel {
+    background: #d32f2f;
+    color: white;
+}
+
+/* HOVER EFFECT SAME AS OTHERS */
+.btn-report.pdf:hover,
+.btn-report.excel:hover {
+    background: #b71c1c;
+    transform: translateY(-1px);
+}
+
+/* DISABLED STATE */
+.btn-report.pdf:disabled,
+.btn-report.excel:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+.report-filter {
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+}
+
+/* Push last buttons to right */
+.btn-report.weekly {
+  margin-left: auto;
+}
+
+.btn-report.monthly {
+  margin-left: 0;
+}
+/* DATE FILTER CONTAINER */
+.date-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+/* LABEL */
+.date-filter label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-right: 5px;
+}
+
+/* DATE INPUT */
+.date-input {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    height: 34px;
+}
+
+/* BUTTON */
+.btn-search {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+/* BUTTON HOVER */
+.btn-search:hover {
+    background-color: #b71c1c;
+}
+
+/* RESPONSIVE (mobile support) */
+@media (max-width: 768px) {
+    .date-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-input,
+    .btn-search {
+        width: 100%;
+    }
+}
+.attendance-date {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+}
+
+/* ✅ Present - Green */
+.badge-present {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* ❌ Absent - Red */
+.badge-absent {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* ⚠️ Half Day - Orange */
+.badge-halfday {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* 🌴 Leave - Blue */
+.badge-leave {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* 💤 WeekOff - Gray */
+.badge-weekoff {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* Default */
+.badge-default {
+  background-color: #f0f0f0;
+  color: #333;
+}
+/* PAGINATION CONTAINER */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ALL BUTTONS - FULL RED BOX */
+.pagination-container button {
+  padding: 6px 12px;
+  border: 1px solid #dc3545;
+  background-color: #dc3545;   /* 🔴 full red */
+  color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 13px;
+  min-width: 35px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+/* HOVER EFFECT */
+.pagination-container button:hover {
+  background-color: #b02a37;  /* darker red */
+  border-color: #b02a37;
+}
+
+/* ACTIVE PAGE (slightly darker) */
+.pagination-container button.active {
+  background-color: #8b1e2b;
+  border-color: #8b1e2b;
+  font-weight: bold;
+}
+
+/* DISABLED BUTTON */
+.pagination-container button:disabled {
+  background-color: #f5c2c7;
+  border-color: #f5c2c7;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+/* FIRST & LAST BUTTONS (<< >>) */
+.pagination-container button:first-child,
+.pagination-container button:last-child {
+  font-weight: bold;
+}

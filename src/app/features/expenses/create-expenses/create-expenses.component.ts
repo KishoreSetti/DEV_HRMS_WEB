@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ExpensesService } from '../expenses.service';
+
 import { environment } from '../../../../environments/environment.prod';
 import Swal from 'sweetalert2';
+import { ExpensesService } from '../expenses.service';
+import { AdminService } from '../../../admin/servies/admin.service';
 
 @Component({
   selector: 'app-create-expenses',
@@ -30,10 +32,14 @@ expenseForm!: FormGroup;
 
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
+  projects: any[] = [];
+  currencies: any[] = [];
+  
 
   constructor(
     private fb: FormBuilder,
-    private expenseService: ExpensesService
+    private expenseService: ExpensesService,
+    private service: AdminService
   ) {}
 
   ngOnInit(): void {
@@ -45,7 +51,25 @@ expenseForm!: FormGroup;
     this.buildForm();
     this.loadCategories();
     this.loadMyExpenses();
+    this.loadProjects();
+    this.loadCurrencies();
   }
+  loadProjects(): void {
+  this.service.getProjectNames(this.companyId, this.regionId)
+    .subscribe(res => {
+      if (res.success && res.data) {
+        this.projects = res.data;
+      }
+    });
+}
+loadCurrencies(): void {
+  this.service.getCurrenciesbycompanyId(this.companyId, this.regionId)
+    .subscribe((res: any) => {
+      if (res.success && res.data) {
+        this.currencies = res.data;
+      }
+    });
+}
 
   buildForm(): void {
     this.expenseForm = this.fb.group({
@@ -93,12 +117,15 @@ expenseForm!: FormGroup;
           Validators.maxLength(500)
         ]
       ],
-      receipt: ['', Validators.required]
+      receipt: ['', Validators.required],
+      hrEmail: ['']
     });
   }
   onCompanyOrRegionChange(): void {
   this.loadCategories();
+  this.loadProjects();
   this.expenseForm.patchValue({ expenseCategoryId: '' }); 
+  this.loadCurrencies();
 }
 
   noFutureDate(control: AbstractControl) {
@@ -110,16 +137,27 @@ expenseForm!: FormGroup;
   }
 
   loadCategories(): void {
-  this.expenseService.getExpenseCategories().subscribe(res => {
-    if (res.success && res.data) {
-      this.categories = res.data.filter(
-        (cat: any) =>
-          Number(cat.companyId) === this.companyId &&
-          Number(cat.regionId) === this.regionId
-      );
-    }
-  });
+  this.expenseService
+    .getExpenseCategories(this.companyId, this.regionId)
+    .subscribe(res => {
+      if (res.success && res.data) {
+        this.categories = res.data;
+      }
+    });
 }
+
+//   loadCategories(): void {
+//     debugger;
+//   this.expenseService.getExpenseCategories().subscribe(res => {
+//     if (res.success && res.data) {
+//       this.categories = res.data.filter(
+//         (cat: any) =>
+//           Number(cat.companyId) === this.companyId &&
+//           Number(cat.regionId) === this.regionId
+//       );
+//     }
+//   });
+// }
 
   onCategoryChange(event: any): void {
     const categoryId = +event.target.value;
@@ -163,13 +201,13 @@ expenseForm!: FormGroup;
     //   return;
     // }
 
-    if (
-      this.categoryLimit &&
-      this.expenseForm.value.amount > this.categoryLimit.perTransactionLimit
-    ) {
-      alert('Amount exceeds allowed policy limit');
-      return;
-    }
+    // if (
+    //   this.categoryLimit &&
+    //   this.expenseForm.value.amount > this.categoryLimit.perTransactionLimit
+    // ) {
+    //   alert('Amount exceeds allowed policy limit');
+    //   return;
+    // }
 
     const formData = new FormData();
     Object.entries(this.expenseForm.value).forEach(([key, value]: any) => {

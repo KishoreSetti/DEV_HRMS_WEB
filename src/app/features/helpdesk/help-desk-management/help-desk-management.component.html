@@ -11,30 +11,30 @@
 </div>
 
 <div class="tab-container">
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
-  <input type="radio" id="tab3" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
+  <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'">
 
   <div class="tab-header">
-    <label class="tab-label" for="tab1">Raise Ticket</label>
-    <label class="tab-label" for="tab2">My Tickets</label>
-    <label class="tab-label" for="tab3">Ticket Approval</label>
+    <label class="tab-label" for="tab1" *ngIf="canViewRaiseTicket">Raise Ticket</label>
+    <label class="tab-label" for="tab2" *ngIf="canViewMyTickets">My Tickets</label>
+    <label class="tab-label" for="tab3" *ngIf="canViewTicketApproval">Ticket Approval</label>
   </div>
 
   <!-- TAB 1: Raise Ticket -->
-  <div id="content1" class="tab-content">
+  <div id="content1" class="tab-content" *ngIf="canViewRaiseTicket">
     <app-raise-ticket></app-raise-ticket>
   </div>
 
   <!-- TAB 2: My Tickets -->
   <!-- MY TICKETS TAB -->
-  <div id="content2" class="tab-content">
+  <div id="content2" class="tab-content" *ngIf="canViewMyTickets">
       <app-my-tickets></app-my-tickets>
   </div>
 
   <!-- TAB 3: Ticket Approval -->
   <!-- APPROVE TICKETS TAB -->
-  <div id="content3" class="tab-content">
+  <div id="content3" class="tab-content" *ngIf="canViewTicketApproval">
       <app-approve-tickets></app-approve-tickets>
   </div>
 </div>

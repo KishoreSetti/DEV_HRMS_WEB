@@ -374,6 +374,7 @@ loading = false;
   onEdit(a: ShiftAllocationDto) {
     this.editMode = true;
     this.editId = a.shiftAllocationId || null;
+    const isActive = this.getStatus(a) === 'Active';
 
     this.shiftForm.patchValue({
       userId: a.userID,
@@ -383,10 +384,6 @@ loading = false;
       endDate: a.endDate ? (a.endDate as string).split('T')[0] : '',
       isActive: a.isActive
     });
-
-    if (a.companyID) sessionStorage.setItem('CompanyId', a.companyID.toString());
-    if (a.regionID) sessionStorage.setItem('RegionId', a.regionID.toString());
-    if (a.userID) sessionStorage.setItem('UserId', a.userID.toString());
   }
 onDelete(id?: number) {
   if (!id || id === 0) return;

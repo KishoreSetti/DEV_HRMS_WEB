@@ -54,7 +54,7 @@ import { MyCalendarComponent } from './features/my-calendar/my-calendar/my-calen
 import { MyEventsComponent } from './features/events/my-events/my-events.component';
 import { CompensationComponent } from './features/compensation/compensation/compensation.component';
 import { RecruitmentProcessComponent } from './features/recruitment/recruitment-process/recruitment-process.component'; 
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { CommonUploadComponent } from './shared/common-upload/common-upload.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -116,11 +116,32 @@ import { MainUsersComponent } from './main-users/main-users.component';
 import { SuperAdminDashboardComponent } from './superAdmin/super-admin-dashboard/super-admin-dashboard.component';
 import { SuperAdminDemousersComponent } from './superAdmin/super-admin-demousers/super-admin-demousers.component';
 import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subscription-plans.component';
+
+import { TimesheetReportComponent } from './timesheet-report/timesheet-report.component';
+import { AssetRequestComponent } from './features/asset/asset-request/asset-request.component';
+import { AssignAssetScreenComponent } from './features/asset/assign-asset-screen/assign-asset-screen.component';
+import { SpinnerInterceptor } from './admin/shared/interceptor.interceptor';
+import { SpinnerComponent } from './spinner/spinner.component';
+import { ErrorHandler } from '@angular/core';
+import { GlobalErrorHandler } from './admin/shared/global-error-handler';
+import { EmployeePayslipComponent } from './features/compensation/payroll/employee-payslip/employee-payslip.component';
+import { HrPayslipComponent } from './features/compensation/payroll/hr-payslip/hr-payslip.component';
+import { VisatypeComponent } from './pages/visatype/visatype.component';
+import { EmployeeMyLettersFormsComponent } from './features/employee-profile/employee-documents/employee-my-letters-forms/employee-my-letters-forms.component';
+import { ProjectMasterComponent } from './features/project-master/project-master.component';
+import { EmployeeMyformsComponent } from './features/employee-profile/employee-documents/employee-myforms/employee-myforms.component';
+import { MyTaskComponent } from './features/my-task/my-task/my-task.component';
+import { MytaskComponent } from './features/my-task/mytask/mytask.component';
+import { TeamtaskComponent } from './features/my-task/teamtask/teamtask.component';
+
+import { TaskreportComponent } from './features/my-task/taskreport/taskreport.component';
+import { LeaveReportComponent } from './features/leave/leave-report/leave-report.component';
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     LayoutComponent,
+    SpinnerComponent,
     HeaderComponent,
     SidebarComponent,
     FooterComponent,
@@ -226,6 +247,21 @@ import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subs
     
     SuperAdminDemousersComponent,
           SubscriptionPlansComponent,
+          TimesheetReportComponent,
+          AssetRequestComponent,
+          AssignAssetScreenComponent,
+          EmployeePayslipComponent,
+          HrPayslipComponent,
+          VisatypeComponent,
+          EmployeeMyLettersFormsComponent,
+          ProjectMasterComponent,
+          EmployeeMyformsComponent,
+          MyTaskComponent,
+          MytaskComponent,
+          TeamtaskComponent,
+          TaskreportComponent,
+          LeaveReportComponent,
+          
    
     
     
@@ -233,12 +269,22 @@ import { SubscriptionPlansComponent } from './superAdmin/subscription-plans/subs
   imports: [
     BrowserModule, ReactiveFormsModule,FullCalendarModule,
     AppRoutingModule, FormsModule, HttpClientModule, NgxSpinnerModule,
-    StrongPasswordDirective
+    StrongPasswordDirective   
 ],
 
   providers: [
     provideClientHydration(withEventReplay()),
    {provide: LocationStrategy, useClass: HashLocationStrategy},
+   {
+    provide: HTTP_INTERCEPTORS,
+    useClass: SpinnerInterceptor,
+    multi: true
+  },
+  {
+    provide: ErrorHandler,
+    useClass: GlobalErrorHandler
+  },
+  
      { provide: MAT_DATE_FORMATS, useValue: {
     parse: { dateInput: 'DD/MM/YYYY' },
     display: { dateInput: 'DD/MM/YYYY' }

@@ -86,15 +86,18 @@ getDocumentTypeName(id: number): string {
   }
 
 loadDocumentTypes() {
-  this.adminService.getActiveDocumentTypes().subscribe({
-    next: (res: any) => {
-      this.documentTypes = res;     // store API response
-      this.loadEmployeeDocument();
-    },
-    error: (err) => {
-      console.error('Failed to load document types', err);
-    }
-  });
+  this.adminService.getAttachmentTypesByCategory('Documents')
+    .subscribe({
+      next: (res: any[]) => {
+        this.documentTypes = res.map(x => ({
+          id: x.attachmentTypeId,
+          typeName: x.attachmentTypeName
+        }));
+      },
+      error: (err) => {
+        console.error('Failed to load document types', err);
+      }
+    });
 }
 
 
@@ -213,6 +216,7 @@ loadDocumentTypes() {
 
   // ---------------------- SAVE / UPDATE --------------------------
   saveDocument() {
+    debugger;
  this.submitted = true;
   this.issuedFutureError = false;
   this.expiryError = false;

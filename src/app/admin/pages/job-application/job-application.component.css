@@ -1,0 +1,109 @@
+.welcome-wrapper {
+  background: #f7f8fc;
+}
+
+/* LEFT */
+.left-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 60px;
+}
+
+.icon-box {
+  width: 60px;
+  height: 60px;
+  background: #ffe5ea;
+  color: #d80027;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.title span {
+  color: #d80027;
+}
+
+.description {
+  color: #555;
+  margin-top: 10px;
+}
+
+.features .feature {
+  text-align: center;
+}
+
+.features i {
+  color: #d80027;
+  font-size: 26px;
+}
+
+/* RIGHT */
+.demo-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+}
+
+.demo-header {
+  display: flex;
+  gap: 10px;
+  background: linear-gradient(90deg, #d80027, #ff5c6a);
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* FORM */
+.form-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.form-group i {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  color: #d80027;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 12px 12px 35px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.upload-box {
+  border: 1px dashed #ccc;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.upload-box:hover {
+  border-color: #d80027;
+}
+
+/* BUTTON */
+.btn-submit {
+  width: 100%;
+  background: #d80027;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.btn-submit:hover {
+  background: #b30020;
+}

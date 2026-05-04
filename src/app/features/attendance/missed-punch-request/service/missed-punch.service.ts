@@ -14,11 +14,15 @@ export class MissedPunchService {
   }
 
   // 🔹 My Requests
-  getMissedPunchRequest(companyId: number, regionId?: number): Observable<any[]> {
-    let params = new HttpParams().set('companyId', companyId);
-    if (regionId) params = params.set('regionId', regionId);
-    return this.http.get<any[]>(`${this.baseUrl}/getmissedpunchrequest`, { params });
-  }
+getMissedPunchRequest(companyId: number, regionId?: number, userId?: number): Observable<any[]> {
+  let params = new HttpParams()
+    .set('companyId', companyId)
+    .set('userId', userId!);
+
+  if (regionId) params = params.set('regionId', regionId);
+
+  return this.http.get<any[]>(`${this.baseUrl}/getmissedpunchrequest`, { params });
+}
 
   // 🔹 Manager Approval List
   getApprovalMissedPunchRequest(

@@ -4,9 +4,9 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h4 class="fw-semibold mb-0">
-  <i class="fa-solid fa-sitemap me-2 text-danger"></i>
-  Menu Management
-</h4>
+        <i class="fa-solid fa-sitemap me-2 text-danger"></i>
+        Menu Management
+      </h4>
 
       <!-- Bulk Upload Button -->
       <!-- <button class="btn btn-danger" >
@@ -25,24 +25,14 @@
             <!-- Menu Name -->
             <div class="col-md-6">
               <label class="form-label">Menu Name <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control"
-                name="menuName"
-                [(ngModel)]="menu.menuName"
-                required
-                placeholder="Enter menu name"
-              />
+              <input type="text" class="form-control" name="menuName" [(ngModel)]="menu.menuName" required
+                placeholder="Enter menu name" />
             </div>
 
             <!-- Parent Menu -->
             <div class="col-md-6">
               <label class="form-label">Parent Menu</label>
-              <select
-                class="form-select"
-                name="parentMenuID"
-                [(ngModel)]="menu.parentMenuID"
-              >
+              <select class="form-select" name="parentMenuID" [(ngModel)]="menu.parentMenuID">
                 <option [ngValue]="undefined">-- None (Top Level) --</option>
                 <option *ngFor="let p of parentMenus" [ngValue]="p.menuID">
                   {{ p.menuName }}
@@ -53,66 +43,74 @@
             <!-- URL -->
             <div class="col-md-6">
               <label class="form-label">URL</label>
-              <input
-                type="text"
-                class="form-control"
-                name="url"
-                [(ngModel)]="menu.url"
-                placeholder="Enter URL path"
-              />
+              <input type="text" class="form-control" name="url" [(ngModel)]="menu.url" placeholder="Enter URL path" />
             </div>
 
             <!-- Icon -->
             <div class="col-md-6">
               <label class="form-label">Icon (FontAwesome)</label>
-              <input
-                type="text"
-                class="form-control"
-                name="icon"
-                [(ngModel)]="menu.icon"
-                placeholder="e.g., fa-solid fa-home"
-              />
+              <input type="text" class="form-control" name="icon" [(ngModel)]="menu.icon"
+                placeholder="e.g., fa-solid fa-home" />
             </div>
 
             <!-- Order No -->
             <div class="col-md-6">
               <label class="form-label">Order No</label>
-              <input
-                type="number"
-                class="form-control"
-                name="orderNo"
-                [(ngModel)]="menu.orderNo"
-                placeholder="Enter display order"
-              />
+              <input type="number" class="form-control" name="orderNo" [(ngModel)]="menu.orderNo"
+                placeholder="Enter display order" />
             </div>
 
             <!-- Active Switch -->
             <div class="col-md-6 d-flex align-items-center">
               <div class="form-check form-switch">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="isActiveSwitch"
-                  name="isActive"
-                  [(ngModel)]="menu.isActive"
-                />
+                <input class="form-check-input" type="checkbox" id="isActiveSwitch" name="isActive"
+                  [(ngModel)]="menu.isActive" />
                 <label class="form-check-label" for="isActiveSwitch">
                   {{ menu.isActive ? 'Active' : 'Inactive' }}
                 </label>
               </div>
             </div>
+            <!-- Permissions -->
+            <div class="col-md-12">
+              <label class="form-label fw-semibold">Permissions</label>
+
+              <div class="d-flex flex-wrap gap-3">
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="canView" [(ngModel)]="menu.canView">
+                  <label class="form-check-label">View</label>
+                </div>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="canAdd" [(ngModel)]="menu.canAdd">
+                  <label class="form-check-label">Create</label>
+                </div>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="canEdit" [(ngModel)]="menu.canEdit">
+                  <label class="form-check-label">Edit</label>
+                </div>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="canDelete" [(ngModel)]="menu.canDelete">
+                  <label class="form-check-label">Delete</label>
+                </div>
+
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" name="canApprove" [(ngModel)]="menu.canApprove">
+                  <label class="form-check-label">Approve</label>
+                </div>
+
+              </div>
+            </div>
 
             <!-- Submit Button -->
-            <div class="col-md-4 d-flex align-items-end">
-              <button
-                type="submit"
-                class="btn btn-dark w-100"
-               
-              >
+            <!-- <div class="col-md-4 d-flex align-items-end">
+              <button type="submit" class="btn btn-dark w-100">
                 <i class="fa-solid fa-save me-2"></i>
                 {{ isEditMode ? 'Update Menu' : 'Save Menu' }}
               </button>
-            </div>
+            </div> -->
           </div>
         </form>
       </div>
@@ -125,12 +123,7 @@
         <!-- Filters -->
         <div class="mb-3 row g-3 align-items-end">
           <div class="col-md-4">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search by Menu Name"
-              [(ngModel)]="searchText"
-            />
+            <input type="text" class="form-control" placeholder="Search by Menu Name" [(ngModel)]="searchText" />
           </div>
           <div class="col-md-4">
             <select class="form-select" [(ngModel)]="statusFilter">
@@ -144,68 +137,81 @@
         <!-- Table -->
         <div class="table-responsive">
           <table class="table table-bordered table-hover align-middle">
-         <thead class="table-light">
-    <tr>
-       <th >
-      S.No
-      </th>
-     
-      <th (click)="sortBy('menuName')" style="cursor:pointer">
-        Menu Name <span *ngIf="sortColumn === 'menuName'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-      </th>
-      <th>Parent Menu</th>
-      <th (click)="sortBy('url')" style="cursor:pointer">
-        URL <span *ngIf="sortColumn === 'url'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-      </th>
-      <th>Icon</th>
-       <th (click)="sortBy('orderNo')" style="cursor:pointer">
-        Order No <span *ngIf="sortColumn === 'orderNo'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-      </th>
-      <th (click)="sortBy('isActive')" style="cursor:pointer">
-        Status <span *ngIf="sortColumn === 'isActive'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-      </th>
-      <th class="text-center">Actions</th>
-    </tr>
-  </thead>
+            <thead class="table-light">
+              <tr>
+                <th>
+                  S.No
+                </th>
 
-  <tbody>
-    <tr *ngFor="let m of filteredMenus(); let i = index">
-       <td>{{ (currentPage - 1)  + i + 1 }}</td>
-     
-      <td>{{ m.menuName }}</td>
-      <td>{{ getParentMenuName(m.parentMenuID) }}</td>
-      <td>{{ m.url }}</td>
-       <td>{{ m.orderNo }}</td>
-      <td>{{ m.icon }}</td>
-      <td>
-        <span class="badge" [ngClass]="m.isActive ? 'bg-success' : 'bg-danger'">
-          {{ m.isActive ? 'Active' : 'Inactive' }}
-        </span>
-      </td>
-      <td class="text-center">
-        <button class="btn btn-sm btn-info me-1" (click)="editMenu(m)"><span class="fas fa-pencil"></span></button>
-        <button class="btn btn-sm btn-danger" (click)="deleteMenu(m)"><span class="fas fa-trash"></span></button>
-      </td>
-    </tr>
-  </tbody>
+                <th (click)="sortBy('menuName')" style="cursor:pointer">
+                  Menu Name <span *ngIf="sortColumn === 'menuName'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th>Parent Menu</th>
+                <th (click)="sortBy('url')" style="cursor:pointer">
+                  URL <span *ngIf="sortColumn === 'url'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th> Order No</th>
+                <th (click)="sortBy('orderNo')" style="cursor:pointer">
+                  Icon <span *ngIf="sortColumn === 'orderNo'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th>Permissions</th>
+                <th (click)="sortBy('isActive')" style="cursor:pointer">
+                  Status <span *ngIf="sortColumn === 'isActive'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let m of filteredMenus(); let i = index">
+                <td>{{ (currentPage - 1) + i + 1 }}</td>
+
+                <td>{{ m.menuName }}</td>
+                <td>{{ getParentMenuName(m.parentMenuID) }}</td>
+                <td>{{ m.url }}</td>
+                <td>{{ m.orderNo }}</td>
+                <td>{{ m.icon }}</td>
+                <td>
+                  <span *ngIf="m.canView">V </span>
+                  <span *ngIf="m.canAdd">C </span>
+                  <span *ngIf="m.canEdit">E </span>
+                  <span *ngIf="m.canDelete">D </span>
+                  <span *ngIf="m.canApprove">A</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="m.isActive ? 'bg-success' : 'bg-danger'">
+                    {{ m.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <!-- <button class="btn btn-sm btn-info me-1" (click)="editMenu(m)"><span
+                      class="fas fa-pencil"></span></button> -->
+                  <button class="btn btn-sm btn-danger" (click)="deleteMenu(m)"><span
+                      class="fas fa-trash"></span></button>
+                </td>
+              </tr>
+            </tbody>
           </table>
           <!-- Pagination -->
-<!-- Pagination Footer -->
-<div class="d-flex justify-content-between align-items-center mt-3">
-  <div>
-    <label>Show:
-      <select class="form-select d-inline w-auto ms-2" [(ngModel)]="pageSize" (change)="changePageSize(pageSize)">
-        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
-      </select> entries
-    </label>
-  </div>
+          <!-- Pagination Footer -->
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+              <label>Show:
+                <select class="form-select d-inline w-auto ms-2" [(ngModel)]="pageSize"
+                  (change)="changePageSize(pageSize)">
+                  <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+                </select> entries
+              </label>
+            </div>
 
-  <div>
-    <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
-  </div>
-</div>
+            <div>
+              <button class="btn btn-outline-secondary btn-sm me-2" (click)="changePage(currentPage - 1)"
+                [disabled]="currentPage === 1">Previous</button>
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+              <button class="btn btn-outline-secondary btn-sm ms-2" (click)="changePage(currentPage + 1)"
+                [disabled]="currentPage === totalPages">Next</button>
+            </div>
+          </div>
         </div>
 
       </div>

@@ -1,0 +1,52 @@
+<app-header></app-header>
+<app-sidebar></app-sidebar>
+
+<div class="dashboard-header">
+  <h2 class="dashboard-title">My Tasks</h2>
+  <nav class="breadcrumb">
+    <a href="#">Home</a> &gt;
+    <a href="#">My Tasks</a> &gt;
+    <span>Task Management</span>
+  </nav>
+</div>
+
+<div class="tab-container">
+
+  <!-- Radios -->
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'" *ngIf="canViewMyTask">
+
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'" *ngIf="canViewTeamTask">
+  <input type="radio" id="tab3" name="tab" [checked]="selectedTab === 'tab3'" *ngIf="canViewTaskReport">
+  
+
+  <!-- Tab Headers -->
+  <div class="tab-header">
+    <label for="tab1" class="tab-label" *ngIf="canViewMyTask">
+      My Task
+    </label>
+
+    <label for="tab2" class="tab-label" *ngIf="canViewTeamTask">
+      Team Task
+    </label>
+
+    <!-- <label for="tab3" class="tab-label" *ngIf="canViewTaskReport">
+      Task Report
+    </label> -->
+  </div>
+
+  <!-- Tab Content -->
+  <div id="content1" class="tab-content" *ngIf="canViewMyTask">
+    <app-mytask></app-mytask>
+  </div>
+
+  <div id="content2" class="tab-content" *ngIf="canViewTeamTask">
+    <app-teamtask></app-teamtask>
+  </div>
+
+  <!-- <div id="content3" class="tab-content" *ngIf="canViewTaskReport">
+    <app-taskreport></app-taskreport>
+  </div> -->
+
+</div>
+
+<app-footer></app-footer>

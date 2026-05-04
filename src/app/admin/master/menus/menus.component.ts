@@ -41,6 +41,12 @@ export class MenusComponent {
       icon: '',
       orderNo: undefined,
       isActive: true,
+      // ✅ DEFAULTS
+    canView: false,
+    canAdd: false,
+    canEdit: false,
+    canDelete: false,
+    canApprove: false
     };
   }
 

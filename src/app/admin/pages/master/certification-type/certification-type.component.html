@@ -10,7 +10,7 @@
 
       <div class="d-flex gap-2">
         <!-- Export -->
-        <div class="dropdown">
+        <!-- <div class="dropdown">
           <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
             <i class="fa-solid fa-download me-2"></i> Export
           </button>
@@ -22,12 +22,12 @@
               <a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a>
             </li>
           </ul>
-        </div>
+        </div> -->
 
         <!-- Bulk Upload -->
-        <button class="btn btn-danger" (click)="openUploadPopup()">
+        <!-- <button class="btn btn-danger" (click)="openUploadPopup()">
           <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-        </button>
+        </button> -->
       </div>
     </div>
 
@@ -36,7 +36,7 @@
     <!-- ================= FORM ================= -->
     <div class="card shadow-sm mb-4">
       <div class="card-body">
-        <form (ngSubmit)="onSubmit()" #certForm="ngForm" novalidate>
+        <form *ngIf="certification" (ngSubmit)="onSubmit()" #certForm="ngForm" novalidate>
           <div class="row g-3">
 
             <div class="col-md-6">
@@ -53,7 +53,7 @@
  <!-- Company Name -->
             <div class="col-md-6">
               <label class="form-label fw-semibold">Company</label>
-              <select class="form-select" [(ngModel)]="certification.CompanyID" name="companyId" required>
+              <select class="form-select" [(ngModel)]="certification.companyID" name="companyId" (change)="onCompanyChange()" required>
                 <option value="">Select Company</option>
                 <option *ngFor="let company of companies" [value]="company.companyId">
                   {{ company.companyName }}
@@ -64,9 +64,9 @@
             <!-- Region -->
             <div class="col-md-6">
               <label class="form-label fw-semibold">Region</label>
-              <select class="form-select" [(ngModel)]="certification.RegionID" name="regionId">
+              <select class="form-select" [(ngModel)]="certification.regionId" name="regionId">
                 <option value="">Select Region</option>
-                <option *ngFor="let region of regions" [value]="region.regionID">
+                <option *ngFor="let region of filteredRegions" [value]="region.regionID">
                   {{ region.regionName }}
                 </option>
               </select>
@@ -124,6 +124,9 @@
                   Certification Type
                   <i class="fa" [ngClass]="getSortIcon('certificationTypeName')"></i>
                 </th>
+                <th>Company</th>
+<th>Region</th>
+
                 <th>Status</th>
                 <th class="text-center">Actions</th>
               </tr>
@@ -133,6 +136,9 @@
               <tr *ngFor="let c of certifications; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ c.certificationTypeName }}</td>
+                <td>{{ c.companyName }}</td>
+<td>{{ c.regionName }}</td>
+
                 <td>
                   <span class="badge" [ngClass]="c.isActive ? 'bg-success' : 'bg-secondary'">
                     {{ c.isActive ? 'Active' : 'Inactive' }}

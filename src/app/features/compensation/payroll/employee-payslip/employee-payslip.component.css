@@ -1,0 +1,276 @@
+/* Card */
+.payslip-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 20px;
+}
+
+/* Title */
+.section-title {
+  color: #b02828;
+  border-left: 5px solid #b02828;
+  padding-left: 10px;
+  margin-bottom: 20px;
+}
+
+/* Inputs */
+.custom-input {
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Button */
+.custom-btn {
+  font-weight: 600;
+}
+
+/* Table */
+.custom-table thead {
+  background: #b02828;
+  color: #fff;
+}
+
+.custom-table tbody tr:hover {
+  background: #ffebeb;
+}
+
+/* Popup */
+.custom-modal {
+  border-radius: 12px;
+}
+
+/* Section inside popup */
+.sub-title {
+  color: #b02828;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Salary rows */
+.salary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Net salary */
+.net-salary {
+  background: #b02828;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-weight: 700;
+  border-radius: 6px;
+}
+/* 🔴 CARD */
+.payslip-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 20px;
+  background: #fff;
+}
+
+/* 🔴 SECTION TITLE (LIKE HR DASHBOARD) */
+.section-title {
+  color: #b02828;
+  border-left: 5px solid #b02828;
+  padding-left: 10px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* 🔴 INPUT */
+.custom-input {
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* 🔴 BUTTON */
+.custom-btn {
+  font-weight: 600;
+}
+
+/* 🔴 TABLE HEADER BLACK */
+.custom-table thead {
+  background: #000;
+  color: #fff;
+}
+
+/* 🔴 CENTER ALL TEXT */
+.custom-table th,
+.custom-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* 🔴 ROW HOVER */
+.custom-table tbody tr:hover {
+  background: #ffebeb;
+}
+
+/* 🔴 ACTION BUTTON ALIGN */
+.custom-table td .btn {
+  min-width: 80px;
+}
+
+/* 🔴 POPUP */
+.custom-modal {
+  border-radius: 12px;
+}
+
+/* 🔴 POPUP TITLE */
+.sub-title {
+  color: #b02828;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* 🔴 SALARY ROW */
+.salary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* 🔴 NET SALARY */
+.net-salary {
+  background: #b02828;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-weight: 700;
+  border-radius: 6px;
+}
+/* 🔴 TABLE FULL STYLE LIKE ATTENDANCE */
+.payslip-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* 🔥 BLACK HEADER EXACT MATCH */
+.payslip-table thead th {
+  background: #000;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* 🔶 BODY */
+.payslip-table tbody td {
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid #ccc;
+}
+
+/* 🔶 ROW HOVER */
+.payslip-table tbody tr:hover {
+  background: #f5f5f5;
+}
+
+/* 🔶 ACTION BUTTON ALIGN */
+.action-btns {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 🔶 BUTTON SIZE FIX */
+.payslip-table .btn {
+  min-width: 80px;
+}
+.payslip-card {
+  border-radius: 10px;
+  border: none;
+}
+
+.custom-input {
+  border-radius: 6px;
+}
+
+.table th {
+  font-weight: 600;
+}
+
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.section-subtitle {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #dc3545;
+}
+
+.summary-box {
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  font-weight: 600;
+}
+
+.net-salary-box {
+  margin-top: 15px;
+  background: #dc3545;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.info-box {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.request-btn {
+  background: linear-gradient(45deg, #ffc107, #ff9800);
+  color: #000;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: none;
+  transition: 0.3s ease;
+  white-space: nowrap; /* 🔥 prevents full width */
+}
+
+.request-btn:hover {
+  background: linear-gradient(45deg, #ff9800, #ff5722);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.payslip-design {
+  font-family: Arial;
+}
+
+.payslip-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.payslip-header h5 {
+  color: #c00000;
+  font-weight: bold;
+}
+
+.payslip-header .right {
+  text-align: right;
+  font-size: 12px;
+}

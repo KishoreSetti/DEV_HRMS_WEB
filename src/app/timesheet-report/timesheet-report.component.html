@@ -1,0 +1,189 @@
+<div class="card shadow-sm p-4">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="dashboard-title mb-0">Timesheet Report</h2>
+    <div col-md-12 text-end>
+      <button class="btn btn-danger btn-sm me-2" type="button" (click)="downloadPDF()">
+        Download PDF
+      </button>
+
+      <button class="btn btn-danger btn-sm" type="button" (click)="exportToExcel()">
+        Download Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= FILTERS ================= -->
+  <div class="card shadow-sm p-3 mb-3">
+
+  <h5 class="mb-3">Filters</h5>
+
+  <form [formGroup]="filtersForm" class="row g-3">
+
+    <div class="col-md-4">
+      <label class="form-label">Employee Name</label>
+      <select class="form-control" formControlName="employeeName" (change)="onEmployeeChange($event)">
+        <option value="">Select Employee</option>
+        <option *ngFor="let emp of employees" [value]="emp.userId">
+          {{ emp.fullName }} ({{ emp.employeeCode }})
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Employee Code</label>
+      <input class="form-control" type="text" formControlName="employeeCode" placeholder="Search by code">
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select class="form-control" formControlName="status">
+        <option value="">All Statuses</option>
+        <option *ngFor="let status of statuses" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">From Date</label>
+      <input type="date" class="form-control" formControlName="fromDate">
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label">To Date</label>
+      <input type="date" class="form-control" formControlName="toDate">
+    </div>
+
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="button" class="btn btn-danger btn-sm w-100" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+  <!-- ================= RESULTS INFO ================= -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div>
+      Showing {{ paginatedTimesheets.length }} of {{ filteredTimesheets.length }} records
+    </div>
+
+    <div>
+      <label>
+        Show
+        <select class="form-select d-inline w-auto ms-2"
+                [(ngModel)]="pageSize"
+                (change)="onPageSizeChange()">
+          <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
+            {{ size }}
+          </option>
+        </select>
+        entries
+      </label>
+    </div>
+  </div>
+
+  <!-- ================= TABLE ================= -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover  align-middle" *ngIf="!noRecordsFound">
+
+      <thead class="table-dark">
+        <tr>
+          <th (click)="sort('employeeName')" style="cursor:pointer">
+            Employee Name {{ getSortIcon('employeeName') }}
+          </th>
+
+          <th (click)="sort('employeeCode')" style="cursor:pointer">
+            Employee ID {{ getSortIcon('employeeCode') }}
+          </th>
+
+          <th (click)="sort('timesheetDate')" style="cursor:pointer">
+            Date {{ getSortIcon('timesheetDate') }}
+          </th>
+
+          <th>Projects</th>
+
+          <th (click)="sort('totalHoursText')" style="cursor:pointer">
+            Total Hours {{ getSortIcon('totalHoursText') }}
+          </th>
+
+          <th (click)="sort('otHoursText')" style="cursor:pointer">
+            OT Hours {{ getSortIcon('otHoursText') }}
+          </th>
+
+          <th (click)="sort('status')" style="cursor:pointer">
+            Status {{ getSortIcon('status') }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let ts of paginatedTimesheets">
+
+          <td>{{ ts.employeeName }}</td>
+          <td>{{ ts.employeeCode }}</td>
+          <td>{{ ts.timesheetDate}}</td>
+
+          <td>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item py-1"
+                  *ngFor="let p of ts.projects; let pi = index">
+                Project {{ pi + 1 }}: {{ p.projectName }}
+              </li>
+            </ul>
+          </td>
+
+          <td>{{ ts.totalHoursText }}</td>
+          <td>{{ ts.otHoursText }}</td>
+
+          <td>a
+            <span class="badge"
+              [ngClass]="{
+                'bg-warning': ts.status==='Pending',
+                'bg-primary': ts.status==='Submitted',
+                'bg-success': ts.status==='Approved',
+                'bg-danger': ts.status==='Rejected'
+              }">
+              {{ ts.status }}
+            </span>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- NO RECORDS -->
+    <div class="text-center text-muted py-3" *ngIf="noRecordsFound">
+      No records found
+    </div>
+  </div>
+
+  <!-- ================= PAGINATION ================= -->
+  <div class="d-flex justify-content-between align-items-center mt-3"
+       *ngIf="!noRecordsFound && totalPages > 1">
+
+    <div>
+      <button class="btn btn-outline-secondary btn-sm me-2"
+              (click)="goToPage(currentPage-1)"
+              [disabled]="currentPage===1">
+        Previous
+      </button>
+
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+
+      <button class="btn btn-outline-secondary btn-sm ms-2"
+              (click)="goToPage(currentPage+1)"
+              [disabled]="currentPage===totalPages">
+        Next
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- <app-footer></app-footer> -->

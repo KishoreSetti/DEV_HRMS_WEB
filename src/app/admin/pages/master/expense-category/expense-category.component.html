@@ -10,7 +10,7 @@
 
       <div class="d-flex gap-2">
         <!-- Export -->
-        <div class="dropdown">
+        <!-- <div class="dropdown">
           <button class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown">
             <i class="fa-solid fa-download me-2"></i> Export
           </button>
@@ -18,12 +18,12 @@
             <li><a class="dropdown-item" (click)="exportAs('pdf')">Download PDF</a></li>
             <li><a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a></li>
           </ul>
-        </div>
+        </div> -->
 
         <!-- Bulk Upload -->
-        <button class="btn btn-primary" (click)="openUploadPopup()">
+        <!-- <button class="btn btn-primary" (click)="openUploadPopup()">
           <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-        </button>
+        </button> -->
       </div>
     </div>
 
@@ -68,7 +68,7 @@
     </div>
 
     <!-- ================= FORM ================= -->
-    <div class="card shadow-sm mb-4" *ngIf="companyId && regionId">
+    <div class="card shadow-sm mb-4" >
       <div class="card-body">
         <form (ngSubmit)="onSubmit()" #categoryForm="ngForm" novalidate>
 
@@ -139,7 +139,7 @@
     </div>
 
     <!-- ================= TABLE ================= -->
-    <div class="card shadow-sm" *ngIf="companyId && regionId">
+    <div class="card shadow-sm" >
       <div class="card-body table-responsive">
 
         <table class="table table-bordered table-hover align-middle">
@@ -150,15 +150,19 @@
                 Category Name
                 <i class="fa" [ngClass]="getSortIcon('ExpenseCategoryName')"></i>
               </th>
+              <th>Company</th>
+              <th>Region</th>
               <th>Status</th>
               <th class="text-center">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr *ngFor="let item of expenseList; let i = index">
+            <tr *ngFor="let item of pagedExpenseCategory; let i = index">
               <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
               <td>{{ item.expenseCategoryName }}</td>
+              <td>{{ item.companyName}}</td>
+              <td>{{ item.regionName}}</td>
 
               <td>
                 <span class="badge"

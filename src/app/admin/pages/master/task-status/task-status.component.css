@@ -1,0 +1,13 @@
+.priority-master {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.form-label {
+  font-size: 14px;
+}

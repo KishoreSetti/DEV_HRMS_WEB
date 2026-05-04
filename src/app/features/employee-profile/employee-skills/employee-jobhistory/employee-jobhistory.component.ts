@@ -11,6 +11,9 @@ import { environment } from '../../../../../environments/environment';
   styleUrl: './employee-jobhistory.component.css'
 })
 export class EmployeeJobhistoryComponent {
+   canCreate: boolean = false;
+  canEdit: boolean = false;
+  canDelete: boolean = false;
  jobHistoryForm!: FormGroup;
   jobHistoryList: EmployeeJobHistoryDto[] = [];
   selectedFile: File | null = null;
@@ -41,7 +44,7 @@ export class EmployeeJobhistoryComponent {
     this.userId = Number(sessionStorage.getItem("UserId"));
     this.companyId = Number(sessionStorage.getItem("CompanyId"));
     this.regionId = Number(sessionStorage.getItem("RegionId"));
-
+  this.loadPermission();
     this.initializeForm();
     this.loadJobHistory();
     this.employeeName = sessionStorage.getItem("Name");
@@ -174,16 +177,24 @@ onFileChange(event: any) {
       employer: item.employer,
       jobTitle: item.jobTitle,
       employeeCode: item.employeeCode,
-      fromDate: item.fromDate,
-      toDate: item.toDate,
+       fromDate: this.formatDate(item.fromDate),
+    toDate: this.formatDate(item.toDate),
       lastCTC: item.lastCTC,
       website: item.website,
       reasonForLeaving: item.reasonForLeaving
     });
     this.selectedFile = null;
   }
-
+formatDate(date: any): string {
+  if (!date) return '';
+  const d = new Date(date);
+  return d.toISOString().split('T')[0]; // ✅ yyyy-MM-dd
+}
   delete(id: number) {
+     if (!this.canDelete) {
+    Swal.fire("You don't have permission to delete this record", "", "warning");
+    return;
+  }
     Swal.fire({
       title: "Are you sure?",
       text: "You cannot undo this action.",
@@ -266,6 +277,36 @@ onFileChange(event: any) {
  viewDocument(documentPath: string, download = false) {
   this.adminService.ViewDocument(documentPath, download);
 }
+    loadPermission() {
+  debugger;
 
+  const userId = Number(sessionStorage.getItem("UserId"));
+
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const familyMenu = menus.find((m: any) => m.menuName === "Job History");
+
+  const menuId = familyMenu ? familyMenu.menuId : 0;
+    if (familyMenu) {
+    this.canCreate = familyMenu.canAdd;
+     this.canEdit = familyMenu.canEdit;
+     this.canDelete = familyMenu.canDelete;
+  //   this.canView = familyMenu.canView;
+   }
+
+  console.log("UserId:", userId);
+  console.log("MenuId:", menuId);
+
+  this.adminService.getPermission(userId, menuId, 'create').subscribe({
+    next: (res: boolean) => {
+      console.log("Create Permission:", res);
+      this.canCreate = res;
+    },
+    error: (err) => {
+      console.error("Permission API error:", err);
+      this.canCreate = false;
+    }
+  });
+}
   
 }

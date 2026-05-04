@@ -52,19 +52,33 @@ export class HierarchyConfigurationComponent {
     this.loadManagers();
   }
   departments:any;
+// loadDepartments(): void {
+//   debugger;
+//   this.service.getDepartments(this.userId).subscribe({
+//     next: (res: any) => {
+//       console.log(res);
+//       debugger;
+//       this.departments = res?.data?.data ?? [];
+//       console.log("Departments Loaded:", this.departments);
+//     },
+//     error: (err) => {
+//       console.error(err);
+     
+//     }
+//   });
+// }
+
 loadDepartments(): void {
-  debugger;
   this.service.getDepartments(this.userId).subscribe({
     next: (res: any) => {
-      console.log(res);
-      debugger;
-      this.departments = res?.data?.data ?? [];
-      console.log("Departments Loaded:", this.departments);
+      console.log('Departments API 👉', res);
+
+      // 🔥 FIX HERE
+      this.departments = res?.data ?? [];
+
+      console.log("Departments Loaded 👉", this.departments);
     },
-    error: (err) => {
-      console.error(err);
-     
-    }
+    error: (err) => console.error(err)
   });
 }
 roles:any;
@@ -102,9 +116,17 @@ loadRoles(): void {
 }
 
 onUserSelect(userId: number): void {
-debugger;
   const selectedUser = this.users.find(u => u.userId === userId);
-  const departmentName=this.departments.find((d:any)=>d.departmentId==selectedUser?.departmentId)?.departmentName;
+
+   console.log('Selected User 👉', selectedUser);
+  console.log('Departments 👉', this.departments);
+  console.log('selectedUser.departmentId 👉', selectedUser?.departmentId);
+  // 🔥 FIX: extract departmentName
+  const departmentName = this.departments.find(
+    (d: any) => Number(d.departmentId) === Number(selectedUser?.departmentId)
+  )?.departmentName;
+
+  //const departmentName=this.departments.find((d:any)=>d.departmentId==selectedUser?.departmentId)?.departmentName;
   const roleName=this.roles.find((r:any)=>r.roleId==selectedUser?.roleId)?.roleName;
   if (selectedUser) {
 

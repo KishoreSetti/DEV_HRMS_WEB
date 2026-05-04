@@ -13,12 +13,12 @@
 <div class="tab-container mt-4">
 
   <!-- Tabs -->
-  <input type="radio" id="tab1" name="tab" checked>
-  <input type="radio" id="tab2" name="tab">
+  <input type="radio" id="tab1" name="tab" [checked]="selectedTab === 'tab1'">
+  <input type="radio" id="tab2" name="tab" [checked]="selectedTab === 'tab2'">
 
   <div class="tab-header">
-    <label class="tab-label" for="tab1">My Requests</label>
-    <label class="tab-label" for="tab2">Manager Approval</label>
+    <label class="tab-label" for="tab1" *ngIf="canViewPersonal">My Requests</label>
+    <label class="tab-label" for="tab2" *ngIf="canViewManager">Manager Approval</label>
   </div>
 
   <!-- ================= MY REQUESTS ================= -->
@@ -64,6 +64,11 @@
           <textarea rows="3" class="form-control" formControlName="reason"></textarea>
         </div>
 
+        <div class="mb-3">
+          <label class="form-label">HR Email (CC)<span class="text-danger">*</span></label>
+          <input type="email" class="form-control" formControlName="hrEmail">
+        </div>
+
         <button class="btn btn-primary">
           {{ isEditMode ? 'Update' : 'Submit' }}
         </button>
@@ -82,7 +87,7 @@
             <th>In</th>
             <th>Out</th>
             <th>Reason</th>
-             <th>Manager Remarks</th>
+            <th>Manager Remarks</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
@@ -97,8 +102,7 @@
             <td>{{ item.reason }}</td>
             <td>{{ item.managerRemarks }}</td>
             <td>
-              <span class="badge"
-                [ngClass]="{
+              <span class="badge" [ngClass]="{
                   'bg-warning text-dark': item.status === 'Pending',
                   'bg-success': item.status === 'Approved',
                   'bg-danger': item.status === 'Rejected'
@@ -107,9 +111,7 @@
               </span>
             </td>
             <td>
-              <i class="fa fa-edit text-primary"
-                 (click)="editMissedPunch(item)"
-                 *ngIf="item.status === 'Pending'"></i>
+              <i class="fa fa-edit text-primary" (click)="editMissedPunch(item)" *ngIf="item.status === 'Pending'"></i>
             </td>
           </tr>
 
@@ -144,7 +146,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let item of approvalRequests">
+          <tr *ngFor="let item of pendingRequests">
             <td>
               <input type="checkbox" [(ngModel)]="item.selected">
             </td>
@@ -155,18 +157,20 @@
             <td>{{ item.correctClockOut }}</td>
             <td>{{ item.reason }}</td>
             <td>
-              <input class="form-control form-control-sm"
-                     [(ngModel)]="item.managerRemarks">
+              <input class="form-control form-control-sm" [(ngModel)]="item.managerRemarks">
             </td>
             <td>
-              <i class="fa fa-check text-success me-2"
-                 (click)="approve(item)"></i>
-              <i class="fa fa-times text-danger"
-                 (click)="reject(item)"></i>
+              <button class="btn btn-sm btn-outline-success me-2" (click)="approve(item)">
+                <i class="fa fa-check"></i>
+              </button>
+
+              <button class="btn btn-sm btn-outline-danger" (click)="reject(item)">
+                <i class="fa fa-times"></i>
+              </button>
             </td>
           </tr>
 
-          <tr *ngIf="approvalRequests.length === 0">
+          <tr *ngIf="pendingRequests.length === 0">
             <td colspan="9" class="text-center text-muted">
               No pending approvals
             </td>
@@ -175,16 +179,84 @@
       </table>
 
       <div class="text-end mt-3">
-        <button class="btn btn-success btn-sm me-2"
-                (click)="bulkApproveReject('Approved')">
+        <button class="btn btn-success btn-sm me-2" (click)="bulkApproveReject('Approved')">
           Approve Selected
         </button>
-        <button class="btn btn-danger btn-sm"
-                (click)="bulkApproveReject('Rejected')">
+        <button class="btn btn-danger btn-sm" (click)="bulkApproveReject('Rejected')">
           Reject Selected
         </button>
       </div>
     </div>
+    <div class="card p-4 shadow-sm mt-4">
+  <h5 class="mb-3 text-success">Approved Requests</h5>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Employee</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>In</th>
+        <th>Out</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of approvedRequests">
+        <td>{{ item.employeeName }}</td>
+        <td>{{ item.missedDate | date }}</td>
+        <td>{{ item.missedType }}</td>
+        <td>{{ item.correctClockIn }}</td>
+        <td>{{ item.correctClockOut }}</td>
+        <td>{{ item.reason }}</td>
+        <td>{{ item.managerRemarks }}</td>
+        <td><span class="badge bg-success">Approved</span></td>
+      </tr>
+
+      <tr *ngIf="approvedRequests.length === 0">
+        <td colspan="8" class="text-center text-muted">No approved records</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="card p-4 shadow-sm mt-4">
+  <h5 class="mb-3 text-danger">Rejected Requests</h5>
+
+  <table class="table table-bordered table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Employee</th>
+        <th>Date</th>
+        <th>Type</th>
+        <th>In</th>
+        <th>Out</th>
+        <th>Reason</th>
+        <th>Remarks</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of rejectedRequests">
+        <td>{{ item.employeeName }}</td>
+        <td>{{ item.missedDate | date }}</td>
+        <td>{{ item.missedType }}</td>
+        <td>{{ item.correctClockIn }}</td>
+        <td>{{ item.correctClockOut }}</td>
+        <td>{{ item.reason }}</td>
+        <td>{{ item.managerRemarks }}</td>
+        <td><span class="badge bg-danger">Rejected</span></td>
+      </tr>
+
+      <tr *ngIf="rejectedRequests.length === 0">
+        <td colspan="8" class="text-center text-muted">No rejected records</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
   </div>
 </div>
 

@@ -9,7 +9,7 @@
 
       <div class="d-flex gap-2">
         <!-- Export Dropdown -->
-        <div class="dropdown">
+        <!-- <div class="dropdown">
           <button
             class="btn btn-outline-secondary dropdown-toggle"
             type="button"
@@ -22,12 +22,12 @@
             <li><a class="dropdown-item" (click)="exportAs('pdf')">Download PDF</a></li>
             <li><a class="dropdown-item" (click)="exportAs('excel')">Download Excel</a></li>
           </ul>
-        </div>
+        </div> -->
 
         <!-- Bulk Upload -->
-        <button class="btn btn-danger" (click)="openUploadPopup()">
+        <!-- <button class="btn btn-danger" (click)="openUploadPopup()">
           <i class="fa-solid fa-upload me-2"></i> Bulk Upload
-        </button>
+        </button> -->
 
        
       </div>
@@ -58,7 +58,7 @@
             <!-- Company Name -->
             <div class="col-md-6">
               <label class="form-label fw-semibold">Company</label>
-              <select class="form-select" [(ngModel)]="department.companyId" name="companyId" required>
+              <select class="form-select" [(ngModel)]="department.companyId" name="companyId" (change)="onCompanyChange()" required>
                 <option value="">Select Company</option>
                 <option *ngFor="let company of companies" [value]="company.companyId">
                   {{ company.companyName }}
@@ -71,7 +71,7 @@
               <label class="form-label fw-semibold">Region</label>
               <select class="form-select" [(ngModel)]="department.regionId" name="regionId">
                 <option value="">Select Region</option>
-                <option *ngFor="let region of regions" [value]="region.regionID">
+                <option *ngFor="let region of filteredRegions" [value]="region.regionID">
                   {{ region.regionName }}
                 </option>
               </select>
@@ -94,7 +94,15 @@
             </div>
 
             <!-- Submit -->
-            <div class="col-md-6 d-flex align-items-end">
+            <div class="col-md-6 d-flex align-items-end gap-2">
+               <button
+                type="button"
+                class="btn btn-danger px-6 w-100"
+                (click)="onCancel()"
+              >
+                <i class="fa-solid fa-xmark me-2"></i>
+                Cancel
+              </button>
               <button type="submit" class="btn btn-dark w-100" [disabled]="!departmentForm.valid">
                 <i class="fa-solid fa-save me-2"></i>
                 {{ isEditMode ? 'Update Department' : 'Save Department' }}
@@ -169,7 +177,7 @@
             <tbody>
               <tr *ngFor="let d of pagedDepartments; let i = index">
                 <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-                <td>{{ d.description }}</td>
+                <td>{{ d.departmentName }}</td>
                
                 <td>{{ getCompanyName(d.companyId) }}</td>
                 <td>{{ getRegionName(d.regionId) }}</td>

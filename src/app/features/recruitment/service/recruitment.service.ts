@@ -100,19 +100,18 @@ downloadResume(fileName: string) {
 //   );
 // }
 getScreeningCandidatesTopTable(
-  companyId: number,
-  regionId: number,
-  department: string,
-  designation: string
+  // companyId: number,
+  // regionId: number,
+  // department: string,
+  // designation: string,
+  userId :number
 ) {
   return this.http.get<any[]>(
     `${this.baseUrl}/Recruitment/GetScreeningCandidatesTopTable`,
     {
       params: {
-        companyId,
-        regionId,
-        department,
-        designation
+       
+        userId
       }
     }
   );
@@ -138,19 +137,17 @@ updateCandidateScreening(payload: any): Observable<any> {
 
 //////////////Interview Service /////////////
 getScreeningCandidatesTopTableInterview(
-  companyId: number,
-  regionId: number,
-  department: string,
-  designation: string
+  // companyId: number,
+  // regionId: number,
+  // department: string,
+  // designation: string
+  userId :number
 ) {
   return this.http.get<any[]>(
     `${this.baseUrl}/Recruitment/GetScreeningCandidatesTopTableInterview`,
     {
       params: {
-        companyId,
-        regionId,
-        department,
-        designation
+        userId
       }
     }
   );
@@ -199,19 +196,21 @@ updateAppointmentResult(payload: any) {
 
 ////////// Offer
 getOfferCandidatesTopTable(
-  companyId: number,
-  regionId: number,
-  department: string,
-  designation: string
+  // companyId: number,
+  // regionId: number,
+  // department: string,
+  // designation: string
+  userId :number
 ) {
   return this.http.get<any[]>(
     `${this.baseUrl}/Recruitment/GetOfferCandidatesTopTable`,
     {
       params: {
-        companyId,
-        regionId,
-        department,
-        designation
+        // companyId,
+        // regionId,
+        // department,
+        // designation
+        userId
       }
     }
   );
@@ -278,22 +277,32 @@ getOnboardedCandidates(companyId: number, regionId: number) {
   );
 }
 getOfferCandidatesTable(
-  companyId: number,
-  regionId: number,
-  department: string,
-  designation: string
+  // companyId: number,
+  // regionId: number,
+  // department: string,
+  // designation: string
+  userId :number
 ) {
   return this.http.get<any[]>(
     `${this.baseUrl}/Recruitment/GetonboardingCandidatesTopTable`,
     {
       params: {
-        companyId,
-        regionId,
-        department,
-        designation
+        // companyId,
+        // regionId,
+        // department,
+        // designation
+        userId
       }
     }
   );
 }
  
+
+parseResume(formData: FormData): Observable<any> {
+  return this.http.post(
+    `${this.baseUrl}/Recruitment/ParseResumeCandidate`,
+    formData
+  );
+}
+
 }

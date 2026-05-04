@@ -37,6 +37,7 @@ tabs = ['Resume Upload', 'Screening', 'Interview','Appointment','Offer', 'Onboar
 
   ngOnInit(): void {
     this.loadDummyData();
+    this.loadPermissions();
   }
 
   setActiveTab(tab: number) {
@@ -287,4 +288,54 @@ tabs = ['Resume Upload', 'Screening', 'Interview','Appointment','Offer', 'Onboar
     this.candidates = base;
     this.selectedCandidate = this.candidates[0];
   }
+
+canViewResume = false;
+canViewScreening = false;
+canViewInterviews = false;
+canViewAppointment = false;
+canViewOffer = false;
+canViewOnboarding = false;
+
+loadPermissions() {
+  const menus = JSON.parse(sessionStorage.getItem("Menus") || "[]");
+
+  const resume = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "resume upload"
+  );
+
+  const screening = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "screening"
+  );
+
+  const interview = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "interview"
+  );
+
+  const appointment = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "appointment"
+  );
+
+  const offer = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "offer"
+  );
+
+  const onboarding = menus.find(
+    (m:any) => m.menuName?.trim().toLowerCase() === "onboarding"
+  );
+
+  this.canViewResume = resume?.canView ?? false;
+  this.canViewScreening = screening?.canView ?? false;
+  this.canViewInterviews = interview?.canView ?? false;
+  this.canViewAppointment = appointment?.canView ?? false;
+  this.canViewOffer = offer?.canView ?? false;
+  this.canViewOnboarding = onboarding?.canView ?? false;
+
+  // ✅ SET DEFAULT TAB
+  if (this.canViewResume) this.activeTab = 1;
+  else if (this.canViewScreening) this.activeTab = 2;
+  else if (this.canViewInterviews) this.activeTab = 3;
+  else if (this.canViewAppointment) this.activeTab = 4;
+  else if (this.canViewOffer) this.activeTab = 5;
+  else if (this.canViewOnboarding) this.activeTab = 6;
+}
 }

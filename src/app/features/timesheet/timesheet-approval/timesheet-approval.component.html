@@ -1,6 +1,56 @@
 <div class="dashboard-tables full-row mt-2">
   <div class="table-card">
     <h3>Timesheet Approvals</h3>
+    <div class="row mb-2 g-2">
+  <div class="col-md-3">
+    <input type="text"
+           class="form-control"
+           placeholder="Search by employee name"
+           [(ngModel)]="searchName"
+           (ngModelChange)="currentPage = 1" />
+  </div>
+
+  <div class="col-md-2">
+    <input type="date"
+           class="form-control"
+           [(ngModel)]="fromDate"
+           (ngModelChange)="currentPage = 1" />
+  </div>
+
+  <div class="col-md-2">
+    <input type="date"
+           class="form-control"
+           [(ngModel)]="toDate"
+           (ngModelChange)="currentPage = 1" />
+  </div>
+
+  <div class="col-md-2">
+    <select class="form-select"
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="currentPage = 1">
+      <option value="Today">Today</option>
+      <option value="Submitted">Submitted</option>
+      <option value="Approved">Approved</option>
+      <option value="Rejected">Rejected</option>
+      <option value="All">All</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <button class="btn btn-secondary w-100"
+            (click)="searchName=''; fromDate=''; toDate=''; statusFilter='Today'; currentPage=1">
+      Clear Filters
+    </button>
+  </div>
+  <div class="mb-2 text-end">
+  <button class="btn btn-success me-2" (click)="downloadExcel()">
+    <i class="fa-solid fa-file-excel"></i> Download Excel
+  </button>
+  <button class="btn btn-danger" (click)="downloadPDF()">
+    <i class="fa-solid fa-file-pdf"></i> Download PDF
+  </button>
+</div>
+</div>
 
     <div class="table-responsive">
       <table class="table table-bordered align-middle table-hover">
@@ -38,7 +88,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let ts of filteredTimesheets()">
+          <tr *ngFor="let ts of getPaginatedTimesheets()">
             <td>
               <input *ngIf="ts.status === 'Pending' || ts.status==='Submitted'"
                      type="checkbox"
@@ -69,10 +119,7 @@
               </span>
             </td>
             <td class="text-center">
-              <a href="javascript:void(0)"
-                 (click)="openViewModal(ts)"
-                 data-bs-toggle="modal"
-                 data-bs-target="#viewTimesheetModal">
+              <a href="javascript:void(0)" (click)="openViewModal(ts)">
                 <i class="fa-solid fa-eye text-primary fs-5"></i>
               </a>
             </td>
@@ -110,5 +157,101 @@
                 [disabled]="currentPage===totalPages">Next</button>
       </div>
     </div>
+    <!-- VIEW TIMESHEET MODAL -->
+<div class="modal fade show" tabindex="-1" [ngClass]="{'d-block': selectedTimesheet}" *ngIf="selectedTimesheet" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Timesheet Details</h5>
+        <button type="button" class="btn-close" (click)="closeViewModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Employee:</strong> {{ selectedTimesheet.employeeName }}</p>
+        <p><strong>Employee ID:</strong> {{ selectedTimesheet.employeeCode }}</p>
+        <p><strong>Date:</strong> {{ selectedTimesheet.timesheetDate | date:'dd-MMM-yyyy' }}</p>
+        <p><strong>Status:</strong> <span class="badge" [ngClass]="{
+                      'bg-warning text-dark': selectedTimesheet.status === 'Pending',
+                      'bg-primary': selectedTimesheet.status === 'Submitted',
+                      'bg-success': selectedTimesheet.status === 'Approved',
+                      'bg-danger': selectedTimesheet.status === 'Rejected'
+                    }">{{ selectedTimesheet.status }}</span></p>
+
+        <table class="table table-bordered mt-2">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Total Hours</th>
+              <th>OT Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of selectedTimesheet.projects">
+              <td>
+                <div class="fw-bold mb-1">
+                  {{ p.projectName }}
+                </div>
+                <div class="text-muted">
+                  {{ p.description || 'No description available' }}
+                </div>
+              </td>
+              <td>{{ p.startTime }}</td>
+              <td>{{ p.endTime }}</td>
+              <td>{{ p.totalHoursText }}</td>
+              <td>{{ p.otHoursText }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="mt-2"><strong>Comments:</strong></p>
+        <textarea class="form-control" rows="3" [readonly]="true">{{ selectedTimesheet.comments }}</textarea>
+      </div>
+      
+<div class="mt-4">
+  <p><strong>Request Attachments:</strong></p>
+
+  <div *ngIf="selectedTimesheet.requests?.length > 0; else noRequestFiles">
+    <div *ngFor="let r of selectedTimesheet.requests" class="mb-2 d-flex align-items-center">
+      <!-- File Name -->
+      <span>{{ r.fileName }}</span>
+
+      <!-- View Button -->
+      <a *ngIf="r.fileUrl"
+         [href]="r.fileUrl"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="btn btn-sm btn-success ms-2">
+        View
+      </a>
+
+      <!-- Image Preview -->
+      <div class="mt-2 ms-3"
+           *ngIf="r.fileUrl?.endsWith('.jpg') 
+               || r.fileUrl?.endsWith('.png')
+               || r.fileUrl?.endsWith('.jpeg')">
+        <img [src]="r.fileUrl"
+             width="150"
+             class="img-thumbnail"/>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noRequestFiles>
+    <span class="text-muted">No request attachments</span>
+  </ng-template>
+</div>
+
+<ng-template #noFile>
+  <span class="text-muted">No attachment uploaded</span>
+</ng-template>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeViewModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </div>

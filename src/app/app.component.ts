@@ -1,7 +1,8 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationStart,NavigationEnd } from '@angular/router';
 import Swal from 'sweetalert2';
 import { filter } from 'rxjs/operators';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -15,7 +16,23 @@ export class AppComponent {
   private readonly INACTIVITY_TIME = 20 * 60 * 1000; // 5 minutes
   private readonly WARNING_TIME = 30 * 1000; // 30 seconds
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+     this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.checkSession();
+      });
+  }
+ checkSession() {
+  const user = sessionStorage.getItem('UserId');
+
+  const publicRoutes = ['/login', '/Welcomedemo','/jobapply'];
+
+  if (!user && !publicRoutes.includes(this.router.url)) {
+    this.logout();
+  }
+}
+
 
   ngOnInit() {
 
