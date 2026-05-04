@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { EmployeeResignationService,ShiftAllocationDto,ShiftMasterDto,UserReadDto } from '../../employee-profile/employee-services/employee-resignation.service';
 import { formatDate } from '@angular/common';
 import Swal from 'sweetalert2';
@@ -21,11 +21,23 @@ export class ShiftAllocationComponent {
   editId: number | null = null;
 
   todayStr = '';
-  loading = true;
+loading = false;
   
   currentUserId: number = 0;
   currentUserCompanyId: number = 0;
   currentUserRegionId: number = 0;
+  startDateValidator(control: AbstractControl): ValidationErrors | null {
+    return null;
+  }
+
+  // Validator for End Date
+  endDateValidator(control: AbstractControl): ValidationErrors | null {
+  const startDate = this.shiftForm?.get('startDate')?.value;
+  if (!control.value || !startDate) return null;
+  const start = new Date(startDate);
+  const end = new Date(control.value);
+  return end < start ? { endDateInvalid: true } : null;
+}
 
   constructor(private fb: FormBuilder,private adminSvc: AdminService, private svc: EmployeeResignationService) {
     this.todayStr = formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
@@ -36,9 +48,16 @@ export class ShiftAllocationComponent {
   }
 
   ngOnInit(): void {
-       this.currentUserCompanyId = Number(sessionStorage.getItem('CompanyId') || 0);
+    this.currentUserId = Number(sessionStorage.getItem('UserId') || 0);
+    this.currentUserCompanyId = Number(sessionStorage.getItem('CompanyId') || 0);
     this.currentUserRegionId = Number(sessionStorage.getItem('RegionId') || 0);
     this.initForm();
+    this.shiftForm.get('startDate')?.valueChanges.subscribe(val => {
+    const endInput = document.querySelector<HTMLInputElement>('input[formControlName="endDate"]');
+    if (endInput) {
+      endInput.min = val; // End Date cannot be before Start Date
+    }
+  });
     this.loadLookups();
     //this.getallShifts();
     this.loadShifts();
@@ -49,10 +68,10 @@ export class ShiftAllocationComponent {
   initForm() {
     this.shiftForm = this.fb.group({
       userId: ['', Validators.required],
-      employeeCode: [{ value: '', disabled: true }, [Validators.required, Validators.maxLength(20)]],
+      employeeCode: [{ value: '', disabled: true }, Validators.required],
       shiftID: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: [''],
+      startDate: ['', [Validators.required, this.startDateValidator.bind(this)]],
+      endDate: ['', [Validators.required, this.endDateValidator.bind(this)]],
       isActive: [true]
     });
   }
@@ -93,7 +112,7 @@ export class ShiftAllocationComponent {
   }
 
   this.adminSvc.getShiftsForDropdown(companyId, regionId).subscribe({
-    next: (res: ShiftMasterDto[]) => this.shifts = res,
+    next: (res:any) => this.shifts = res,
     error: () => Swal.fire('Error', 'Failed to load shifts', 'error')
   });
 }
@@ -108,15 +127,15 @@ export class ShiftAllocationComponent {
 
   loadAllocations() {
     this.loading = true;
-    this.svc.getAllAllocations(this.userId).subscribe(
+    console.log('Loading allocations for userId:', this.currentUserId);
+    this.svc.getAllAllocations(this.currentUserId).subscribe(
       (r:any) => {
-        this.allocations = (r || []).slice().sort((a:any, b:any) => {
-          const da = a.startDate ? new Date(a.startDate).getTime() : 0;
-          const db = b.startDate ? new Date(b.startDate).getTime() : 0;
-          return db - da;
-        });
+        console.log('API Response - allocations:', r);
+       this.allocations = (r || []).slice().sort((a: any, b: any) => {
+  return (b.shiftAllocationId || 0) - (a.shiftAllocationId || 0);
+});
         this.loading = false;
-        console.log('Loaded allocations:', this.allocations);
+        console.log('Loaded allocations:', this.allocations.length, 'records');
       }, 
       (err:any) => {
         console.error('Error loading allocations:', err);
@@ -131,33 +150,30 @@ export class ShiftAllocationComponent {
   }
 
   onEmployeeChange(event: Event) {
-   debugger;
-    this.shiftForm.get('userId')?.valueChanges.subscribe(userId => {
-    if (!userId) return;
-
-    const user = this.employees.find(e => e.userId === +userId);
-    if (!user) return;
-
-    this.shiftForm.patchValue({
-      employeeCode: user.employeeCode,
-      fullName: user.fullName,
-      companyID: user.companyID,
-      regionID: user.regionID
-    });
-
-    console.log('Selected user:', user);
-  });
+  const select = event.target as HTMLSelectElement;
+  const userId = Number(select.value);
+  if (!userId) {
+    this.shiftForm.patchValue({ employeeCode: '' });
+    return;
   }
+
+  const user = this.employees.find(e => e.userId === userId);
+  if (user) {
+    this.shiftForm.patchValue({
+      employeeCode: user.employeeCode
+    });
+  }
+}
 
   validateDatesAndOverlap(dtoCandidate: ShiftAllocationDto): { ok: boolean; message?: string } {
     const start = dtoCandidate.startDate ? new Date(dtoCandidate.startDate) : null;
     const end = dtoCandidate.endDate ? new Date(dtoCandidate.endDate) : null;
-    const today = new Date(this.todayStr);
 
     if (!start) return { ok: false, message: 'Start Date is required' };
-    if (start < today) return { ok: false, message: 'Start date cannot be earlier than today' };
-    if (end && end < start) return { ok: false, message: 'End date must be same or after Start date' };
+    if (!end) return { ok: false, message: 'End Date is required' };
+    if (end < start) return { ok: false, message: 'End date must be same or after Start date' };
 
+    // Check for overlapping dates for the same user
     const sameUserAllocs = this.allocations.filter(a => 
       a.userID === dtoCandidate.userID && 
       (this.editMode ? a.shiftAllocationId !== this.editId : true)
@@ -166,29 +182,36 @@ export class ShiftAllocationComponent {
     for (const a of sameUserAllocs) {
       const aStart = a.startDate ? new Date(a.startDate) : null;
       const aEnd = a.endDate ? new Date(a.endDate) : null;
-      const overlaps = this.rangesOverlap(aStart, aEnd, start!, end || null);
-      if (overlaps) {
+      
+      if (aStart && aEnd && this.datesOverlap(aStart, aEnd, start, end)) {
         return { 
           ok: false, 
-          message: `Overlaps with existing assignment (${a.shiftName || 'Shift'}) from ${aStart ? formatDate(aStart,'yyyy-MM-dd','en-US') : 'N/A'} to ${aEnd ? formatDate(aEnd,'yyyy-MM-dd','en-US') : 'Ongoing'}` 
+          message: `Date range overlaps with existing allocation (${a.shiftName}) from ${this.formatDate(aStart)} to ${this.formatDate(aEnd)}` 
         };
       }
     }
     return { ok: true };
   }
 
-  rangesOverlap(aStart: Date | null, aEnd: Date | null, bStart: Date, bEnd: Date | null): boolean {
-    const aS = aStart ? aStart.getTime() : Number.MIN_SAFE_INTEGER;
-    const aE = aEnd ? aEnd.getTime() : Number.MAX_SAFE_INTEGER;
-    const bS = bStart ? bStart.getTime() : Number.MIN_SAFE_INTEGER;
-    const bE = bEnd ? bEnd.getTime() : Number.MAX_SAFE_INTEGER;
-    return (aS <= bE && bS <= aE);
+  // Check if two date ranges overlap
+  datesOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date): boolean {
+    return aStart <= bEnd && bStart <= aEnd;
+  }
+
+  formatDate(date: Date): string {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
   }
 
   onSubmit() {
     debugger;
-    if (this.shiftForm.invalid) {
 
+    if (this.loading) return;
+
+    if (this.shiftForm.invalid) {
       this.shiftForm.markAllAsTouched();
       Swal.fire({
         icon: 'warning',
@@ -197,13 +220,14 @@ export class ShiftAllocationComponent {
       });
       return;
     }
-
+    
     const raw = this.shiftForm.getRawValue();
     const selectedUserId = +raw.userId;
 
     const selectedEmployee = this.employees.find(e => e.userId === selectedUserId);
 
     if (!selectedEmployee) {
+        this.loading = false;
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -215,6 +239,7 @@ export class ShiftAllocationComponent {
     const createdByUserId = this.currentUserId;
 
     if (!createdByUserId || createdByUserId === 0) {
+      this.loading = false;
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -225,7 +250,7 @@ export class ShiftAllocationComponent {
 
     const dto: ShiftAllocationDto = {
       shiftAllocationId: this.editMode && this.editId ? this.editId : 0,
-      userID: createdByUserId,      
+      userID: selectedUserId,      
       employeeCode: selectedEmployee.employeeCode || '',
       fullName: selectedEmployee.fullName || '',
       companyID: selectedEmployee.companyID || 0,
@@ -239,27 +264,41 @@ export class ShiftAllocationComponent {
       createdDate: new Date().toISOString() 
     };
 
-    // const check = this.validateDatesAndOverlap(dto);
-    // if (!check.ok) {
-    //   Swal.fire({
-    //     icon: 'warning',
-    //     title: 'Overlap Detected',
-    //     text: check.message
-    //   });
-    //   return;
-    // }
+    // Frontend validation to prevent duplicates
+    const validation = this.validateDatesAndOverlap(dto);
+    if (!validation.ok) {
+      this.loading = false;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Duplicate Error',
+        text: validation.message
+      });
+      return;
+    }
 
     if (!this.editMode) {
       this.svc.allocateShift(dto).subscribe({
-        next: () => {
+        next: (response: any) => {
           debugger;
+          // Backend returns false if duplicate exists
+          if (response === false) {
+            this.loading = false;
+            Swal.fire({
+              icon: 'warning',
+              title: 'Duplicate Entry',
+              text: 'This shift allocation already exists for the selected employee with the same dates'
+            });
+            return;
+          }
           Swal.fire({
+            
             icon: 'success',
             title: 'Success!',
             text: 'Shift assigned successfully',
             timer: 2000,
             showConfirmButton: false
           });
+          this.loading = false;
           this.resetForm();
           this.loadAllocations();
         },
@@ -278,6 +317,7 @@ export class ShiftAllocationComponent {
             title: 'Error',
             text: msg
           });
+          this.loading = false;
           this.loadAllocations();
         }
       });
@@ -285,6 +325,7 @@ export class ShiftAllocationComponent {
     }
 
     if (!this.editId) {
+      this.loading = false;
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
@@ -295,6 +336,7 @@ export class ShiftAllocationComponent {
 
     this.svc.updateAllocation(dto).subscribe({
       next: () => {
+          this.loading = false;
         Swal.fire({
           icon: 'success',
           title: 'Updated!',
@@ -307,6 +349,7 @@ export class ShiftAllocationComponent {
       },
       error: (err:any) => {
         console.error('Update Error:', err);
+        this.loading = false;
         if (err.status === 200 || err.status === 204) {
           Swal.fire({
             icon: 'success',
@@ -333,7 +376,7 @@ export class ShiftAllocationComponent {
     this.editId = a.shiftAllocationId || null;
 
     this.shiftForm.patchValue({
-      userID: a.userID,
+      userId: a.userID,
       employeeCode: a.employeeCode,
       shiftID: a.shiftID,
       startDate: a.startDate ? (a.startDate as string).split('T')[0] : '',
@@ -401,10 +444,21 @@ onDelete(id?: number) {
     this.shiftForm.reset({ isActive: true });
   }
 
-  getStatus(a: ShiftAllocationDto): 'Active' | 'Inactive' {
-    const today = new Date(this.todayStr);
-    const s = a.startDate ? new Date(a.startDate) : null;
-    const e = a.endDate ? new Date(a.endDate) : null;
-    return (s && s <= today && (!e || e >= today)) ? 'Active' : 'Inactive';
-  }
+ getStatus(a: ShiftAllocationDto): 'Active' | 'Inactive' {
+
+  if (!a.isActive) return 'Inactive';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const start = a.startDate ? new Date(a.startDate) : null;
+  const end = a.endDate ? new Date(a.endDate) : null;
+
+  if (start) start.setHours(0, 0, 0, 0);
+  if (end) end.setHours(0, 0, 0, 0);
+
+  return (start && start <= today && (!end || end >= today))
+    ? 'Active'
+    : 'Inactive';
+}
 }
